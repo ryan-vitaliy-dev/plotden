@@ -130,7 +130,7 @@
     <value>Password is required.</value>
   </data>
   <data name="GeneralServerError" xml:space="preserve">
-    <value>There was an unexpected issue when processing the request. Please try again later!</value>
+    <value>There was an unexpected issue when processing the request. Please try again later.</value>
   </data>
   <data name="GeneralBadRequest" xml:space="preserve">
     <value>There were issues with the request and it could not be processed.</value>
@@ -139,7 +139,7 @@
     <value>Success.</value>
   </data>
   <data name="GeneralServiceUnavailableError" xml:space="preserve">
-    <value>The service is temporarily unavailable. Please try again later!</value>
+    <value>The service is temporarily unavailable. Please try again later.</value>
   </data>
   <data name="GeneralInvalidEmail" xml:space="preserve">
     <value>Only valid email addresses are allowed.</value>

@@ -19,7 +19,7 @@ namespace backend.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Build.Tasks.StronglyTypedResourceBuilder", "15.1.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class SharedResource {
+    public class SharedResource {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -33,7 +33,7 @@ namespace backend.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("backend.Resources.SharedResource", typeof(SharedResource).Assembly);
@@ -48,7 +48,7 @@ namespace backend.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -60,7 +60,7 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to There were issues with the request and it could not be processed..
         /// </summary>
-        internal static string GeneralBadRequest {
+        public static string GeneralBadRequest {
             get {
                 return ResourceManager.GetString("GeneralBadRequest", resourceCulture);
             }
@@ -69,25 +69,25 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Only valid email addresses are allowed..
         /// </summary>
-        internal static string GeneralInvalidEmail {
+        public static string GeneralInvalidEmail {
             get {
                 return ResourceManager.GetString("GeneralInvalidEmail", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There was an unexpected issue when processing the request. Please try again later!.
+        ///   Looks up a localized string similar to There was an unexpected issue when processing the request. Please try again later..
         /// </summary>
-        internal static string GeneralServerError {
+        public static string GeneralServerError {
             get {
                 return ResourceManager.GetString("GeneralServerError", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The service is temporarily unavailable. Please try again later!.
+        ///   Looks up a localized string similar to The service is temporarily unavailable. Please try again later..
         /// </summary>
-        internal static string GeneralServiceUnavailableError {
+        public static string GeneralServiceUnavailableError {
             get {
                 return ResourceManager.GetString("GeneralServiceUnavailableError", resourceCulture);
             }
@@ -96,7 +96,7 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Success..
         /// </summary>
-        internal static string GeneralSuccess {
+        public static string GeneralSuccess {
             get {
                 return ResourceManager.GetString("GeneralSuccess", resourceCulture);
             }
@@ -105,7 +105,7 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Email is required..
         /// </summary>
-        internal static string LoginMissingEmail {
+        public static string LoginMissingEmail {
             get {
                 return ResourceManager.GetString("LoginMissingEmail", resourceCulture);
             }
@@ -114,7 +114,7 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Password is required..
         /// </summary>
-        internal static string LoginMissingPassword {
+        public static string LoginMissingPassword {
             get {
                 return ResourceManager.GetString("LoginMissingPassword", resourceCulture);
             }
@@ -123,7 +123,7 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters..
         /// </summary>
-        internal static string SignupInvalidPassword {
+        public static string SignupInvalidPassword {
             get {
                 return ResourceManager.GetString("SignupInvalidPassword", resourceCulture);
             }
@@ -132,7 +132,7 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Email is required..
         /// </summary>
-        internal static string SignupMissingEmail {
+        public static string SignupMissingEmail {
             get {
                 return ResourceManager.GetString("SignupMissingEmail", resourceCulture);
             }
@@ -141,7 +141,7 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Password is required..
         /// </summary>
-        internal static string SignupMissingPassword {
+        public static string SignupMissingPassword {
             get {
                 return ResourceManager.GetString("SignupMissingPassword", resourceCulture);
             }

@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using backend.Infrastructure.Persistence;
-using backend.Features.Users;
+using backend.Features.Accounts;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Abstractions;
+using backend.Infrastructure.Email;
 
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -19,16 +20,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppDb"))
         .LogTo(Console.WriteLine, LogLevel.Information));
 
-builder.Services.AddLocalization(options =>
-    options.ResourcesPath = "src/Infrastructure/Localization/Resources"
-);
-
-
+builder.Services.AddLocalization();
 
 string[] supportedCultures = ["en"];
 builder.Services.AddRequestLocalization(options =>
+
     options.SetDefaultCulture("en")
-    .AddSupportedCultures(supportedCultures));
+    .AddSupportedCultures(supportedCultures)
+);
 
 // To be added when I do frontend
 // builder.Services.AddCors(options =>
@@ -49,7 +48,8 @@ builder.Services.Configure<PasswordHasherOptions>(options =>
     options.IterationCount = 200000;
 });
 
-builder.Services.AddScoped<UserService>();
+builder.Services.AddTransient<IEmailSender, FluentEmailSender>();
+builder.Services.AddScoped<AccountService>();
 builder.Services.AddControllers()
     .AddDataAnnotationsLocalization(options =>
     {
@@ -102,14 +102,11 @@ if(!webApplicationServer.Environment.IsDevelopment())
 webApplicationServer.UseRequestLocalization();
 
 //webApplicationServer.UseCors("AllowFrontend");
-
-webApplicationServer.MapControllers();
+//webApplicationServer.UseAuthentication(); - must be after UseRequestLocalization
+//webApplicationServer.UseAuthorization(); - must be after UseRequestLocalization
+webApplicationServer.MapControllers(); // - must be after UseRequestLocalization
 
 webApplicationServer.Run();
-
-
-
-
 
 // var summaries = new[]
 // {

@@ -4,16 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 using backend.Features.Sessions;
 using backend.Features.Auth;
 
-namespace backend.Features.Users
+namespace backend.Features.Accounts
 {
-    public class User
+    public class Account
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
         [Required]
-        public Guid UserId { get; set; } = Guid.CreateVersion7();
+        public Guid AccountId { get; set; } = Guid.CreateVersion7();
 
         [Required]
         public string Email { get; set; } = null!;

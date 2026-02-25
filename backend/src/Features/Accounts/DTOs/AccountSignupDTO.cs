@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-using backend.Features.Users.ValidationAttributes;
+using backend.Features.Accounts.ValidationAttributes;
 using Microsoft.Extensions.Localization;
 
-namespace backend.Features.Users.DTOs
+namespace backend.Features.Accounts.DTOs
 {
-    public class UserSignupDTO
+    public class AccountSignupDTO
     {
         [JsonPropertyName("email")]
         [Required(ErrorMessageResourceName = "SignupMissingEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]

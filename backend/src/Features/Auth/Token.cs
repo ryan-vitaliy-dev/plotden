@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using backend.Features.Users;
+using backend.Features.Accounts;
 
 namespace backend.Features.Auth
 {
@@ -23,7 +23,7 @@ namespace backend.Features.Auth
         public string TokenId { get; set; } = null!;
 
         [Required]
-        public Guid UserId { get; set; }
+        public Guid AccountId { get; set; }
 
         [Required]
         public string Email { get; set; } = null!;
@@ -37,6 +37,6 @@ namespace backend.Features.Auth
         [Required]
         public DateTime ExpiresAt { get; set; }
 
-        public User UserById { get; set; } = null!;
+        public Account AccountById { get; set; } = null!;
     }
 }

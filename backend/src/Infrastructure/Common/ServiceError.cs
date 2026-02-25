@@ -19,9 +19,9 @@ namespace backend.Infrastructure.Common
         GenerationFailedError,
         UnknownError,
 
-        // USER
+        // ACCOUNT
         InvalidCredentials,
-        NoUserFound,
+        NoAccountFound,
         UsernameTaken,
         
         // TOKEN

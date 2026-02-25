@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using backend.Features.Users;
+using backend.Features.Accounts;
 
 namespace backend.Features.Sessions
 {
@@ -16,7 +16,7 @@ namespace backend.Features.Sessions
         public string SessionId { get; set; } = null!;
 
         [Required]
-        public Guid UserId { get; set; }
+        public Guid AccountId { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -33,6 +33,6 @@ namespace backend.Features.Sessions
         [Required]
         public bool IsExpired { get; set; } = false;
 
-        public User User { get; set; } = null!;
+        public Account Account { get; set; } = null!;
     }
 }
