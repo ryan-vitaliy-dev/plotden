@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
@@ -25,8 +26,10 @@
     <EmbeddedResource Update="Resources\SharedResource.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <StronglyTypedFileName>Resources\SharedResource.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedModifier>public</StronglyTypedModifier>
       <StronglyTypedClassName>SharedResource</StronglyTypedClassName>
       <StronglyTypedNamespace>backend.Resources</StronglyTypedNamespace>
+      <PublicClass>true</PublicClass>
       <LastGenOutput>SharedResource.Designer.cs</LastGenOutput>
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
     </EmbeddedResource>
