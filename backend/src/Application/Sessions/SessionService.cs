@@ -1,6 +1,6 @@
 using backend.Infrastructure.Persistence;
 
-namespace backend.Features.Sessions
+namespace backend.Application.Sessions
 {
     public class SessionService(AppDbContext context)
     {

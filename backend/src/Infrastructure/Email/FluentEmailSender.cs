@@ -9,7 +9,7 @@ namespace backend.Infrastructure.Email
 
         private readonly int _port = 25;
         
-        public async Task<bool> SendAsync(EmailMessage email)
+        public async Task<bool> SendAsync(EmailMessage email, CancellationToken? clt)
         {
             // throw new NotImplementedException();
             var message = new MimeMessage();
@@ -22,15 +22,17 @@ namespace backend.Infrastructure.Email
                 {
                     Text = email.Body
                 };
-                var client = new SmtpClient();
-                var clt = new CancellationToken();
-                await client.ConnectAsync(_smtpServerHost, _port, MailKit.Security.SecureSocketOptions.None, clt);
-                await client.SendAsync(message, clt);
-                await client.DisconnectAsync(true, clt);
+                using var client = new SmtpClient();
+                var timeoutCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(clt ?? CancellationToken.None, timeoutCancellationTokenSource.Token).Token;
+                await client.ConnectAsync(_smtpServerHost, _port, MailKit.Security.SecureSocketOptions.None, linkedCancellationToken);
+                await client.SendAsync(message, linkedCancellationToken);
+                await client.DisconnectAsync(true, linkedCancellationToken);
                 return true;
             }
             catch (OperationCanceledException)
             {
+                Console.WriteLine("Cancelled");
                 return false;
             }
             catch (Exception ex)

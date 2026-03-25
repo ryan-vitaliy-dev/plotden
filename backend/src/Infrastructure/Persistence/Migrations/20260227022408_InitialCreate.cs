@@ -1,0 +1,167 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
+#nullable disable
+
+namespace backend.Migrations
+{
+    /// <inheritdoc />
+    public partial class InitialCreate : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.EnsureSchema(
+                name: "core");
+
+            migrationBuilder.CreateTable(
+                name: "accounts",
+                schema: "core",
+                columns: table => new
+                {
+                    AccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    HasVerifiedEmail = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_accounts", x => x.AccountId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "profiles",
+                schema: "core",
+                columns: table => new
+                {
+                    AccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_profiles", x => x.AccountId);
+                    table.ForeignKey(
+                        name: "FK_profiles_accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "core",
+                        principalTable: "accounts",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "sessions",
+                schema: "core",
+                columns: table => new
+                {
+                    SessionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserAgent = table.Column<string>(type: "text", nullable: false),
+                    IpAddress = table.Column<string>(type: "text", nullable: false),
+                    IsExpired = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_sessions", x => x.SessionId);
+                    table.ForeignKey(
+                        name: "FK_sessions_accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "core",
+                        principalTable: "accounts",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "tokens",
+                schema: "core",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TokenId = table.Column<string>(type: "text", nullable: false),
+                    AccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    TokenType = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_tokens_accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "core",
+                        principalTable: "accounts",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_accounts_AccountId",
+                schema: "core",
+                table: "accounts",
+                column: "AccountId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_profiles_AccountId",
+                schema: "core",
+                table: "profiles",
+                column: "AccountId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sessions_AccountId",
+                schema: "core",
+                table: "sessions",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sessions_SessionId",
+                schema: "core",
+                table: "sessions",
+                column: "SessionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_tokens_AccountId",
+                schema: "core",
+                table: "tokens",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_tokens_TokenId",
+                schema: "core",
+                table: "tokens",
+                column: "TokenId",
+                unique: true);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "profiles",
+                schema: "core");
+
+            migrationBuilder.DropTable(
+                name: "sessions",
+                schema: "core");
+
+            migrationBuilder.DropTable(
+                name: "tokens",
+                schema: "core");
+
+            migrationBuilder.DropTable(
+                name: "accounts",
+                schema: "core");
+        }
+    }
+}

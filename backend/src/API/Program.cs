@@ -2,12 +2,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using backend.Infrastructure.Persistence;
-using backend.Features.Accounts;
+// using backend.Features.Accounts;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using backend.Infrastructure.Email;
+using backend.Application.Common.Interfaces;
+using backend.Infrastructure.Common;
+using backend.Application.Accounts;
+using backend.Application.Accounts.Handlers;
+// using backend.Features.Profiles;
+// using backend.Features.Auth.Handlers;
 
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -49,7 +55,9 @@ builder.Services.Configure<PasswordHasherOptions>(options =>
 });
 
 builder.Services.AddTransient<IEmailSender, FluentEmailSender>();
+builder.Services.AddTransient<IUsernameGenerator, AdjectiveNounUsernameGenerator>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<SignupAccountHandler>(); // temp
 builder.Services.AddControllers()
     .AddDataAnnotationsLocalization(options =>
     {

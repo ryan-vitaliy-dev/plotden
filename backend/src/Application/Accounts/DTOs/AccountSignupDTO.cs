@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-using backend.Features.Accounts.ValidationAttributes;
-using Microsoft.Extensions.Localization;
+using backend.Application.Accounts.ValidationAttributes;
+// using Microsoft.Extensions.Localization;
 
-namespace backend.Features.Accounts.DTOs
+namespace backend.Application.Accounts.DTOs
 {
     public class AccountSignupDTO
     {
@@ -18,7 +18,7 @@ namespace backend.Features.Accounts.DTOs
         [JsonPropertyName("password")]
         [Required(ErrorMessageResourceName = "SignupMissingPassword", ErrorMessageResourceType = typeof(Resources.SharedResource))]
         [RegularExpression(
-            @"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!?@#$%^&\-_=+~:;]).{12,100}$", 
+            @"^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!?@#$%^&*\-_=+~:;])[A-Za-z0-9!?@#$%^&*\-_=+~:; ]{12,100}$", 
             ErrorMessageResourceName = "SignupInvalidPassword", ErrorMessageResourceType = typeof(Resources.SharedResource)
         )]
         public string Password { get; set; } = null!;

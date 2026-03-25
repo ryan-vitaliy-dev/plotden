@@ -28,7 +28,7 @@ namespace backend.Infrastructure.Security
         public async Task<ServiceResult<string>> GenerateUniqueSessionId(int byteLength = 16, int maxAttempts = 3, CancellationToken clt = default)
         {
             string id;
-            bool alreadyExists;
+            //bool alreadyExists;
 
             for (int attempt = 0; attempt < maxAttempts; attempt++)
             {
@@ -39,14 +39,15 @@ namespace backend.Infrastructure.Security
                     try
                     {
                         // sanity check, collisions very very unlikely.
-                        alreadyExists = await _context.Sessions.AnyAsync(
-                            s => s.SessionId == id,
-                            clt
-                        ); 
-                        if (!alreadyExists)
-                        {
-                            return ServiceResult<string>.Success(id);
-                        }
+                        // alreadyExists = await _context.Sessions.AnyAsync(
+                        //     s => s.SessionId == id,
+                        //     clt
+                        // ); 
+                        // if (!alreadyExists)
+                        // {
+                        //     return ServiceResult<string>.Success(id);
+                        // }
+                        return ServiceResult<string>.Success(id);
                     }
                     catch (OperationCanceledException)
                     {

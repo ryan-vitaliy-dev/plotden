@@ -1,19 +1,18 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using backend.Features.Accounts;
+using backend.Domain.Accounts;
 
-namespace backend.Features.Sessions
+namespace backend.Domain.Sessions
 {
     public class Session
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        // public long Id { get; set; }
 
-        // Is a string instead of a Guid to allow for more secure random session IDs
+        [Key]
         [Required]
-        public string SessionId { get; set; } = null!;
+        public Guid SessionId { get; set; } = Guid.CreateVersion7();
 
         [Required]
         public Guid AccountId { get; set; }

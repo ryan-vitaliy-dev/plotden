@@ -1,6 +1,6 @@
 using backend.Infrastructure.Persistence;
 
-namespace backend.Features.Auth
+namespace backend.Application.Tokens
 {
     public class TokenService(AppDbContext context)
     {

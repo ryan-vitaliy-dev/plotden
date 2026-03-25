@@ -11,7 +11,7 @@ namespace backend.Infrastructure.Common
         */
 
         // GENERAL
-        BadRequest, // for cases where the input is invalid
+        InvalidInput, // for cases where the input is invalid
 
         //Conflict, // for cases where the operation cannot be completed due to a conflict with the current state of the resource, e.g. trying to create a user with an email that already exists.
         DbError,
