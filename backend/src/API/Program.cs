@@ -11,7 +11,8 @@ using backend.Infrastructure.Email;
 using backend.Application.Common.Interfaces;
 using backend.Infrastructure.Common;
 using backend.Application.Accounts;
-using backend.Application.Accounts.Handlers;
+using backend.Application.Sessions;
+using backend.Application.Handlers;
 // using backend.Features.Profiles;
 // using backend.Features.Auth.Handlers;
 
@@ -57,6 +58,7 @@ builder.Services.Configure<PasswordHasherOptions>(options =>
 builder.Services.AddTransient<IEmailSender, FluentEmailSender>();
 builder.Services.AddTransient<IUsernameGenerator, AdjectiveNounUsernameGenerator>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<SignupAccountHandler>(); // temp
 builder.Services.AddControllers()
     .AddDataAnnotationsLocalization(options =>

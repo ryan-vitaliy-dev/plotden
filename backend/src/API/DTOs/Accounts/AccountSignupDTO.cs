@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using backend.Application.Accounts.ValidationAttributes;
 // using Microsoft.Extensions.Localization;
 
-namespace backend.Application.Accounts.DTOs
+namespace backend.API.DTOs.Accounts
 {
     public class AccountSignupDTO
     {

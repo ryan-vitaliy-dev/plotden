@@ -20,7 +20,7 @@ namespace backend.Application.Accounts
 
         /*
 
-        + CreateAccountAsync
+            + CreateAccountAsync
         + GetUserByIdAsync
         + UpdateAccountAsync
         + DeleteAccountAsync
@@ -35,7 +35,6 @@ namespace backend.Application.Accounts
         /*
 
         Remaining TODOs:
-        - Fix account<->profile stuff (check appdbcontext)
         - Add verification email code generation
         - Add verification email sending
 
@@ -46,6 +45,19 @@ namespace backend.Application.Accounts
         - If I ever change account/profile schema, I'll have to update this here. Is there a better way or is this the best we can do?
 
         */
+
+
+        /// <summary>
+        /// Creates a new <see cref="Account"/>.
+        /// </summary>
+        /// <param name="email">The email for the new account.</param>
+        /// <param name="password">The password for the new account.</param>
+        /// <param name="createdAtOverride">Optional, the <see cref="DateTime"/> to use instead of the default (<see cref="DateTime.UtcNow"/>).</param>
+        /// <param name="clt">A <see cref="CancellationToken"/> to observe while performing the operation.</param>
+        /// <returns>
+        /// A <see cref="ServiceResult{T}"/> containing an <see cref="Account"/> if the creation succeeds,
+        /// or a failure with an appropriate <see cref="ServiceError"/>.
+        /// </returns>
         public async Task<ServiceResult<Account>> CreateAccountAsync(string email, string password, DateTime? createdAtOverride = null, CancellationToken clt = default)
         {
             if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -89,6 +101,8 @@ namespace backend.Application.Accounts
                 return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
             }
         }
+
+
 
         // public async Task<ServiceResult<bool>> TestAsync(CancellationToken clt)
         // {

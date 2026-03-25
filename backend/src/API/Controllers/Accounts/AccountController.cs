@@ -1,5 +1,8 @@
+using backend.API.DTOs.Accounts;
 using backend.Application.Accounts.DTOs;
-using backend.Application.Accounts.Handlers;
+
+// using backend.Application.Accounts.DTOs;
+using backend.Application.Handlers;
 using backend.Domain.Accounts;
 
 
@@ -44,9 +47,12 @@ namespace backend.API.Controllers.Accounts
         [HttpPost("accounts")]
         public async Task<IActionResult> SignupAccount([FromBody] AccountSignupDTO dto, CancellationToken clt)
         {
+            System.Net.IPAddress? ipHeader = HttpContext.Connection.RemoteIpAddress;
+            string ipAddress = ipHeader != null ? ipHeader.ToString() : "Unknown";
+            string userAgent = HttpContext.Request.Headers.UserAgent.FirstOrDefault() ?? "Unknown";
 
-            ServiceResult<Account> signupResult = await _signupHandler.HandleAsync(dto, clt);
-            
+            ServiceResult<AccountSignupResult> signupResult = await _signupHandler.HandleAsync(dto, ipAddress, userAgent, clt);
+
             if(signupResult.IsFailure)
             {
                 return signupResult.ErrorCode switch
@@ -57,10 +63,25 @@ namespace backend.API.Controllers.Accounts
                 };
             }
 
-            Account newAccount = signupResult.Value;
+
+            // Account newAccount = signupResult.Value;
+            AccountSignupResult resultData = signupResult.Value;
+
+            HttpContext.Response.Cookies.Append(
+                "sid",
+                resultData.SessionId.ToString(),
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = resultData.ExpiresAt
+                }
+            );
+
             return StatusCode(201, new { 
-                message = "Signed up account.", 
-                email = newAccount.Email
+                message = "Sign up successful.", 
+                email = resultData.Email
             });
         }
     }

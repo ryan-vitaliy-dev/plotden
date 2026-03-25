@@ -25,38 +25,38 @@ namespace backend.Infrastructure.Security
             return ServiceResult<string>.Success(id);
         }
 
-        public async Task<ServiceResult<string>> GenerateUniqueSessionId(int byteLength = 16, int maxAttempts = 3, CancellationToken clt = default)
-        {
-            string id;
-            //bool alreadyExists;
+        // public async Task<ServiceResult<string>> GenerateUniqueSessionId(int byteLength = 16, int maxAttempts = 3, CancellationToken clt = default)
+        // {
+        //     string id;
+        //     //bool alreadyExists;
 
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
-            {
-                ServiceResult<string> result = await GenerateUniqueId(byteLength);
-                if (result.IsSuccess)
-                {
-                    id = result.Value; // safe to access because we check Success, and if Success is true, Value is guaranteed to be non-null by the contract of ServiceResult<T>
-                    try
-                    {
-                        // sanity check, collisions very very unlikely.
-                        // alreadyExists = await _context.Sessions.AnyAsync(
-                        //     s => s.SessionId == id,
-                        //     clt
-                        // ); 
-                        // if (!alreadyExists)
-                        // {
-                        //     return ServiceResult<string>.Success(id);
-                        // }
-                        return ServiceResult<string>.Success(id);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        return ServiceResult<string>.Failure(ServiceError.OperationCancelled);
-                    }
-                }
-            }
-            // will likely never happen. Odds are astronomically low. Accounted for it anyways.
-            return ServiceResult<string>.Failure(ServiceError.GenerationFailedError);
-        }
+        //     for (int attempt = 0; attempt < maxAttempts; attempt++)
+        //     {
+        //         ServiceResult<string> result = await GenerateUniqueId(byteLength);
+        //         if (result.IsSuccess)
+        //         {
+        //             id = result.Value; // safe to access because we check Success, and if Success is true, Value is guaranteed to be non-null by the contract of ServiceResult<T>
+        //             try
+        //             {
+        //                 // sanity check, collisions very very unlikely.
+        //                 // alreadyExists = await _context.Sessions.AnyAsync(
+        //                 //     s => s.SessionId == id,
+        //                 //     clt
+        //                 // ); 
+        //                 // if (!alreadyExists)
+        //                 // {
+        //                 //     return ServiceResult<string>.Success(id);
+        //                 // }
+        //                 return ServiceResult<string>.Success(id);
+        //             }
+        //             catch (OperationCanceledException)
+        //             {
+        //                 return ServiceResult<string>.Failure(ServiceError.OperationCancelled);
+        //             }
+        //         }
+        //     }
+        //     // will likely never happen. Odds are astronomically low. Accounted for it anyways.
+        //     return ServiceResult<string>.Failure(ServiceError.GenerationFailedError);
+        // }
     }
 }
