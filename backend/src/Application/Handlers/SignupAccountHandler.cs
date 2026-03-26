@@ -2,18 +2,19 @@ using backend.API.DTOs.Accounts;
 using backend.Application.Accounts;
 using backend.Application.Accounts.DTOs;
 using backend.Application.Sessions;
+using backend.Application.Tokens;
 using backend.Domain.Accounts;
 using backend.Domain.Sessions;
+using backend.Domain.Tokens;
 using backend.Infrastructure.Common;
 
 namespace backend.Application.Handlers
 {
-    public class SignupAccountHandler(AccountService accountService, SessionService sessionService)
+    public class SignupAccountHandler(AccountService accountService, SessionService sessionService, TokenService tokenService)
     {
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
-
-        //private readonly TokenService _tokenService = tokenService;
+        private readonly TokenService _tokenService = tokenService;
         
 
         /// <summary>
@@ -33,14 +34,13 @@ namespace backend.Application.Handlers
             {
                 return ServiceResult<AccountSignupResult>.Failure(ServiceError.InvalidInput);
             }
-
             if(clt.IsCancellationRequested)
             {
                 return ServiceResult<AccountSignupResult>.Failure(ServiceError.OperationCancelled);
             }
+            DateTimeOffset consistentCreatedAtDateTime = DateTimeOffset.UtcNow;
 
-            DateTime consistentCreatedAtDateTime = DateTime.UtcNow;
-
+            // Create Account
             ServiceResult<Account> accountCreationResult = await _accountService.CreateAccountAsync(dto.Email, dto.Password, consistentCreatedAtDateTime, clt: clt);
             if(accountCreationResult.IsFailure)
             {
@@ -53,6 +53,7 @@ namespace backend.Application.Handlers
             }
             Account createdAccount = accountCreationResult.Value;
 
+            // Create Session
             ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(createdAccount.AccountId, ipAddress, userAgent, consistentCreatedAtDateTime, clt);
             if(sessionCreationResult.IsFailure)
             {
@@ -65,10 +66,22 @@ namespace backend.Application.Handlers
             }
             Session createdSession = sessionCreationResult.Value;
 
-            // TODO: Generate verification token and send email (if appropriate)
+            // Create Email Verification Token
+            ServiceResult<Token> emailVerificationTokenCreationResult = await _tokenService.CreateTokenAsync(createdAccount.AccountId, TokenType.EmailVerification, consistentCreatedAtDateTime, clt);
+            if(emailVerificationTokenCreationResult.IsFailure)
+            {
+                return emailVerificationTokenCreationResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput => ServiceResult<AccountSignupResult>.Failure(ServiceError.InvalidInput),
+                    ServiceError.OperationCancelled => ServiceResult<AccountSignupResult>.Failure(ServiceError.OperationCancelled),
+                    _ => ServiceResult<AccountSignupResult>.Failure(ServiceError.UnknownError)
+                };
+            }
+            Token createdToken = emailVerificationTokenCreationResult.Value;
+
+            // TODO: send info
 
             AccountSignupResult accountSignupResult = new(accountCreationResult.Value.Email, createdSession.SessionId, createdSession.ExpiresAt);
-
             return ServiceResult<AccountSignupResult>.Success(accountSignupResult);
         }
     }

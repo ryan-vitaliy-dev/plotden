@@ -14,9 +14,6 @@ namespace backend.Domain.Profiles
         [Required]
         public string Username { get; set; } = null!;
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
-
         // Navigation properties
 
         public Account Account { get; set; } = null!;

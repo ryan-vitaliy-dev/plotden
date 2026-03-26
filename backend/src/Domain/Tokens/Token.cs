@@ -15,28 +15,29 @@ namespace backend.Domain.Tokens
     public class Token
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
-
-        // Is a string instead of a Guid to allow for more secure random token IDs
         [Required]
-        public string TokenId { get; set; } = null!;
+        public Guid TokenId { get; set; } = Guid.CreateVersion7();
+
+        [Required]
+        public string TokenHash { get; set; } = null!;
 
         [Required]
         public Guid AccountId { get; set; }
 
         [Required]
-        public string Email { get; set; } = null!;
-
-        [Required]
         public TokenType TokenType { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         [Required]
-        public DateTime ExpiresAt { get; set; }
+        public DateTimeOffset ExpiresAt { get; set; }
 
+        public DateTimeOffset? ConsumedAt { get; set; }
+
+        public DateTimeOffset? RevokedAt { get; set; }
+
+        // Navigational Properties 
         public Account AccountById { get; set; } = null!;
     }
 }

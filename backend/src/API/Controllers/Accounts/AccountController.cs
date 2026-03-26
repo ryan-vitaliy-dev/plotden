@@ -63,7 +63,6 @@ namespace backend.API.Controllers.Accounts
                 };
             }
 
-
             // Account newAccount = signupResult.Value;
             AccountSignupResult resultData = signupResult.Value;
 

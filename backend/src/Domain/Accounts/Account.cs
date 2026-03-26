@@ -25,7 +25,7 @@ namespace backend.Domain.Accounts
         public string PasswordHash { get; set; } = null!;
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         // Navigation properties
 

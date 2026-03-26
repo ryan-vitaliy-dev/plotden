@@ -24,6 +24,7 @@ namespace backend.Infrastructure.Persistence
                 entity.ToTable("accounts", "core");
                 entity.HasKey(a => a.AccountId);
                 entity.HasIndex(a => a.AccountId).IsUnique();
+                entity.HasIndex(a => a.Email).IsUnique();
                 entity
                     .HasOne(a => a.Profile).WithOne(p => p.Account)
                     .HasForeignKey<Profile>(p => p.AccountId)
@@ -33,7 +34,8 @@ namespace backend.Infrastructure.Persistence
             modelBuilder.Entity<Profile>(entity => {
                 entity.ToTable("profiles", "core");
                 entity.HasKey(p => p.AccountId);
-                entity.HasIndex(p => p.AccountId).IsUnique();
+                //entity.HasIndex(p => p.AccountId).IsUnique(); removed since dont think I need unique check again if accountid is already unique in accounts table
+                entity.HasIndex(p => p.AccountId);
             });
 
             modelBuilder.Entity<Session>(entity =>

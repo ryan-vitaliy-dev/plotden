@@ -6,24 +6,23 @@ using backend.Infrastructure.Persistence;
 
 namespace backend.Infrastructure.Security
 {
-    public class GeneratorService(AppDbContext context)
+    public class GeneratorService()
     {
-        private readonly AppDbContext _context = context;
 
-        public async Task<ServiceResult<string>> GenerateUniqueId(int byteLength = 16)
-        {
+        // public async Task<ServiceResult<string>> GenerateUniqueId(int byteLength = 16)
+        // {
 
-            byte[] idBytes = new byte[byteLength];
-            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(idBytes); // fills array with cryptographically secure random bytes
-            }
-            // encode as hexadecimal string, 32 chars for 128 bits (16 bytes)
+        //     byte[] idBytes = new byte[byteLength];
+        //     using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+        //     {
+        //         rng.GetBytes(idBytes); // fills array with cryptographically secure random bytes
+        //     }
+        //     // encode as hexadecimal string, 32 chars for 128 bits (16 bytes)
                 
-            //id = BitConverter.ToString(idBytes).Replace("-", "").ToLowerInvariant();
-            string id = Convert.ToHexStringLower(idBytes); // alternative method, also produces lowercase hex string
-            return ServiceResult<string>.Success(id);
-        }
+        //     //id = BitConverter.ToString(idBytes).Replace("-", "").ToLowerInvariant();
+        //     string id = Convert.ToHexStringLower(idBytes); // alternative method, also produces lowercase hex string
+        //     return ServiceResult<string>.Success(id);
+        // }
 
         // public async Task<ServiceResult<string>> GenerateUniqueSessionId(int byteLength = 16, int maxAttempts = 3, CancellationToken clt = default)
         // {

@@ -18,10 +18,10 @@ namespace backend.Domain.Sessions
         public Guid AccountId { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         [Required]
-        public DateTime ExpiresAt { get; set; }
+        public DateTimeOffset ExpiresAt { get; set; }
 
         [Required]
         public string UserAgent { get; set; } = null!;

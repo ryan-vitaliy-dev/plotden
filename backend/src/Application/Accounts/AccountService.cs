@@ -52,19 +52,19 @@ namespace backend.Application.Accounts
         /// </summary>
         /// <param name="email">The email for the new account.</param>
         /// <param name="password">The password for the new account.</param>
-        /// <param name="createdAtOverride">Optional, the <see cref="DateTime"/> to use instead of the default (<see cref="DateTime.UtcNow"/>).</param>
+        /// <param name="createdAtOverride">Optional, the <see cref="DateTimeOffset"/> to use instead of the default (<see cref="DateTimeOffset.UtcNow"/>).</param>
         /// <param name="clt">A <see cref="CancellationToken"/> to observe while performing the operation.</param>
         /// <returns>
         /// A <see cref="ServiceResult{T}"/> containing an <see cref="Account"/> if the creation succeeds,
         /// or a failure with an appropriate <see cref="ServiceError"/>.
         /// </returns>
-        public async Task<ServiceResult<Account>> CreateAccountAsync(string email, string password, DateTime? createdAtOverride = null, CancellationToken clt = default)
+        public async Task<ServiceResult<Account>> CreateAccountAsync(string email, string password, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
         {
             if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
                 return ServiceResult<Account>.Failure(ServiceError.InvalidInput);
             }
-            DateTime createdAt = createdAtOverride ?? DateTime.UtcNow;
+            DateTimeOffset createdAt = createdAtOverride ?? DateTimeOffset.UtcNow;
             
             await using var transaction = await _appDbContext.Database.BeginTransactionAsync(clt);
             try
@@ -83,7 +83,6 @@ namespace backend.Application.Accounts
                 {
                     AccountId = newAccount.AccountId,
                     Username = initialUsername,
-                    CreatedAt = createdAt
                 };
 
                 _appDbContext.Accounts.Add(newAccount);
