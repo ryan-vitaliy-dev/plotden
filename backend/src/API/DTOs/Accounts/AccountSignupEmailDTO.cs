@@ -1,0 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
+using backend.Application.Accounts.ValidationAttributes;
+
+namespace backend.API.DTOs.Accounts
+{
+    public class AccountSignupEmailDTO
+    {
+        [JsonPropertyName("email")]
+        [Required(ErrorMessageResourceName = "Signup_MissingEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
+        [EmailAddress(ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
+        [NotIANAReservedDomain(ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
+        [MaxLength(320, ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
+        public string Email { get; set; } = null!;
+    }
+}

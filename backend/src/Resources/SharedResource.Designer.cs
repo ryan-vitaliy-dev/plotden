@@ -103,47 +103,56 @@ namespace backend.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email is required..
-        /// </summary>
-        public static string LoginMissingEmail {
-            get {
-                return ResourceManager.GetString("LoginMissingEmail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Password is required..
-        /// </summary>
-        public static string LoginMissingPassword {
-            get {
-                return ResourceManager.GetString("LoginMissingPassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters..
         /// </summary>
-        public static string SignupInvalidPassword {
+        public static string Signup_InvalidPassword {
             get {
-                return ResourceManager.GetString("SignupInvalidPassword", resourceCulture);
+                return ResourceManager.GetString("Signup_InvalidPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Token is expired or invalid..
+        /// </summary>
+        public static string Signup_InvalidToken {
+            get {
+                return ResourceManager.GetString("Signup_InvalidToken", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Email is required..
         /// </summary>
-        public static string SignupMissingEmail {
+        public static string Signup_MissingEmail {
             get {
-                return ResourceManager.GetString("SignupMissingEmail", resourceCulture);
+                return ResourceManager.GetString("Signup_MissingEmail", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Password is required..
         /// </summary>
-        public static string SignupMissingPassword {
+        public static string Signup_MissingPassword {
             get {
-                return ResourceManager.GetString("SignupMissingPassword", resourceCulture);
+                return ResourceManager.GetString("Signup_MissingPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Token is required..
+        /// </summary>
+        public static string Signup_MissingToken {
+            get {
+                return ResourceManager.GetString("Signup_MissingToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A verification link has been sent to the provided email. Click the link in the email message to continue signup..
+        /// </summary>
+        public static string Signup_VerificationEmailSent {
+            get {
+                return ResourceManager.GetString("Signup_VerificationEmailSent", resourceCulture);
             }
         }
     }

@@ -15,6 +15,7 @@ using backend.Application.Sessions;
 using backend.Application.Handlers;
 using backend.Infrastructure.Security;
 using backend.Application.Tokens;
+using backend.Application.Handlers.Signup;
 // using backend.Features.Profiles;
 // using backend.Features.Auth.Handlers;
 
@@ -63,7 +64,7 @@ builder.Services.AddTransient<ITokenGenerator, SecureTokenGenerator>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<TokenService>();
-builder.Services.AddScoped<SignupAccountHandler>(); // temp
+builder.Services.AddScoped<SignupEmailHandler>(); // temp
 builder.Services.AddControllers()
     .AddDataAnnotationsLocalization(options =>
     {

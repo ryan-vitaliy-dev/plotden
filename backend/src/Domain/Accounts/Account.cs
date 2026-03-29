@@ -21,11 +21,12 @@ namespace backend.Domain.Accounts
         [Required]
         public bool HasVerifiedEmail { get; set; } = false;
 
-        [Required]
-        public string PasswordHash { get; set; } = null!;
+        public string? PasswordHash { get; set; }
 
         [Required]
         public DateTimeOffset CreatedAt { get; set; }
+
+        public DateTimeOffset? VerifiedAt { get; set; }
 
         // Navigation properties
 

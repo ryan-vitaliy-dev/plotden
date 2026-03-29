@@ -5,6 +5,7 @@ using backend.Infrastructure.Common;
 using backend.Infrastructure.Email;
 using backend.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Application.Accounts
 {
@@ -21,22 +22,13 @@ namespace backend.Application.Accounts
         /*
 
             + CreateAccountAsync
-        + GetUserByIdAsync
+            + FindAccountByIdAsync
+            + FindAccountByEmailAsync
         + UpdateAccountAsync
         + DeleteAccountAsync
         */
 
-        // public async Task<ServiceResult<bool>> CheckAccountExistsAsync(Guid accountId, CancellationToken clt)
-        // {
-            
-        // }
-
-
         /*
-
-        Remaining TODOs:
-        - Add verification email code generation
-        - Add verification email sending
 
         Notes:
         - Didnt check for existing email since we allow duplicate unverified emails (but only one verified one)
@@ -51,16 +43,15 @@ namespace backend.Application.Accounts
         /// Creates a new <see cref="Account"/>.
         /// </summary>
         /// <param name="email">The email for the new account.</param>
-        /// <param name="password">The password for the new account.</param>
         /// <param name="createdAtOverride">Optional, the <see cref="DateTimeOffset"/> to use instead of the default (<see cref="DateTimeOffset.UtcNow"/>).</param>
         /// <param name="clt">A <see cref="CancellationToken"/> to observe while performing the operation.</param>
         /// <returns>
         /// A <see cref="ServiceResult{T}"/> containing an <see cref="Account"/> if the creation succeeds,
         /// or a failure with an appropriate <see cref="ServiceError"/>.
         /// </returns>
-        public async Task<ServiceResult<Account>> CreateAccountAsync(string email, string password, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
+        public async Task<ServiceResult<Account>> CreateAccountAsync(string email, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
         {
-            if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            if(string.IsNullOrWhiteSpace(email))
             {
                 return ServiceResult<Account>.Failure(ServiceError.InvalidInput);
             }
@@ -75,7 +66,6 @@ namespace backend.Application.Accounts
                     CreatedAt = createdAt,
                     HasVerifiedEmail = false
                 };
-                newAccount.PasswordHash = _passwordHasher.HashPassword(newAccount, password);
                 
                 string initialUsername = await _usernameGenerator.GenerateUsername();
 
@@ -92,7 +82,6 @@ namespace backend.Application.Accounts
                 await transaction.CommitAsync(clt);
 
                 return ServiceResult<Account>.Success(newAccount);
-
             }
             catch (OperationCanceledException)
             {
@@ -100,6 +89,101 @@ namespace backend.Application.Accounts
                 return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
             }
         }
+
+        public async Task<ServiceResult<Account>> FindAccountByEmailAsync(string email, CancellationToken clt = default)
+        {
+            if(string.IsNullOrWhiteSpace(email))
+            {
+                return ServiceResult<Account>.Failure(ServiceError.InvalidInput);
+            }
+            try
+            {
+                // IQueryable<Account> query = _appDbContext.Accounts;
+                // query = query.Where(a => a.Email == email);
+                // Account? foundAccount = await query.FirstOrDefaultAsync(clt);
+                Account? foundAccount = await _appDbContext.Accounts
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.Email == email, clt);
+                if(foundAccount == null)
+                {
+                    return ServiceResult<Account>.Failure(ServiceError.NoAccountFound);
+                }
+                return ServiceResult<Account>.Success(foundAccount);
+            }
+            catch(OperationCanceledException)
+            {
+                return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
+            }
+        }
+
+        public async Task<ServiceResult<Account>> FindAccountByIdAsync(Guid accountId, CancellationToken clt = default)
+        {
+            if(accountId == Guid.Empty)
+            {
+                return ServiceResult<Account>.Failure(ServiceError.InvalidInput);
+            }
+            try
+            {
+                Account? foundAccount = await _appDbContext.Accounts
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.AccountId == accountId, clt);
+                if(foundAccount == null)
+                {
+                    return ServiceResult<Account>.Failure(ServiceError.NoAccountFound);
+                }
+                return ServiceResult<Account>.Success(foundAccount);
+            }
+            catch(OperationCanceledException)
+            {
+                return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
+            }
+        }
+
+
+        // Old:
+        // public async Task<ServiceResult<Account>> CreateAccountAsync(string email, string password, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
+        // {
+        //     if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        //     {
+        //         return ServiceResult<Account>.Failure(ServiceError.InvalidInput);
+        //     }
+        //     DateTimeOffset createdAt = createdAtOverride ?? DateTimeOffset.UtcNow;
+            
+        //     await using var transaction = await _appDbContext.Database.BeginTransactionAsync(clt);
+        //     try
+        //     {
+        //         Account newAccount = new()
+        //         {
+        //             Email = email,
+        //             CreatedAt = createdAt,
+        //             HasVerifiedEmail = false
+        //         };
+        //         newAccount.PasswordHash = _passwordHasher.HashPassword(newAccount, password);
+                
+        //         string initialUsername = await _usernameGenerator.GenerateUsername();
+
+        //         Profile newAccountProfile = new()
+        //         {
+        //             AccountId = newAccount.AccountId,
+        //             Username = initialUsername,
+        //         };
+
+        //         _appDbContext.Accounts.Add(newAccount);
+        //         _appDbContext.Profiles.Add(newAccountProfile);
+        //         await _appDbContext.SaveChangesAsync(clt);
+
+        //         await transaction.CommitAsync(clt);
+
+        //         return ServiceResult<Account>.Success(newAccount);
+
+        //     }
+        //     catch (OperationCanceledException)
+        //     {
+        //         await transaction.RollbackAsync(clt);
+        //         return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
+        //     }
+        // }
+        
 
 
 

@@ -9,10 +9,10 @@ using backend.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace backend.Migrations
+namespace backend.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260227022408_InitialCreate")]
+    [Migration("20260328213023_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,13 +25,13 @@ namespace backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("backend.Features.Accounts.Account", b =>
+            modelBuilder.Entity("backend.Domain.Accounts.Account", b =>
                 {
                     b.Property<Guid>("AccountId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
@@ -45,59 +45,24 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("AccountId");
 
                     b.HasIndex("AccountId")
                         .IsUnique();
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("accounts", "core");
                 });
 
-            modelBuilder.Entity("backend.Features.Auth.Token", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("TokenId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TokenType")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("TokenId")
-                        .IsUnique();
-
-                    b.ToTable("tokens", "core");
-                });
-
-            modelBuilder.Entity("backend.Features.Profiles.Profile", b =>
+            modelBuilder.Entity("backend.Domain.Profiles.Profile", b =>
                 {
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -105,13 +70,12 @@ namespace backend.Migrations
 
                     b.HasKey("AccountId");
 
-                    b.HasIndex("AccountId")
-                        .IsUnique();
+                    b.HasIndex("AccountId");
 
                     b.ToTable("profiles", "core");
                 });
 
-            modelBuilder.Entity("backend.Features.Sessions.Session", b =>
+            modelBuilder.Entity("backend.Domain.Sessions.Session", b =>
                 {
                     b.Property<Guid>("SessionId")
                         .ValueGeneratedOnAdd()
@@ -120,10 +84,10 @@ namespace backend.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("ExpiresAt")
+                    b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("IpAddress")
@@ -147,31 +111,58 @@ namespace backend.Migrations
                     b.ToTable("sessions", "core");
                 });
 
-            modelBuilder.Entity("backend.Features.Auth.Token", b =>
+            modelBuilder.Entity("backend.Domain.Tokens.Token", b =>
                 {
-                    b.HasOne("backend.Features.Accounts.Account", "AccountById")
-                        .WithMany("TokensById")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("TokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Navigation("AccountById");
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ConsumedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TokenType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TokenId");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("TokenId")
+                        .IsUnique();
+
+                    b.ToTable("tokens", "core");
                 });
 
-            modelBuilder.Entity("backend.Features.Profiles.Profile", b =>
+            modelBuilder.Entity("backend.Domain.Profiles.Profile", b =>
                 {
-                    b.HasOne("backend.Features.Accounts.Account", "Account")
+                    b.HasOne("backend.Domain.Accounts.Account", "Account")
                         .WithOne("Profile")
-                        .HasForeignKey("backend.Features.Profiles.Profile", "AccountId")
+                        .HasForeignKey("backend.Domain.Profiles.Profile", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("backend.Features.Sessions.Session", b =>
+            modelBuilder.Entity("backend.Domain.Sessions.Session", b =>
                 {
-                    b.HasOne("backend.Features.Accounts.Account", "Account")
+                    b.HasOne("backend.Domain.Accounts.Account", "Account")
                         .WithMany("Sessions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -180,7 +171,18 @@ namespace backend.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("backend.Features.Accounts.Account", b =>
+            modelBuilder.Entity("backend.Domain.Tokens.Token", b =>
+                {
+                    b.HasOne("backend.Domain.Accounts.Account", "AccountById")
+                        .WithMany("TokensById")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountById");
+                });
+
+            modelBuilder.Entity("backend.Domain.Accounts.Account", b =>
                 {
                     b.Navigation("Profile")
                         .IsRequired();
