@@ -12,6 +12,8 @@ using backend.Domain.Accounts;
 using backend.Domain.Sessions;
 using backend.Domain.Tokens;
 using backend.Application.Common;
+using Microsoft.Extensions.Localization;
+using backend.Resources;
 
 namespace backend.Application.Handlers.Signup
 {
@@ -19,13 +21,15 @@ namespace backend.Application.Handlers.Signup
         ILogger<SignupEmailHandler> logger, 
         AccountService accountService, 
         TokenService tokenService, 
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IStringLocalizer<SharedResource> localizer)
     {
 
         private readonly ILogger<SignupEmailHandler> _logger = logger;
         private readonly AccountService _accountService = accountService;
         private readonly IEmailSender _emailSender = emailSender;
         private readonly TokenService _tokenService = tokenService;
+        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         
 
         /// <summary>
@@ -79,7 +83,7 @@ namespace backend.Application.Handlers.Signup
                 _logger.LogInformation("Signup attempt with email {Email} that already has a verified account. Sending warning email.", existingAccount.Email);
                 string warningEmailBody = EmailTemplateLoader.LoadTemplate("SignupExistingVerifiedEmailWarning.html");
 
-                bool warningEmailSent = await _emailSender.SendAsync(new EmailMessage(existingAccount.Email, "Security Alert: Attempted account signup", warningEmailBody), clt);
+                bool warningEmailSent = await _emailSender.SendAsync(new EmailMessage(existingAccount.Email, _localizer["Email_SubjectAccountAlreadyExists"].Value, warningEmailBody), clt);
                 if(warningEmailSent)
                 {
                     AccountSignupEmailResult result = new(existingAccount.Email);
@@ -156,7 +160,7 @@ namespace backend.Application.Handlers.Signup
             {
                 ["VerificationLink"] = "plotden.com/verify?token=" + createdToken.TokenRaw
             });
-            bool verificationEmailSent = await _emailSender.SendAsync(new EmailMessage(account.Email, "Verify your email address!", verificationEmailBody), clt);
+            bool verificationEmailSent = await _emailSender.SendAsync(new EmailMessage(account.Email, _localizer["Email_SubjectVerifyEmailAddress"].Value, verificationEmailBody), clt);
             if(verificationEmailSent)
             {
                 AccountSignupEmailResult result = new(account.Email);
