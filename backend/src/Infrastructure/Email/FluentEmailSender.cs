@@ -3,41 +3,48 @@ using MimeKit;
 
 namespace backend.Infrastructure.Email
 {
-    public class FluentEmailSender : IEmailSender
+    public class FluentEmailSender(ILogger<FluentEmailSender> logger, IConfiguration configuration) : IEmailSender
     {
-        private readonly string _smtpServerHost = "192.168.4.93";
+        private readonly ILogger<FluentEmailSender> _logger = logger;
 
-        private readonly int _port = 25;
-        
-        public async Task<bool> SendAsync(EmailMessage email, CancellationToken? clt)
+        private readonly string _senderName = configuration["Email:SenderName"] ?? throw new InvalidOperationException("Email:SenderName is not configured.");
+        private readonly string _senderAddress = configuration["Email:SenderAddress"] ?? throw new InvalidOperationException("Email:SenderAddress is not configured.");
+        private readonly string _smtpServerHost = configuration["Email:SmtpHost"] ?? throw new InvalidOperationException("Email:SmtpHost is not configured.");
+        private readonly int _port = int.Parse(configuration["Email:SmtpPort"] ?? throw new InvalidOperationException("Email:SmtpPort is not configured."));
+
+        public async Task<bool> SendAsync(EmailMessage email, CancellationToken clt)
         {
-            // throw new NotImplementedException();
-            var message = new MimeMessage();
+            MimeMessage message = new();
             try
             {
-                message.From.Add(new MailboxAddress("Plotden", "no-reply@plotden.com"));
+                message.From.Add(new MailboxAddress(_senderName, _senderAddress));
                 message.To.Add(MailboxAddress.Parse(email.To));
                 message.Subject = email.Subject;
-                message.Body = new TextPart("plain")
+                BodyBuilder bodyBuilder = new()
                 {
-                    Text = email.Body
+                    HtmlBody = email.HtmlBody
                 };
-                using var client = new SmtpClient();
-                var timeoutCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(clt ?? CancellationToken.None, timeoutCancellationTokenSource.Token).Token;
-                await client.ConnectAsync(_smtpServerHost, _port, MailKit.Security.SecureSocketOptions.None, linkedCancellationToken);
-                await client.SendAsync(message, linkedCancellationToken);
-                await client.DisconnectAsync(true, linkedCancellationToken);
+                if (email.PlainTextBody != null)
+                {
+                    bodyBuilder.TextBody = email.PlainTextBody;
+                }
+                message.Body = bodyBuilder.ToMessageBody();
+                using SmtpClient client = new();
+                using CancellationTokenSource timeoutClts = new(TimeSpan.FromSeconds(5));
+                using CancellationTokenSource linkedClt = CancellationTokenSource.CreateLinkedTokenSource(clt, timeoutClts.Token);
+                CancellationToken linkedToken = linkedClt.Token;
+                await client.ConnectAsync(_smtpServerHost, _port, MailKit.Security.SecureSocketOptions.None, linkedToken);
+                await client.SendAsync(message, linkedToken);
+                await client.DisconnectAsync(true, linkedToken);
                 return true;
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("Cancelled");
                 return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception when sending email:" + ex);
+                _logger.LogError(ex, "Exception when sending email.");
                 return false;
             }
         }
