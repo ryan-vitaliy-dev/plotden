@@ -486,3 +486,5 @@ $RECYCLE.BIN/
 backend/src/bin/
 backend/src/obj/
 backend/src/net10.0/
+backend/src/appsettings.Development.json
+backend/src/appsettings.Production.json
