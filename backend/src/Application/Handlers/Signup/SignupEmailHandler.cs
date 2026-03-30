@@ -81,7 +81,7 @@ namespace backend.Application.Handlers.Signup
             {
                 // Send warning email to existing account owner and pretend-prompt client that an email was sent.
                 _logger.LogInformation("Signup attempt with email {Email} that already has a verified account. Sending warning email.", existingAccount.Email);
-                string warningEmailBody = EmailTemplateLoader.LoadTemplate("SignupExistingVerifiedEmailWarning.html");
+                string warningEmailBody = EmailTemplateLoader.LoadTemplate("AccountAlreadyExists.html");
 
                 bool warningEmailSent = await _emailSender.SendAsync(new EmailMessage(existingAccount.Email, _localizer["Email_SubjectAccountAlreadyExists"].Value, warningEmailBody), clt);
                 if(warningEmailSent)

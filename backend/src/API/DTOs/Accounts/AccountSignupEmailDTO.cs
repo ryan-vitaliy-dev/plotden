@@ -8,7 +8,7 @@ namespace backend.API.DTOs.Accounts
     public class AccountSignupEmailDTO
     {
         [JsonPropertyName("email")]
-        [Required(ErrorMessageResourceName = "Signup_MissingEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
+        [Required(ErrorMessageResourceName = "Signup_ErrorMissingEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
         [EmailAddress(ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
         [NotIANAReservedDomain(ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]
         [MaxLength(320, ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]

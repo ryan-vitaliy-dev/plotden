@@ -1,3 +1,4 @@
+using backend.Application.Common;
 using backend.Application.Common.Interfaces;
 using backend.Domain.Accounts;
 using backend.Domain.Profiles;
@@ -124,8 +125,8 @@ namespace backend.Application.Accounts
             }
             try
             {
+                // .AsNoTracking()
                 Account? foundAccount = await _appDbContext.Accounts
-                    .AsNoTracking()
                     .FirstOrDefaultAsync(a => a.AccountId == accountId, clt);
                 if(foundAccount == null)
                 {
@@ -136,6 +137,25 @@ namespace backend.Application.Accounts
             catch(OperationCanceledException)
             {
                 return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
+            }
+        }
+
+        public async Task<ServiceResult<Unit>> VerifyAccountEmailAsync(Account account, CancellationToken clt)
+        {
+            if(account == null)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+            try
+            {
+                account.HasVerifiedEmail = true;
+                account.VerifiedAt = DateTimeOffset.UtcNow;
+                await _appDbContext.SaveChangesAsync(clt);
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch (OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
             }
         }
 

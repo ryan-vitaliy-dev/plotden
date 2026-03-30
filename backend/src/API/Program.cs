@@ -64,7 +64,8 @@ builder.Services.AddTransient<ITokenGenerator, SecureTokenGenerator>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<TokenService>();
-builder.Services.AddScoped<SignupEmailHandler>(); // temp
+builder.Services.AddScoped<SignupEmailHandler>(); // temp?
+builder.Services.AddScoped<SignupVerifyHandler>(); // temp?
 builder.Services.AddControllers()
     .AddDataAnnotationsLocalization(options =>
     {
@@ -122,29 +123,3 @@ webApplicationServer.UseRequestLocalization();
 webApplicationServer.MapControllers(); // - must be after UseRequestLocalization
 
 webApplicationServer.Run();
-
-// var summaries = new[]
-// {
-//     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-// };
-
-// webapp.MapGet("/weatherforecast", () =>
-// {
-//     var forecast =  Enumerable.Range(1, 5).Select(index =>
-//         new WeatherForecast
-//         (
-//             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//             Random.Shared.Next(-20, 55),
-//             summaries[Random.Shared.Next(summaries.Length)]
-//         ))
-//         .ToArray();
-//     return forecast;
-// })
-// .WithName("GetWeatherForecast");
-
-// webapp.Run();
-
-// record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-// {
-//     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-// }

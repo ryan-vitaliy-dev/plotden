@@ -58,6 +58,24 @@ namespace backend.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Security Alert: Attempted account signup.
+        /// </summary>
+        public static string Email_SubjectAccountAlreadyExists {
+            get {
+                return ResourceManager.GetString("Email_SubjectAccountAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify your email address.
+        /// </summary>
+        public static string Email_SubjectVerifyEmailAddress {
+            get {
+                return ResourceManager.GetString("Email_SubjectVerifyEmailAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There were issues with the request and it could not be processed..
         /// </summary>
         public static string GeneralBadRequest {
@@ -105,45 +123,54 @@ namespace backend.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters..
         /// </summary>
-        public static string Signup_InvalidPassword {
+        public static string Signup_ErrorInvalidPassword {
             get {
-                return ResourceManager.GetString("Signup_InvalidPassword", resourceCulture);
+                return ResourceManager.GetString("Signup_ErrorInvalidPassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Token is expired or invalid..
         /// </summary>
-        public static string Signup_InvalidToken {
+        public static string Signup_ErrorInvalidToken {
             get {
-                return ResourceManager.GetString("Signup_InvalidToken", resourceCulture);
+                return ResourceManager.GetString("Signup_ErrorInvalidToken", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Email is required..
         /// </summary>
-        public static string Signup_MissingEmail {
+        public static string Signup_ErrorMissingEmail {
             get {
-                return ResourceManager.GetString("Signup_MissingEmail", resourceCulture);
+                return ResourceManager.GetString("Signup_ErrorMissingEmail", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Password is required..
         /// </summary>
-        public static string Signup_MissingPassword {
+        public static string Signup_ErrorMissingPassword {
             get {
-                return ResourceManager.GetString("Signup_MissingPassword", resourceCulture);
+                return ResourceManager.GetString("Signup_ErrorMissingPassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Token is required..
         /// </summary>
-        public static string Signup_MissingToken {
+        public static string Signup_ErrorMissingToken {
             get {
-                return ResourceManager.GetString("Signup_MissingToken", resourceCulture);
+                return ResourceManager.GetString("Signup_ErrorMissingToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email verified successfully..
+        /// </summary>
+        public static string Signup_SuccessEmailVerified {
+            get {
+                return ResourceManager.GetString("Signup_SuccessEmailVerified", resourceCulture);
             }
         }
         

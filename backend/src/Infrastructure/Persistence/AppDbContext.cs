@@ -52,10 +52,11 @@ namespace backend.Infrastructure.Persistence
             modelBuilder.Entity<Token>(entity =>
             {
                 entity.ToTable("tokens", "core");
-                entity.HasIndex(ut => ut.TokenId).IsUnique();
+                entity.HasIndex(t => t.TokenId).IsUnique();
+                entity.HasIndex(t => t.TokenHash).IsUnique();
                 entity
-                    .HasOne(ut => ut.AccountById).WithMany(u => u.TokensById)
-                    .HasForeignKey(ut => ut.AccountId).HasPrincipalKey(u => u.AccountId)
+                    .HasOne(t => t.AccountById).WithMany(a => a.TokensById)
+                    .HasForeignKey(t => t.AccountId).HasPrincipalKey(a => a.AccountId)
                     .OnDelete(DeleteBehavior.Cascade);
                 //entity
                     // .HasOne(ut => ut.UserByEmail).WithMany(u => u.UserTokensByEmail)

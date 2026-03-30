@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Signup_MissingEmail" xml:space="preserve">
+  <data name="Signup_ErrorMissingEmail" xml:space="preserve">
     <value>Email is required.</value>
   </data>
-  <data name="Signup_MissingPassword" xml:space="preserve">
+  <data name="Signup_ErrorMissingPassword" xml:space="preserve">
     <value>Password is required.</value>
   </data>
   <data name="GeneralServerError" xml:space="preserve">
@@ -138,16 +138,25 @@
   <data name="GeneralInvalidEmail" xml:space="preserve">
     <value>Only valid email addresses are allowed.</value>
   </data>
-  <data name="Signup_InvalidPassword" xml:space="preserve">
+  <data name="Signup_ErrorInvalidPassword" xml:space="preserve">
     <value>Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters.</value>
   </data>
   <data name="Signup_VerificationEmailSent" xml:space="preserve">
     <value>A verification link has been sent to the provided email. Click the link in the email message to continue signup.</value>
   </data>
-  <data name="Signup_MissingToken" xml:space="preserve">
+  <data name="Signup_ErrorMissingToken" xml:space="preserve">
     <value>Token is required.</value>
   </data>
-  <data name="Signup_InvalidToken" xml:space="preserve">
+  <data name="Signup_ErrorInvalidToken" xml:space="preserve">
     <value>Token is expired or invalid.</value>
+  </data>
+  <data name="Email_SubjectAccountAlreadyExists" xml:space="preserve">
+    <value>Security Alert: Attempted account signup</value>
+  </data>
+  <data name="Email_SubjectVerifyEmailAddress" xml:space="preserve">
+    <value>Verify your email address</value>
+  </data>
+  <data name="Signup_SuccessEmailVerified" xml:space="preserve">
+    <value>Email verified successfully.</value>
   </data>
 </root>
