@@ -8,6 +8,7 @@ namespace backend.Domain.Tokens
     public enum TokenType
     {
         EmailVerification,
+        ResumeSignup,
         EmailUpdate,
         PasswordReset
     }

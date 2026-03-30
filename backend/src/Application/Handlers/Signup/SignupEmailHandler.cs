@@ -79,6 +79,10 @@ namespace backend.Application.Handlers.Signup
         {
             if(existingAccount.HasVerifiedEmail)
             {
+                // TODO: Handle sending warning email. Result depends on if they completed sign up or not.
+                // If they completed signup, it should send standard SignupAttemptAccountExists.html
+                // If they havent, it should send SignupAttemptAccountIncomplete.html with a magic link/token to continue by establishing a new session.
+                
                 // Send warning email to existing account owner and pretend-prompt client that an email was sent.
                 _logger.LogInformation("Signup attempt with email {Email} that already has a verified account. Sending warning email.", existingAccount.Email);
                 string warningEmailBody = EmailTemplateLoader.LoadTemplate("AccountAlreadyExists.html");
