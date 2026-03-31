@@ -1,15 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Net;
 using backend.Domain.Accounts;
 
 namespace backend.Domain.Sessions
 {
     public class Session
     {
-        // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        // public long Id { get; set; }
-
         [Key]
         [Required]
         public Guid SessionId { get; set; } = Guid.CreateVersion7();
@@ -23,14 +20,13 @@ namespace backend.Domain.Sessions
         [Required]
         public DateTimeOffset ExpiresAt { get; set; }
 
-        [Required]
-        public string UserAgent { get; set; } = null!;
+        public string? UserAgent { get; set; } = null!;
 
-        [Required]
-        public string IpAddress { get; set; } = null!;
+        public IPAddress? IpAddress { get; set; } = null!;
 
-        [Required]
-        public bool IsExpired { get; set; } = false;
+        public DateTimeOffset? RevokedAt { get; set; } = null;
+
+        // Navigation properties
 
         public Account Account { get; set; } = null!;
     }

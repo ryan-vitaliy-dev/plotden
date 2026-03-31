@@ -77,7 +77,7 @@ namespace backend.Application.Handlers.Signup
 
         private async Task<ServiceResult<AccountSignupEmailResult>> HandleExistingAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, CancellationToken clt)
         {
-            if(existingAccount.HasVerifiedEmail)
+            if(existingAccount.VerifiedAt != null)
             {
                 // TODO: Handle sending warning email. Result depends on if they completed sign up or not.
                 // If they completed signup, it should send standard SignupAttemptAccountExists.html

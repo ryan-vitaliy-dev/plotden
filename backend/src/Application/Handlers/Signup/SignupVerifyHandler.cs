@@ -1,5 +1,6 @@
 
 
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using backend.API.DTOs.Accounts;
@@ -33,7 +34,7 @@ namespace backend.Application.Handlers.Signup
         private readonly SessionService _sessionService = sessionService;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
-        public async Task<ServiceResult<AccountSignupVerifyResult>> HandleAsync(AccountSignupVerifyDTO dto, string ipAddress, string userAgent, CancellationToken clt)
+        public async Task<ServiceResult<AccountSignupVerifyResult>> HandleAsync(AccountSignupVerifyDTO dto, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
         {
             // 1. Hash token in query
             // 2. Check token
@@ -83,7 +84,7 @@ namespace backend.Application.Handlers.Signup
             }
 
             // Create a session
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(matchingAccount.AccountId, ipAddress, userAgent, clt: clt);
+            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(matchingAccount.AccountId, ipAddress, userAgent, null, clt);
             if(sessionCreationResult.IsFailure)
             {
                 // TODO: what should we do if it fails to make a session?

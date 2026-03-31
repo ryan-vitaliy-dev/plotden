@@ -1,3 +1,4 @@
+using System.Net;
 using backend.API.DTOs.Accounts;
 using backend.Application.Accounts.DTOs;
 
@@ -61,8 +62,8 @@ namespace backend.API.Controllers.Accounts
         [HttpPatch("accounts/signup/verify")]
         public async Task<IActionResult> VerifyAccountEmail([FromQuery] AccountSignupVerifyDTO dto, CancellationToken clt) 
         {
-            System.Net.IPAddress? ipHeader = HttpContext.Connection.RemoteIpAddress;
-            string ipAddress = ipHeader != null ? ipHeader.ToString() : "Unknown";
+            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
+            //string ipAddress = ipHeader != null ? ipHeader.ToString() : "Unknown";
             string userAgent = HttpContext.Request.Headers.UserAgent.FirstOrDefault() ?? "Unknown";
 
             ServiceResult<AccountSignupVerifyResult> verifySignupResult = await _signupVerifyHandler.HandleAsync(dto, ipAddress, userAgent, clt);

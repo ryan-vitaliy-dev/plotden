@@ -1,3 +1,4 @@
+using System.Net;
 using backend.Domain.Sessions;
 using backend.Infrastructure.Common;
 using backend.Infrastructure.Persistence;
@@ -28,9 +29,9 @@ namespace backend.Application.Sessions
         /// A <see cref="ServiceResult{T}"/> containing an <see cref="Session"/> if the creation succeeds,
         /// or a failure with an appropriate <see cref="ServiceError"/>.
         /// </returns>
-        public async Task<ServiceResult<Session>> CreateSessionAsync(Guid accountId, string ipAddress, string userAgent = "Unknown", DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
+        public async Task<ServiceResult<Session>> CreateSessionAsync(Guid accountId, IPAddress? ipAddress, string? userAgent, DateTimeOffset? createdAtOverride, CancellationToken clt)
         {
-            if(accountId == Guid.Empty || string.IsNullOrWhiteSpace(ipAddress))
+            if(accountId == Guid.Empty)
             {
                 return ServiceResult<Session>.Failure(ServiceError.InvalidInput);
             }
@@ -45,7 +46,6 @@ namespace backend.Application.Sessions
                     ExpiresAt = expiresAt,
                     UserAgent = userAgent,
                     IpAddress = ipAddress,
-                    IsExpired = false,
                 };
 
                 await _context.Sessions.AddAsync(newSession, clt);

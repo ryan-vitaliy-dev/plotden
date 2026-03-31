@@ -65,7 +65,6 @@ namespace backend.Application.Accounts
                 {
                     Email = email,
                     CreatedAt = createdAt,
-                    HasVerifiedEmail = false
                 };
                 
                 string initialUsername = await _usernameGenerator.GenerateUsername();
@@ -148,7 +147,6 @@ namespace backend.Application.Accounts
             }
             try
             {
-                account.HasVerifiedEmail = true;
                 account.VerifiedAt = DateTimeOffset.UtcNow;
                 await _appDbContext.SaveChangesAsync(clt);
                 return ServiceResult<Unit>.Success(Unit.Value);
