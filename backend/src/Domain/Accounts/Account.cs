@@ -25,6 +25,8 @@ namespace backend.Domain.Accounts
 
         public DateTimeOffset? VerifiedAt { get; set; } = null;
 
+        public DateTimeOffset? FinishedSignupAt { get; set; } = null;
+
         // Navigation properties
 
         public Profile Profile { get; set; } = null!;
