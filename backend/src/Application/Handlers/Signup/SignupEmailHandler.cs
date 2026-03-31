@@ -41,51 +41,59 @@ namespace backend.Application.Handlers.Signup
         /// A <see cref="ServiceResult{T}"/> containing an <see cref="AccountSignupEmailResult"/> if the signup succeeds,
         /// or a failure with an appropriate <see cref="ServiceError"/> if any step fails.
         /// </returns>
-        public async Task<ServiceResult<AccountSignupEmailResult>> HandleAsync(AccountSignupEmailDTO dto, CancellationToken clt)
+        public async Task<ServiceResult<AccountSignupEmailResult>> HandleAsync(AccountSignupEmailDTO dto, 
+        CancellationToken clt)
         {
+            Account? accountToUseForSignup = null;
             DateTimeOffset consistentCreatedAtDateTime = DateTimeOffset.UtcNow;
 
             ServiceResult<Account> existingAccountCheckResult = await _accountService.FindAccountByEmailAsync(dto.Email, clt);
             if(existingAccountCheckResult.IsSuccess)
-            {
-                Account foundAccount = existingAccountCheckResult.Value;
-                return await HandleExistingAccountAsync(foundAccount, consistentCreatedAtDateTime, clt);
+            { 
+                Account existingAccount = existingAccountCheckResult.Value;
+                if(existingAccount.VerifiedAt != null)
+                {
+                    // If account is verified, handle it differently.
+                    return await HandleExistingVerifiedAccountAsync(existingAccount, consistentCreatedAtDateTime, clt);
+                }
+                // Otherwise, use Account, generate Token, construct link, and send email with link
+                accountToUseForSignup = existingAccount;
             }
-
-            if(existingAccountCheckResult.ErrorCode.HasValue && existingAccountCheckResult.ErrorCode != ServiceError.NoAccountFound)
+            else if(existingAccountCheckResult.ErrorCode.HasValue && existingAccountCheckResult.ErrorCode != ServiceError.NoAccountFound)
             {
                 // Other issue occurred - either invalid email somehow or 
                 // TODO: FE sees error like "Unknown error - try again later"
                 return ServiceResult<AccountSignupEmailResult>.Failure(existingAccountCheckResult.ErrorCode.Value);
             }
 
-            ServiceResult<Account> accountCreationResult = await _accountService.CreateAccountAsync(dto.Email, consistentCreatedAtDateTime, clt: clt);
-            if(accountCreationResult.IsFailure)
+            if(accountToUseForSignup == null)
             {
-                _logger.LogError("Account creation failed for email {Email}. Error: {ErrorCode}", dto.Email, accountCreationResult.ErrorCode);
-                return accountCreationResult.ErrorCode switch
+                ServiceResult<Account> accountCreationResult = await _accountService.CreateAccountAsync(dto.Email, consistentCreatedAtDateTime, clt: clt);
+                if(accountCreationResult.IsFailure)
                 {
-                    ServiceError.InvalidInput => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.InvalidInput),
-                    ServiceError.OperationCancelled => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                    _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
-                };
+                    _logger.LogError("Account creation failed for email {Email}. Error: {ErrorCode}", dto.Email, accountCreationResult.ErrorCode);
+                    return accountCreationResult.ErrorCode switch
+                    {
+                        ServiceError.InvalidInput => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.InvalidInput),
+                        ServiceError.OperationCancelled => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.OperationCancelled),
+                        _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
+                    };
+                }
+                accountToUseForSignup = accountCreationResult.Value;
             }
-            Account createdAccount = accountCreationResult.Value;
-            return await GenerateTokenAndSendVerificationEmail(createdAccount, consistentCreatedAtDateTime, clt);
+            // Generate Token, construct link, and send email with link
+            return await GenerateTokenAndSendEmail(accountToUseForSignup, TokenType.EmailVerification, consistentCreatedAtDateTime, clt);
         }
 
 
-        private async Task<ServiceResult<AccountSignupEmailResult>> HandleExistingAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, CancellationToken clt)
+        private async Task<ServiceResult<AccountSignupEmailResult>> HandleExistingVerifiedAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, 
+        CancellationToken clt)
         {
-            if(existingAccount.VerifiedAt != null)
+            if(existingAccount.FinishedSignupAt != null)
             {
-                // TODO: Handle sending warning email. Result depends on if they completed sign up or not.
-                // If they completed signup, it should send standard SignupAttemptAccountExists.html
-                // If they havent, it should send SignupAttemptAccountIncomplete.html with a magic link/token to continue by establishing a new session.
-                
-                // Send warning email to existing account owner and pretend-prompt client that an email was sent.
+                // Simply warn them that someone else tried to sign up a new Account with the email
                 _logger.LogInformation("Signup attempt with email {Email} that already has a verified account. Sending warning email.", existingAccount.Email);
-                string warningEmailBody = EmailTemplateLoader.LoadTemplate("AccountAlreadyExists.html");
+                string warningEmailBody = EmailTemplateLoader.LoadTemplate("SignupAttemptAccountExists.html");
 
                 bool warningEmailSent = await _emailSender.SendAsync(new EmailMessage(existingAccount.Email, _localizer["Email_SubjectAccountAlreadyExists"].Value, warningEmailBody), clt);
                 if(warningEmailSent)
@@ -97,16 +105,24 @@ namespace backend.Application.Handlers.Signup
                 {
                     _logger.LogWarning("Warning email failed to be sent to email {Email}.", existingAccount.Email);
                     return ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError);
-                }
+                }                
             }
-            return await GenerateTokenAndSendVerificationEmail(existingAccount, createdAtOverride, clt);
+            // send SignupAttemptAccountIncomplete.html with a magic link/token to continue by establishing a new session.
+            //return await GenerateTokenAndSendVerificationEmail(existingAccount, createdAtOverride, clt);
+
+            // TODO:
+            // Maybe add TokenType parameter to GenerateTokenAndSend... since to finish this case we need to send a ResumeSignup token,
+            // and in other cases we need to send EmailVerification token
+            return await GenerateTokenAndSendEmail(existingAccount, TokenType.ResumeSignup, createdAtOverride, clt);
         }
 
 
-        private async Task<ServiceResult<AccountSignupEmailResult>> GenerateTokenAndSendVerificationEmail(Account account, DateTimeOffset? createdAtOverride, CancellationToken clt)
+
+        private async Task<ServiceResult<AccountSignupEmailResult>> GenerateTokenAndSendEmail(Account account, TokenType tokenType, DateTimeOffset? createdAtOverride, 
+        CancellationToken clt)
         {
             // Invalidate old tokens
-            ServiceResult<Unit> invalidateTokenResult = await _tokenService.InvalidateTokenAsync(account.AccountId, TokenType.EmailVerification, clt);
+            ServiceResult<Unit> invalidateTokenResult = await _tokenService.InvalidateTokenAsync(account.AccountId, tokenType, clt);
             if(invalidateTokenResult.IsFailure)
             {
                 // Do not issue a new token.
@@ -117,62 +133,53 @@ namespace backend.Application.Handlers.Signup
                     _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
                 };
             }
-            
-            ServiceResult<TokenCreationResult> verificationEmailTokenCreationResult = await _tokenService.CreateTokenAsync(account.AccountId, TokenType.EmailVerification, createdAtOverride, clt);
-            if(verificationEmailTokenCreationResult.IsFailure)
+
+            ServiceResult<TokenCreationResult> tokenCreationResult = await _tokenService.CreateTokenAsync(account.AccountId, tokenType, createdAtOverride, clt);
+            if(tokenCreationResult.IsFailure)
             {
-                _logger.LogWarning("Verification token creation failed for email {Email}. Error: {ErrorCode}", account.Email, verificationEmailTokenCreationResult.ErrorCode);
+                _logger.LogWarning("{TokenType} token creation failed for email {Email}. Error: {ErrorCode}", tokenType.ToString(), account.Email, tokenCreationResult.ErrorCode);
                 // Note: If this fails, it doesnt matter if we report it since we have an avenue for them to resend it anyways.
-                return verificationEmailTokenCreationResult.ErrorCode switch
+                return tokenCreationResult.ErrorCode switch
                 {
                     ServiceError.InvalidInput => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.InvalidInput),
                     ServiceError.OperationCancelled => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.OperationCancelled),
                     _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
                 };
             }
-            TokenCreationResult createdToken = verificationEmailTokenCreationResult.Value;
+            TokenCreationResult createdToken = tokenCreationResult.Value;
 
-            // Note: ran into an issue here because we dont store the raw token aka pre-hashed token value, so we cant recycle it.
-            // TokenCreationResult createdOrRecycledToken;
-            // ServiceResult<Token> existingTokenCheckResult = await _tokenService.FindActiveTokenByAccountAndTypeAsync(account.AccountId, TokenType.EmailVerification, clt);
-            // if(existingTokenCheckResult.IsFailure)
-            // {
-            //     // TODO: Invalidate expired token, may need to update FindActiveTokenByAccountAndTypeAsync return to support that
-            //     // No existing active token found so create a new one.
-            //     ServiceResult<TokenCreationResult> verificationEmailTokenCreationResult = await _tokenService.CreateTokenAsync(account.AccountId, TokenType.EmailVerification, createdAtOverride, clt);
-            //     if(verificationEmailTokenCreationResult.IsFailure)
-            //     {
-            //         _logger.LogWarning("Verification token creation failed for email {Email}. Error: {ErrorCode}", account.Email, verificationEmailTokenCreationResult.ErrorCode);
-            //         // Note: If this fails, it doesnt matter if we report it since we have an avenue for them to resend it anyways.
-            //         return verificationEmailTokenCreationResult.ErrorCode switch
-            //         {
-            //             ServiceError.InvalidInput => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.InvalidInput),
-            //             ServiceError.OperationCancelled => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.OperationCancelled),
-            //             _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
-            //         };
-            //     }
-            //     createdOrRecycledToken = verificationEmailTokenCreationResult.Value;
-            // }
-            // else
-            // {
-            //     // Recycle existing active token
-            //     Token existingToken = existingTokenCheckResult.Value;
-            //     createdOrRecycledToken = new(existingToken.)
-            // }
-
-            string verificationEmailBody = EmailTemplateLoader.LoadTemplate("SignupVerificationLink.html", new Dictionary<string, string>
+            // TODO later: move this email switching logic somewhere else (maybe make an EmailService.cs for it? since I may need it later too)
+            string emailSubject;
+            string emailBody;
+            if(tokenType == TokenType.EmailVerification)
             {
+                emailSubject = _localizer["Email_SubjectVerifyEmailAddress"].Value;
+                emailBody = EmailTemplateLoader.LoadTemplate("SignupVerificationLink.html", new Dictionary<string, string>
+                {
                 ["VerificationLink"] = "plotden.com/verify?token=" + createdToken.TokenRaw
-            });
-            bool verificationEmailSent = await _emailSender.SendAsync(new EmailMessage(account.Email, _localizer["Email_SubjectVerifyEmailAddress"].Value, verificationEmailBody), clt);
-            if(verificationEmailSent)
+                });
+            }
+            else if(tokenType == TokenType.ResumeSignup)
+            {
+                emailSubject = _localizer["Email_SubjectAccountAlreadyExists"].Value;
+                emailBody = EmailTemplateLoader.LoadTemplate("SignupAttemptAccountIncomplete.html", new Dictionary<string, string>
+                {
+                ["SignupResumeLink"] = "plotden.com/resume?token=" + createdToken.TokenRaw
+                });
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+            bool emailSent = await _emailSender.SendAsync(new EmailMessage(account.Email, emailSubject, emailBody), clt);
+            if(emailSent)
             {
                 AccountSignupEmailResult result = new(account.Email);
                 return ServiceResult<AccountSignupEmailResult>.Success(result);
             }
             else
             {
-                _logger.LogWarning("Verification email failed to be sent to email {Email}.", account.Email);
+                _logger.LogWarning("{TokenType} email failed to be sent to email {Email}.", tokenType, account.Email);
                 return ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError);
             }
         }
