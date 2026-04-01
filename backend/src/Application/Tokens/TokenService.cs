@@ -11,20 +11,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Application.Tokens
 {
-    public class TokenService(AppDbContext appDbContext, ITokenGenerator tokenGenerator)
+    public class TokenService(AppDbContext appDbContext, ITokenGenerator tokenGenerator, IConfiguration configuration)
     {
+        private readonly TimeSpan _emailVerificationTokenDuration = TimeSpan.Parse(configuration["Tokens:EmailVerification:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:EmailVerification:ExpiresIn is not configured."));
+
+        private readonly TimeSpan _resumeSignupTokenDuration = TimeSpan.Parse(configuration["Tokens:ResumeSignup:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:ResumeSignup:ExpiresIn is not configured."));
+
         private readonly AppDbContext _appDbContext = appDbContext;
 
         private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
-
-        /*
-
-            + CreateTokenAsync
-            + FindTokenByHash
-        + VerifyTokenAsync
-        + InvalidateTokenAsync
-        
-        */
 
         public async Task<ServiceResult<TokenCreationResult>> CreateTokenAsync(Guid accountId, TokenType tokenType, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
         {
@@ -35,7 +30,14 @@ namespace backend.Application.Tokens
             try
             {
                 DateTimeOffset createdAt = createdAtOverride ?? DateTimeOffset.UtcNow;
-                DateTimeOffset expiresAt = createdAt.AddMinutes(15); // TODO: make token expiration configurable, maybe depends on token type
+                TimeSpan expiresIn = tokenType switch
+                {
+                    TokenType.EmailVerification => _emailVerificationTokenDuration,
+                    TokenType.ResumeSignup => _resumeSignupTokenDuration,
+                    _ => _emailVerificationTokenDuration,
+                };
+                DateTimeOffset expiresAt = createdAt.Add(expiresIn);
+                
                 string generatedToken = _tokenGenerator.GenerateToken(); 
 
                 byte[] generatedTokenBytes = Encoding.UTF8.GetBytes(generatedToken);

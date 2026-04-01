@@ -16,6 +16,7 @@ using backend.Application.Handlers;
 using backend.Infrastructure.Security;
 using backend.Application.Tokens;
 using backend.Application.Handlers.Signup;
+using backend.Application.Email;
 // using backend.Features.Profiles;
 // using backend.Features.Auth.Handlers;
 
@@ -62,6 +63,7 @@ builder.Services.AddTransient<IEmailSender, FluentEmailSender>();
 builder.Services.AddTransient<IUsernameGenerator, AdjectiveNounUsernameGenerator>();
 builder.Services.AddTransient<ITokenGenerator, SecureTokenGenerator>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<SignupEmailHandler>(); // temp?
