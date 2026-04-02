@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace backend.API.DTOs.Accounts
+namespace backend.API.DTOs.Auth
 {
-    public class AccountSignupPasswordDTO
+    public class SignupPasswordDTO
     {
         [JsonPropertyName("password")]
         [Required(ErrorMessageResourceName = "Signup_ErrorMissingPassword", ErrorMessageResourceType = typeof(Resources.SharedResource))]

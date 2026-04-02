@@ -1,12 +1,8 @@
-using backend.API.DTOs.Accounts;
-
 using backend.Application.Accounts;
-using backend.Application.Accounts.DTOs;
 using backend.Application.Tokens;
 using backend.Application.Tokens.DTOs;
 
 using backend.Infrastructure.Common;
-using backend.Infrastructure.Email;
 
 using backend.Domain.Accounts;
 using backend.Domain.Sessions;
@@ -15,6 +11,8 @@ using backend.Application.Common;
 using Microsoft.Extensions.Localization;
 using backend.Resources;
 using backend.Application.Email;
+using backend.Application.Auth.DTOs;
+using backend.API.DTOs.Auth;
 
 namespace backend.Application.Handlers.Signup
 {
@@ -42,7 +40,7 @@ namespace backend.Application.Handlers.Signup
         /// A <see cref="ServiceResult{T}"/> containing an <see cref="AccountSignupEmailResult"/> if the signup succeeds,
         /// or a failure with an appropriate <see cref="ServiceError"/> if any step fails.
         /// </returns>
-        public async Task<ServiceResult<AccountSignupEmailResult>> HandleAsync(AccountSignupEmailDTO dto, 
+        public async Task<ServiceResult<SignupEmailResult>> HandleAsync(SignupEmailDTO dto, 
         CancellationToken clt)
         {
             Account? accountToUseForSignup = null;
@@ -64,7 +62,7 @@ namespace backend.Application.Handlers.Signup
             {
                 // Other issue occurred - either invalid email somehow or 
                 // TODO: FE sees error like "Unknown error - try again later"
-                return ServiceResult<AccountSignupEmailResult>.Failure(existingAccountCheckResult.ErrorCode.Value);
+                return ServiceResult<SignupEmailResult>.Failure(existingAccountCheckResult.ErrorCode.Value);
             }
 
             if(accountToUseForSignup == null)
@@ -75,9 +73,9 @@ namespace backend.Application.Handlers.Signup
                     _logger.LogError("Account creation failed for email {Email}. Error: {ErrorCode}", dto.Email, accountCreationResult.ErrorCode);
                     return accountCreationResult.ErrorCode switch
                     {
-                        ServiceError.InvalidInput => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.InvalidInput),
-                        ServiceError.OperationCancelled => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                        _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
+                        ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
+                        ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
+                        _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
                     };
                 }
                 accountToUseForSignup = accountCreationResult.Value;
@@ -87,7 +85,7 @@ namespace backend.Application.Handlers.Signup
         }
 
 
-        private async Task<ServiceResult<AccountSignupEmailResult>> HandleExistingVerifiedAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, 
+        private async Task<ServiceResult<SignupEmailResult>> HandleExistingVerifiedAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, 
         CancellationToken clt)
         {
             if(existingAccount.FinishedSignupAt != null)
@@ -98,12 +96,12 @@ namespace backend.Application.Handlers.Signup
                 ServiceResult<Unit> emailSendResult = await _emailService.SendAccountExistsEmailAsync(existingAccount.Email, clt);
                 if(emailSendResult.IsSuccess)
                 {
-                    AccountSignupEmailResult result = new(existingAccount.Email);
-                    return ServiceResult<AccountSignupEmailResult>.Success(result);
+                    SignupEmailResult result = new(existingAccount.Email);
+                    return ServiceResult<SignupEmailResult>.Success(result);
                 }
                 else
                 {
-                    return ServiceResult<AccountSignupEmailResult>.Failure(emailSendResult.ErrorCode!.Value);
+                    return ServiceResult<SignupEmailResult>.Failure(emailSendResult.ErrorCode!.Value);
                 }
             }
             else {
@@ -113,7 +111,7 @@ namespace backend.Application.Handlers.Signup
 
 
 
-        private async Task<ServiceResult<AccountSignupEmailResult>> GenerateTokenAndSendEmail(Account account, TokenType tokenType, DateTimeOffset? createdAtOverride, 
+        private async Task<ServiceResult<SignupEmailResult>> GenerateTokenAndSendEmail(Account account, TokenType tokenType, DateTimeOffset? createdAtOverride, 
         CancellationToken clt)
         {
             // Invalidate old tokens
@@ -123,9 +121,9 @@ namespace backend.Application.Handlers.Signup
                 // Do not issue a new token.
                 return invalidateTokenResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.InvalidInput),
-                    ServiceError.OperationCancelled => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                    _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
+                    ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
+                    ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
+                    _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
                 };
             }
 
@@ -136,9 +134,9 @@ namespace backend.Application.Handlers.Signup
                 // Note: If this fails, it doesnt matter if we report it since we have an avenue for them to resend it anyways(?)
                 return tokenCreationResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.InvalidInput),
-                    ServiceError.OperationCancelled => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                    _ => ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError)
+                    ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
+                    ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
+                    _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
                 };
             }
             TokenCreationResult createdToken = tokenCreationResult.Value;
@@ -154,17 +152,17 @@ namespace backend.Application.Handlers.Signup
             }
             else
             {
-                return ServiceResult<AccountSignupEmailResult>.Failure(ServiceError.UnknownError);
+                return ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError);
             }
 
             if(emailSendResult.IsSuccess)
             {
-                AccountSignupEmailResult result = new(account.Email);
-                return ServiceResult<AccountSignupEmailResult>.Success(result);
+                SignupEmailResult result = new(account.Email);
+                return ServiceResult<SignupEmailResult>.Success(result);
             }
             else
             {
-                return ServiceResult<AccountSignupEmailResult>.Failure(emailSendResult.ErrorCode!.Value);
+                return ServiceResult<SignupEmailResult>.Failure(emailSendResult.ErrorCode!.Value);
             }
         }
     }

@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 
 using backend.Application.Accounts.ValidationAttributes;
 
-namespace backend.API.DTOs.Accounts
+namespace backend.API.DTOs.Auth
 {
-    public class AccountSignupEmailDTO
+    public class SignupEmailDTO
     {
         [JsonPropertyName("email")]
         [Required(ErrorMessageResourceName = "Signup_ErrorMissingEmail", ErrorMessageResourceType = typeof(Resources.SharedResource))]

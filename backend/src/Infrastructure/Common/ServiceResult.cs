@@ -1,5 +1,3 @@
-using backend.Application.Accounts.DTOs;
-
 namespace backend.Infrastructure.Common
 {
     /// <summary>

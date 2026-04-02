@@ -1,6 +1,4 @@
-using backend.API.DTOs.Accounts;
 using backend.Application.Accounts;
-using backend.Application.Accounts.DTOs;
 using backend.Application.Sessions;
 using backend.Application.Tokens;
 using backend.Domain.Accounts;

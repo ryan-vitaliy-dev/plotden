@@ -3,9 +3,9 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using backend.API.DTOs.Accounts;
+using backend.API.DTOs.Auth;
 using backend.Application.Accounts;
-using backend.Application.Accounts.DTOs;
+using backend.Application.Auth.DTOs;
 using backend.Application.Common;
 using backend.Application.Sessions;
 using backend.Application.Tokens;
@@ -34,7 +34,7 @@ namespace backend.Application.Handlers.Signup
         private readonly SessionService _sessionService = sessionService;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
-        public async Task<ServiceResult<AccountSignupVerifyResult>> HandleAsync(AccountSignupVerifyDTO dto, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
+        public async Task<ServiceResult<SignupVerifyResult>> HandleAsync(SignupVerifyDTO dto, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
         {
             // 1. Hash token in query
             // 2. Check token
@@ -53,7 +53,7 @@ namespace backend.Application.Handlers.Signup
             if(findMatchingTokenResult.IsFailure)
             {
                 // Either a DB error such as a connection error or the token is invalid/expired
-                return ServiceResult<AccountSignupVerifyResult>.Failure(findMatchingTokenResult.ErrorCode!.Value);
+                return ServiceResult<SignupVerifyResult>.Failure(findMatchingTokenResult.ErrorCode!.Value);
             }
             Token matchingToken = findMatchingTokenResult.Value;
 
@@ -62,7 +62,7 @@ namespace backend.Application.Handlers.Signup
             {
                 // Either a DB error such as connection error or some other unexpected error, log it for safety
                 _logger.LogError("Could not find matching account with id {AccountId} for token hash {TokenHash}", matchingToken.AccountId, matchingToken.TokenHash);
-                return ServiceResult<AccountSignupVerifyResult>.Failure(findMatchingAccountResult.ErrorCode!.Value);
+                return ServiceResult<SignupVerifyResult>.Failure(findMatchingAccountResult.ErrorCode!.Value);
             }
             Account matchingAccount = findMatchingAccountResult.Value;
 
@@ -73,14 +73,14 @@ namespace backend.Application.Handlers.Signup
             if(consumeTokenResult.IsFailure)
             {
                 // TODO: what should we do if it fails to mark it as consumed?
-                return ServiceResult<AccountSignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
+                return ServiceResult<SignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
             }
 
             ServiceResult<Unit> verifyAccountEmailResult = await _accountService.VerifyAccountEmailAsync(matchingAccount, clt);
             if(verifyAccountEmailResult.IsFailure)
             {
                 // TODO: what should we do if it fails to mark it as verified?
-                return ServiceResult<AccountSignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
+                return ServiceResult<SignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
             }
 
             // Create a session
@@ -88,12 +88,12 @@ namespace backend.Application.Handlers.Signup
             if(sessionCreationResult.IsFailure)
             {
                 // TODO: what should we do if it fails to make a session?
-                return ServiceResult<AccountSignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
+                return ServiceResult<SignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
             }
             Session createdSession = sessionCreationResult.Value;
 
-            AccountSignupVerifyResult result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
-            return ServiceResult<AccountSignupVerifyResult>.Success(result);
+            SignupVerifyResult result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
+            return ServiceResult<SignupVerifyResult>.Success(result);
         }
     }
 }
