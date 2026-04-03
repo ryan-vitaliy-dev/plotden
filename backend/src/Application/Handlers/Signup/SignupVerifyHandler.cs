@@ -3,20 +3,21 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using backend.API.DTOs.Auth;
-using backend.Application.Accounts;
-using backend.Application.Auth.DTOs;
-using backend.Application.Common;
-using backend.Application.Sessions;
-using backend.Application.Tokens;
-using backend.Domain.Accounts;
-using backend.Domain.Sessions;
-using backend.Domain.Tokens;
-using backend.Infrastructure.Common;
-using backend.Resources;
 using Microsoft.Extensions.Localization;
 
-namespace backend.Application.Handlers.Signup
+using Application.Accounts;
+using Application.Auth.DTOs;
+using Application.Common;
+using Application.Sessions;
+using Application.Tokens;
+using Domain.Accounts;
+using Domain.Sessions;
+using Domain.Tokens;
+using Domain.Common;
+using Application.Resources;
+using Microsoft.Extensions.Logging;
+
+namespace Application.Handlers.Signup
 {
     public class SignupVerifyHandler(
         ILogger<SignupVerifyHandler> logger, 
@@ -34,7 +35,7 @@ namespace backend.Application.Handlers.Signup
         private readonly SessionService _sessionService = sessionService;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
-        public async Task<ServiceResult<SignupVerifyResult>> HandleAsync(SignupVerifyDTO dto, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
+        public async Task<ServiceResult<SignupVerifyResult>> HandleAsync(string rawToken, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
         {
             // 1. Hash token in query
             // 2. Check token
@@ -45,7 +46,7 @@ namespace backend.Application.Handlers.Signup
             // 7. Cont: Attach a session cookie
             // 8. Cont: Return 200 OK
             
-            byte[] generatedTokenBytes = Encoding.UTF8.GetBytes(dto.Token);
+            byte[] generatedTokenBytes = Encoding.UTF8.GetBytes(rawToken);
             byte[] tokenHashBytes = SHA256.HashData(generatedTokenBytes);
             string tokenHash = Convert.ToHexStringLower(tokenHashBytes);
 

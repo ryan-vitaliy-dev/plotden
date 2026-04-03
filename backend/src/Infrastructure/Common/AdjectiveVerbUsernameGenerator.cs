@@ -1,6 +1,6 @@
-using backend.Application.Common.Interfaces;
+using Application.Common.Interfaces;
 
-namespace backend.Infrastructure.Common
+namespace Infrastructure.Common
 {
     public class AdjectiveNounUsernameGenerator : IUsernameGenerator
     {

@@ -1,20 +1,20 @@
 using System.Net;
 
 // using backend.Application.Accounts.DTOs;
-using backend.Application.Handlers;
-using backend.Application.Handlers.Signup;
-using backend.Domain.Accounts;
+using Application.Handlers;
+using Application.Handlers.Signup;
+using Domain.Accounts;
 
 
 // using backend.Features.Auth.Handlers;
-using backend.Infrastructure.Common;
-using backend.Infrastructure.Persistence;
-using backend.Resources;
+using Infrastructure.Common;
+using Infrastructure.Persistence;
+using Application.Resources;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
-namespace backend.API.Controllers.Accounts
+namespace API.Controllers.Accounts
 {
 
     [ApiController]

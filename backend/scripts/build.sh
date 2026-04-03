@@ -1,3 +1,3 @@
 #!/bin/bash
-rm src/Resources/SharedResource.Designer.cs
+rm src/Application/Resources/SharedResource.Designer.cs
 dotnet build

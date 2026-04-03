@@ -1,4 +1,4 @@
-namespace backend.Application.Common.Interfaces
+namespace Application.Common.Interfaces
 {
     public interface IUsernameGenerator
     {

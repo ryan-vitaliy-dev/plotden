@@ -1,4 +1,4 @@
-namespace backend.Application.Auth
+namespace Application.Auth
 {
     public class AuthService
     {

@@ -1,4 +1,4 @@
-namespace backend.Infrastructure.Email
+namespace Application.Common
 {
     public class EmailMessage(string To, string Subject, string HtmlBody, string? PlainTextBody = null)
     {

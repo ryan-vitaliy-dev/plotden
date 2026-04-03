@@ -1,23 +1,23 @@
 using System.Security.Cryptography;
 using System.Text;
-using backend.Application.Common;
-using backend.Application.Common.Interfaces;
-using backend.Application.Tokens.DTOs;
-using backend.Domain.Tokens;
-using backend.Infrastructure.Common;
-using backend.Infrastructure.Persistence;
-using backend.Infrastructure.Security;
-using Microsoft.EntityFrameworkCore;
+using Application.Common;
+using Application.Common.Interfaces;
+using Application.Tokens.DTOs;
+using Domain.Common;
+using Domain.Tokens;
 
-namespace backend.Application.Tokens
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
+namespace Application.Tokens
 {
-    public class TokenService(AppDbContext appDbContext, ITokenGenerator tokenGenerator, IConfiguration configuration)
+    public class TokenService(IAppDbContext appDbContext, ITokenGenerator tokenGenerator, IConfiguration configuration)
     {
         private readonly TimeSpan _emailVerificationTokenDuration = TimeSpan.Parse(configuration["Tokens:EmailVerification:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:EmailVerification:ExpiresIn is not configured."));
 
         private readonly TimeSpan _resumeSignupTokenDuration = TimeSpan.Parse(configuration["Tokens:ResumeSignup:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:ResumeSignup:ExpiresIn is not configured."));
 
-        private readonly AppDbContext _appDbContext = appDbContext;
+        private readonly IAppDbContext _appDbContext = appDbContext;
 
         private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
 

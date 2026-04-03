@@ -1,18 +1,16 @@
-using backend.Application.Common;
-using backend.Application.Common.Interfaces;
-using backend.Domain.Accounts;
-using backend.Domain.Profiles;
-using backend.Infrastructure.Common;
-using backend.Infrastructure.Email;
-using backend.Infrastructure.Persistence;
+using Application.Common;
+using Application.Common.Interfaces;
+using Domain.Accounts;
+using Domain.Common;
+using Domain.Profiles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Application.Accounts
+namespace Application.Accounts
 {
-    public class AccountService(AppDbContext appDbContext, IEmailSender emailSender, IUsernameGenerator usernameGenerator)
+    public class AccountService(IAppDbContext appDbContext, IEmailSender emailSender, IUsernameGenerator usernameGenerator)
     {
-        private readonly AppDbContext _appDbContext = appDbContext;
+        private readonly IAppDbContext _appDbContext = appDbContext;
 
         private readonly IEmailSender _emailSender = emailSender;
 
@@ -27,16 +25,6 @@ namespace backend.Application.Accounts
             + FindAccountByEmailAsync
         + UpdateAccountAsync
         + DeleteAccountAsync
-        */
-
-        /*
-
-        Notes:
-        - Didnt check for existing email since we allow duplicate unverified emails (but only one verified one)
-
-        Followup questions:
-        - If I ever change account/profile schema, I'll have to update this here. Is there a better way or is this the best we can do?
-
         */
 
 
@@ -199,23 +187,6 @@ namespace backend.Application.Accounts
         //     {
         //         await transaction.RollbackAsync(clt);
         //         return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
-        //     }
-        // }
-        
-
-
-
-        // public async Task<ServiceResult<bool>> TestAsync(CancellationToken clt)
-        // {
-        //     Console.WriteLine("Received test GET.");
-        //     bool sent = await _emailSender.SendAsync(new EmailMessage("bob@mail.com", "TestEmail", "Hey there!"), clt);
-        //     if(sent)
-        //     {
-        //         return ServiceResult<bool>.Success(true);
-        //     }
-        //     else
-        //     {
-        //         return ServiceResult<bool>.Failure(ServiceError.UnknownError);
         //     }
         // }
     }

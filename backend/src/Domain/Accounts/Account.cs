@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using backend.Domain.Sessions;
-using backend.Domain.Tokens;
-using backend.Domain.Profiles;
+using Domain.Sessions;
+using Domain.Tokens;
+using Domain.Profiles;
 
-namespace backend.Domain.Accounts
+namespace Domain.Accounts
 {
     public class Account
     {

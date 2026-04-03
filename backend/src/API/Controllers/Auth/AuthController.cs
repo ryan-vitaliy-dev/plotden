@@ -1,13 +1,13 @@
 using System.Net;
-using backend.API.DTOs.Auth;
-using backend.Application.Auth.DTOs;
-using backend.Application.Handlers.Signup;
-using backend.Infrastructure.Common;
-using backend.Resources;
+using Application.Auth.DTOs;
+using Application.Handlers.Signup;
+using Domain.Common;
+using Application.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using API.DTOs.Auth;
 
-namespace backend.API.Controllers.Auth
+namespace API.Controllers.Auth
 {
     [ApiController]
     [Route("api/auth")]
@@ -22,10 +22,12 @@ namespace backend.API.Controllers.Auth
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
 
+
         [HttpPost("signup/email")]
         public async Task<IActionResult> SignupEmail([FromBody] SignupEmailDTO dto, CancellationToken clt)
         {
-            ServiceResult<SignupEmailResult> signupResult = await _signupEmailHandler.HandleAsync(dto, clt);
+
+            ServiceResult<SignupEmailResult> signupResult = await _signupEmailHandler.HandleAsync(dto.Email, clt);
 
             if(signupResult.IsFailure)
             {
@@ -43,13 +45,14 @@ namespace backend.API.Controllers.Auth
             });
         }
 
+
         [HttpGet("signup/verify")]
         public async Task<IActionResult> SignupVerify([FromQuery] SignupVerifyDTO dto, CancellationToken clt)
         {
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<SignupVerifyResult> verifySignupResult = await _signupVerifyHandler.HandleAsync(dto, ipAddress, userAgent, clt);
+            ServiceResult<SignupVerifyResult> verifySignupResult = await _signupVerifyHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
 
             if(verifySignupResult.IsFailure)
             {

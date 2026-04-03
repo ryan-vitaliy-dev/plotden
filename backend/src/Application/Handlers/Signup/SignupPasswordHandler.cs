@@ -1,12 +1,11 @@
-using backend.Application.Accounts;
-using backend.Application.Sessions;
-using backend.Application.Tokens;
-using backend.Domain.Accounts;
-using backend.Domain.Sessions;
-using backend.Domain.Tokens;
-using backend.Infrastructure.Common;
+using Application.Accounts;
+using Application.Sessions;
+using Application.Tokens;
+using Domain.Accounts;
+using Domain.Sessions;
+using Domain.Tokens;
 
-namespace backend.Application.Handlers.Signup
+namespace Application.Handlers.Signup
 {
     public class SignupPasswordHandler(AccountService accountService)
     {

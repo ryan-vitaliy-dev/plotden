@@ -1,7 +1,11 @@
+using Application.Common;
+using Application.Common.Interfaces;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 
-namespace backend.Infrastructure.Email
+namespace Infrastructure.Email
 {
     public class FluentEmailSender(ILogger<FluentEmailSender> logger, IConfiguration configuration) : IEmailSender
     {

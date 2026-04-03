@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>f99adeaa-737c-4e53-a976-7878b6c633fc</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Application\Application.csproj" />
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\SharedResource.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <StronglyTypedFileName>Resources\SharedResource.Designer.cs</StronglyTypedFileName>
+            <StronglyTypedModifier>public</StronglyTypedModifier>
+            <StronglyTypedClassName>SharedResource</StronglyTypedClassName>
+            <StronglyTypedNamespace>API.Resources</StronglyTypedNamespace>
+            <PublicClass>true</PublicClass>
+            <LastGenOutput>SharedResource.Designer.cs</LastGenOutput>
+            <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+        </EmbeddedResource>
+    </ItemGroup>
+
+</Project>

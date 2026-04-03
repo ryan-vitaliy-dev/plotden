@@ -1,20 +1,20 @@
-namespace backend.Infrastructure.Email;
+using Application.Common.Interfaces;
 
-public class EmailTemplateLoader
+namespace Infrastructure.Email;
+
+public class EmailTemplateLoader : IEmailTemplateLoader
 {
-    public static string LoadTemplate(string templateName, Dictionary<string, string> values)
+    public string LoadTemplate(string templateName, Dictionary<string, string>? values)
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "Infrastructure", "Email", "Templates", templateName);
+        var path = Path.Combine(AppContext.BaseDirectory, "Email", "Templates", templateName);
         var template = File.ReadAllText(path);
-        foreach (var (key, value) in values)
-            template = template.Replace($"{{{{{key}}}}}", value);
-        return template;
-    }
-
-    public static string LoadTemplate(string templateName)
-    {
-        var path = Path.Combine(AppContext.BaseDirectory, "Infrastructure", "Email", "Templates", templateName);
-        var template = File.ReadAllText(path);
+        if(values != null && values.Count > 0)
+        {
+            foreach (var (key, value) in values)
+            {
+                template = template.Replace($"{{{{{key}}}}}", value);
+            }
+        }
         return template;
     }
 }

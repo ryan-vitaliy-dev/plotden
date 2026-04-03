@@ -1,13 +1,10 @@
-using backend.Infrastructure.Common;
-using backend.Infrastructure.Email;
-using backend.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Identity;
+using Application.Common.Interfaces;
 
-namespace backend.Application.Profiles
+namespace Application.Profiles
 {
-    public class ProfileService(AppDbContext context)
+    public class ProfileService(IAppDbContext context)
     {
-        private readonly AppDbContext _context = context;
+        private readonly IAppDbContext _context = context;
 
         /*
 

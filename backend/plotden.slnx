@@ -1,3 +1,7 @@
 <Solution>
-  <Project Path="src/backend.csproj" />
+  <!-- <Project Path="src/backend.csproj" /> -->
+  <Project Path="src/Domain/Domain.csproj" />
+  <Project Path="src/Application/Application.csproj" />
+  <Project Path="src/Infrastructure/Infrastructure.csproj" />
+  <Project Path="src/API/API.csproj" />
 </Solution>

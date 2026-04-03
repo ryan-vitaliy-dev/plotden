@@ -1,4 +1,4 @@
-namespace backend.Application.Common
+namespace Application.Common
 {
     public readonly struct Unit
     {

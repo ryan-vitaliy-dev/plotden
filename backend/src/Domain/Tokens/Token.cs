@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using backend.Domain.Accounts;
+using Domain.Accounts;
 
-namespace backend.Domain.Tokens
+namespace Domain.Tokens
 {
     public enum TokenType
     {

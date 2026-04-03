@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Net;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace backend.Infrastructure.Persistence.Migrations
+namespace Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,10 +22,10 @@ namespace backend.Infrastructure.Persistence.Migrations
                 {
                     AccountId = table.Column<Guid>(type: "uuid", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    HasVerifiedEmail = table.Column<bool>(type: "boolean", nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    VerifiedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    VerifiedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    FinishedSignupAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -60,9 +61,9 @@ namespace backend.Infrastructure.Persistence.Migrations
                     AccountId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UserAgent = table.Column<string>(type: "text", nullable: false),
-                    IpAddress = table.Column<string>(type: "text", nullable: false),
-                    IsExpired = table.Column<bool>(type: "boolean", nullable: false)
+                    UserAgent = table.Column<string>(type: "text", nullable: true),
+                    IpAddress = table.Column<IPAddress>(type: "inet", nullable: true),
+                    RevokedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -140,6 +141,13 @@ namespace backend.Infrastructure.Persistence.Migrations
                 schema: "core",
                 table: "tokens",
                 column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_tokens_TokenHash",
+                schema: "core",
+                table: "tokens",
+                column: "TokenHash",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_tokens_TokenId",

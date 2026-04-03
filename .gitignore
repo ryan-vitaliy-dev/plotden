@@ -483,7 +483,12 @@ $RECYCLE.BIN/
 
 
 # Custom Stuff
-backend/src/bin/
+**/bin/
+**/obj/
+**/net10.0/
+**/bin\Debug/
+bin\Debug
+bin\Release
 backend/src/obj/
 backend/src/net10.0/
 backend/src/appsettings.Development.json

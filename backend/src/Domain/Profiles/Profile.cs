@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using backend.Domain.Sessions;
-using backend.Domain.Accounts;
+using Domain.Sessions;
+using Domain.Accounts;
 
-namespace backend.Domain.Profiles
+namespace Domain.Profiles
 {
     public class Profile
     {

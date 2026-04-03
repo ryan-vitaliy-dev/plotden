@@ -1,13 +1,13 @@
 using System.Net;
-using backend.Domain.Sessions;
-using backend.Infrastructure.Common;
-using backend.Infrastructure.Persistence;
+using Application.Common.Interfaces;
+using Domain.Common;
+using Domain.Sessions;
 
-namespace backend.Application.Sessions
+namespace Application.Sessions
 {
-    public class SessionService(AppDbContext context)
+    public class SessionService(IAppDbContext context)
     {
-        private readonly AppDbContext _context = context;
+        private readonly IAppDbContext _context = context;
 
         /*
 

@@ -1,20 +1,20 @@
-using backend.Application.Accounts;
-using backend.Application.Tokens;
-using backend.Application.Tokens.DTOs;
+using Application.Accounts;
+using Application.Tokens;
+using Application.Tokens.DTOs;
 
-using backend.Infrastructure.Common;
+using Domain.Common;
 
-using backend.Domain.Accounts;
-using backend.Domain.Sessions;
-using backend.Domain.Tokens;
-using backend.Application.Common;
+using Domain.Accounts;
+using Domain.Sessions;
+using Domain.Tokens;
+using Application.Common;
+using Application.Resources;
+using Application.Email;
+using Application.Auth.DTOs;
 using Microsoft.Extensions.Localization;
-using backend.Resources;
-using backend.Application.Email;
-using backend.Application.Auth.DTOs;
-using backend.API.DTOs.Auth;
+using Microsoft.Extensions.Logging;
 
-namespace backend.Application.Handlers.Signup
+namespace Application.Handlers.Signup
 {
     public class SignupEmailHandler(
         ILogger<SignupEmailHandler> logger, 
@@ -40,13 +40,13 @@ namespace backend.Application.Handlers.Signup
         /// A <see cref="ServiceResult{T}"/> containing an <see cref="AccountSignupEmailResult"/> if the signup succeeds,
         /// or a failure with an appropriate <see cref="ServiceError"/> if any step fails.
         /// </returns>
-        public async Task<ServiceResult<SignupEmailResult>> HandleAsync(SignupEmailDTO dto, 
+        public async Task<ServiceResult<SignupEmailResult>> HandleAsync(string email, 
         CancellationToken clt)
         {
             Account? accountToUseForSignup = null;
             DateTimeOffset consistentCreatedAtDateTime = DateTimeOffset.UtcNow;
 
-            ServiceResult<Account> existingAccountCheckResult = await _accountService.FindAccountByEmailAsync(dto.Email, clt);
+            ServiceResult<Account> existingAccountCheckResult = await _accountService.FindAccountByEmailAsync(email, clt);
             if(existingAccountCheckResult.IsSuccess)
             { 
                 Account existingAccount = existingAccountCheckResult.Value;
@@ -67,10 +67,10 @@ namespace backend.Application.Handlers.Signup
 
             if(accountToUseForSignup == null)
             {
-                ServiceResult<Account> accountCreationResult = await _accountService.CreateAccountAsync(dto.Email, consistentCreatedAtDateTime, clt: clt);
+                ServiceResult<Account> accountCreationResult = await _accountService.CreateAccountAsync(email, consistentCreatedAtDateTime, clt: clt);
                 if(accountCreationResult.IsFailure)
                 {
-                    _logger.LogError("Account creation failed for email {Email}. Error: {ErrorCode}", dto.Email, accountCreationResult.ErrorCode);
+                    _logger.LogError("Account creation failed for email {Email}. Error: {ErrorCode}", email, accountCreationResult.ErrorCode);
                     return accountCreationResult.ErrorCode switch
                     {
                         ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),

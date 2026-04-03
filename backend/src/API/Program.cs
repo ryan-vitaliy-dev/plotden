@@ -1,22 +1,22 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-using backend.Infrastructure.Persistence;
-// using backend.Features.Accounts;
+using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Abstractions;
-using backend.Infrastructure.Email;
-using backend.Application.Common.Interfaces;
-using backend.Infrastructure.Common;
-using backend.Application.Accounts;
-using backend.Application.Sessions;
-using backend.Application.Handlers;
-using backend.Infrastructure.Security;
-using backend.Application.Tokens;
-using backend.Application.Handlers.Signup;
-using backend.Application.Email;
+using Infrastructure.Email;
+using Application.Common.Interfaces;
+using Infrastructure.Common;
+using Application.Accounts;
+using Application.Sessions;
+using Application.Handlers;
+using Infrastructure.Security;
+using Application.Tokens;
+using Application.Handlers.Signup;
+using Application.Email;
+
 // using backend.Features.Profiles;
 // using backend.Features.Auth.Handlers;
 
@@ -28,8 +28,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDb"))
-        .LogTo(Console.WriteLine, LogLevel.Information));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("AppDb"),
+        builder => builder.MigrationsAssembly("Infrastructure"))
+    .LogTo(Console.WriteLine, LogLevel.Information));
+
+builder.Services.AddScoped<IAppDbContext, AppDbContext>();
 
 builder.Services.AddLocalization();
 
@@ -62,6 +66,7 @@ builder.Services.Configure<PasswordHasherOptions>(options =>
 builder.Services.AddTransient<IEmailSender, FluentEmailSender>();
 builder.Services.AddTransient<IUsernameGenerator, AdjectiveNounUsernameGenerator>();
 builder.Services.AddTransient<ITokenGenerator, SecureTokenGenerator>();
+builder.Services.AddScoped<IEmailTemplateLoader, EmailTemplateLoader>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<SessionService>();
@@ -73,8 +78,8 @@ builder.Services.AddControllers()
     {
         options.DataAnnotationLocalizerProvider = (type, factory) =>
         {
-            var assemblyName = new AssemblyName(typeof(backend.Resources.SharedResource).GetType().Assembly.FullName!);
-            return factory.Create(nameof(backend.Resources.SharedResource), assemblyName.Name!);
+            var assemblyName = new AssemblyName(typeof(Application.Resources.SharedResource).GetType().Assembly.FullName!);
+            return factory.Create(nameof(Application.Resources.SharedResource), assemblyName.Name!);
         };
     })
     .ConfigureApiBehaviorOptions(options =>

@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.Extensions.Localization;
 
-namespace backend.Application.Accounts.ValidationAttributes {
+namespace API.DTOs.ValidationAttributes {
 
     public class NotIANAReservedDomainAttribute : ValidationAttribute
     {

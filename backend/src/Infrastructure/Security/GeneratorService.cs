@@ -1,10 +1,10 @@
-using backend.Infrastructure.Common;
+using Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
-using backend.Infrastructure.Persistence;
+using Infrastructure.Persistence;
 
-namespace backend.Infrastructure.Security
+namespace Infrastructure.Security
 {
     public class GeneratorService()
     {

@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
-using backend.Application.Common.Interfaces;
-using backend.Infrastructure.Common;
+using Application.Common.Interfaces;
+using Infrastructure.Common;
 
-namespace backend.Infrastructure.Security
+namespace Infrastructure.Security
 {
     public class SecureTokenGenerator : ITokenGenerator
     {

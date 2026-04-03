@@ -1,4 +1,4 @@
-namespace backend.Infrastructure.Common
+namespace Domain.Common
 {
     /// <summary>
     /// Represents the result of a service operation, encapsulating either a successful value of type <typeparamref name="T"/>

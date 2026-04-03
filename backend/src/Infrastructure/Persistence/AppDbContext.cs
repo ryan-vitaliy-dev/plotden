@@ -1,24 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 
-using backend.Domain.Accounts;
-using backend.Domain.Tokens;
-using backend.Domain.Sessions;
-using backend.Domain.Profiles;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Domain.Accounts;
+using Domain.Tokens;
+using Domain.Sessions;
+using Domain.Profiles;
+using Application.Common.Interfaces;
 
-namespace backend.Infrastructure.Persistence
+namespace Infrastructure.Persistence
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) {
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext {
         public DbSet<Account> Accounts { get; set; }
-
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<Token> Tokens { get; set; }
         public DbSet<Session> Sessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Blog>().OwnsMany(b => b.Posts, b => b.ToJson());
-
             modelBuilder.Entity<Account>(entity => 
             {
                 entity.ToTable("accounts", "core");

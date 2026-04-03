@@ -1,4 +1,4 @@
-namespace backend.Infrastructure.Common
+namespace Domain.Common
 {
     public enum ServiceError
     {

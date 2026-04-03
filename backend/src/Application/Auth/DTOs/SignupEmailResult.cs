@@ -1,4 +1,4 @@
-namespace backend.Application.Auth.DTOs
+namespace Application.Auth.DTOs
 {
     public record SignupEmailResult(string Email);
 }

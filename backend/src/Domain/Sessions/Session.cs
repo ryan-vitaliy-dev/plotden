@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
-using backend.Domain.Accounts;
+using Domain.Accounts;
 
-namespace backend.Domain.Sessions
+namespace Domain.Sessions
 {
     public class Session
     {
