@@ -1,4 +1,4 @@
-namespace Application.Auth.DTOs
+namespace Application.Auth.Results
 {
     public record SignupEmailResult(string Email);
 }

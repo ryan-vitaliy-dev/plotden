@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 using Application.Accounts;
 using Application.Resources;
-using Application.Auth.DTOs;
+using Application.Auth.Results;
 using Application.Common;
 using Application.Sessions;
 using Application.Tokens;

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Localization;
 
 using API.DTOs.Auth;
 using Application.Common;
-using Application.Auth.DTOs;
+using Application.Auth.Results;
 using Application.Handlers.Signup;
 using Application.Resources;
 using Domain.Common;

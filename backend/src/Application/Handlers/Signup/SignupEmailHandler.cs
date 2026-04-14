@@ -3,11 +3,11 @@ using Microsoft.Extensions.Logging;
 
 using Application.Accounts;
 using Application.Tokens;
-using Application.Tokens.DTOs;
+using Application.Tokens.Results;
 using Application.Common;
 using Application.Resources;
 using Application.Email;
-using Application.Auth.DTOs;
+using Application.Auth.Results;
 using Domain.Common;
 using Domain.Accounts;
 using Domain.Sessions;

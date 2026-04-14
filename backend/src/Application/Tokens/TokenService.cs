@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 
 using Application.Common;
 using Application.Common.Interfaces;
-using Application.Tokens.DTOs;
+using Application.Tokens.Results;
 using Domain.Common;
 using Domain.Tokens;
 

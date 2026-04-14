@@ -1,4 +1,4 @@
-namespace Application.Tokens.DTOs
+namespace Application.Tokens.Results
 {
     public record TokenCreationResult(string TokenRaw);
 }
