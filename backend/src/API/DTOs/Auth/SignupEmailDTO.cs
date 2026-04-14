@@ -7,10 +7,10 @@ namespace API.DTOs.Auth
     public class SignupEmailDTO
     {
         [JsonPropertyName("email")]
-        [Required(ErrorMessageResourceName = "Signup_ErrorMissingEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
-        [EmailAddress(ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
-        [NotIANAReservedDomain(ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
-        [MaxLength(320, ErrorMessageResourceName = "GeneralInvalidEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
+        [Required(ErrorMessageResourceName = "Signup_Error_MissingEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
+        [EmailAddress(ErrorMessageResourceName = "General_Error_InvalidEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
+        [NotIANAReservedDomain(ErrorMessageResourceName = "General_Error_InvalidEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
+        [MaxLength(320, ErrorMessageResourceName = "General_Error_InvalidEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
         public string Email { get; set; } = null!;
     }
 }

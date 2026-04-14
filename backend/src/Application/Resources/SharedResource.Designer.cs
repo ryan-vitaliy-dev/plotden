@@ -76,20 +76,29 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only valid email addresses are allowed..
+        /// </summary>
+        public static string General_Error_InvalidEmail {
+            get {
+                return ResourceManager.GetString("General_Error_InvalidEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must be signed in to perform this action..
+        /// </summary>
+        public static string General_Error_MissingSession {
+            get {
+                return ResourceManager.GetString("General_Error_MissingSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There were issues with the request and it could not be processed..
         /// </summary>
         public static string GeneralBadRequest {
             get {
                 return ResourceManager.GetString("GeneralBadRequest", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only valid email addresses are allowed..
-        /// </summary>
-        public static string GeneralInvalidEmail {
-            get {
-                return ResourceManager.GetString("GeneralInvalidEmail", resourceCulture);
             }
         }
         
@@ -123,54 +132,72 @@ namespace Application.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters..
         /// </summary>
-        public static string Signup_ErrorInvalidPassword {
+        public static string Signup_Error_InvalidPassword {
             get {
-                return ResourceManager.GetString("Signup_ErrorInvalidPassword", resourceCulture);
+                return ResourceManager.GetString("Signup_Error_InvalidPassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Token is expired or invalid..
         /// </summary>
-        public static string Signup_ErrorInvalidToken {
+        public static string Signup_Error_InvalidToken {
             get {
-                return ResourceManager.GetString("Signup_ErrorInvalidToken", resourceCulture);
+                return ResourceManager.GetString("Signup_Error_InvalidToken", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Email is required..
         /// </summary>
-        public static string Signup_ErrorMissingEmail {
+        public static string Signup_Error_MissingEmail {
             get {
-                return ResourceManager.GetString("Signup_ErrorMissingEmail", resourceCulture);
+                return ResourceManager.GetString("Signup_Error_MissingEmail", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Password is required..
         /// </summary>
-        public static string Signup_ErrorMissingPassword {
+        public static string Signup_Error_MissingPassword {
             get {
-                return ResourceManager.GetString("Signup_ErrorMissingPassword", resourceCulture);
+                return ResourceManager.GetString("Signup_Error_MissingPassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Token is required..
         /// </summary>
-        public static string Signup_ErrorMissingToken {
+        public static string Signup_Error_MissingToken {
             get {
-                return ResourceManager.GetString("Signup_ErrorMissingToken", resourceCulture);
+                return ResourceManager.GetString("Signup_Error_MissingToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A password has already been set for your account. To update it, visit your account settings..
+        /// </summary>
+        public static string Signup_Error_PasswordAlreadySet {
+            get {
+                return ResourceManager.GetString("Signup_Error_PasswordAlreadySet", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Email verified successfully..
         /// </summary>
-        public static string Signup_SuccessEmailVerified {
+        public static string Signup_Success_EmailVerified {
             get {
-                return ResourceManager.GetString("Signup_SuccessEmailVerified", resourceCulture);
+                return ResourceManager.GetString("Signup_Success_EmailVerified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password successfully set..
+        /// </summary>
+        public static string Signup_Success_PasswordSet {
+            get {
+                return ResourceManager.GetString("Signup_Success_PasswordSet", resourceCulture);
             }
         }
         

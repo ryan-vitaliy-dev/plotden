@@ -6,6 +6,10 @@ using Application.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using API.DTOs.Auth;
+using Application.Common;
+using Microsoft.AspNetCore.Authorization;
+using Domain.Accounts;
+using System.Security.Claims;
 
 namespace API.Controllers.Auth
 {
@@ -14,11 +18,14 @@ namespace API.Controllers.Auth
     public class AuthController(
         SignupEmailHandler signupEmailHandler,
         SignupVerifyHandler signupVerifyHandler,
+        SignupPasswordHandler signupPasswordHandler,
         IStringLocalizer<SharedResource> localizer
     ) : ControllerBase
     {
         private readonly SignupEmailHandler _signupEmailHandler = signupEmailHandler;
         private readonly SignupVerifyHandler _signupVerifyHandler = signupVerifyHandler;
+
+        private readonly SignupPasswordHandler _signupPasswordHandler = signupPasswordHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
 
@@ -26,7 +33,6 @@ namespace API.Controllers.Auth
         [HttpPost("signup/email")]
         public async Task<IActionResult> SignupEmail([FromBody] SignupEmailDTO dto, CancellationToken clt)
         {
-
             ServiceResult<SignupEmailResult> signupResult = await _signupEmailHandler.HandleAsync(dto.Email, clt);
 
             if(signupResult.IsFailure)
@@ -58,7 +64,7 @@ namespace API.Controllers.Auth
             {
                 return verifySignupResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["Signup_ErrorInvalidToken"].Value }),
+                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["Signup_Error_InvalidToken"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
                     _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
                 };
@@ -78,15 +84,35 @@ namespace API.Controllers.Auth
             );
 
             return Ok(new { 
-                message = _localizer["Signup_SuccessEmailVerified"].Value
+                message = _localizer["Signup_Success_EmailVerified"].Value
             });
         }
 
-        // [HttpPatch("signup/password")]
-        // public async Task<IActionResult> SignupPassword()
-        // {
-        //     throw new NotImplementedException();
-        // }
+        [HttpPatch("signup/password")]
+        [Authorize(Policy = "ValidSession")]
+        public async Task<IActionResult> SignupPassword(SignupPasswordDTO dto, CancellationToken clt)
+        {
+            Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            ServiceResult<Unit> passwordSetResult = await _signupPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, clt);
+            if(passwordSetResult.IsFailure)
+            {
+                return passwordSetResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["GeneralBadRequest"].Value }),
+                    ServiceError.AccountNotVerified => StatusCode(403, new { message = _localizer["Signup_Error_EmailNotVerified"].Value }),
+                    ServiceError.PasswordAlreadySet => Conflict(new { message = _localizer["Signup_Error_PasswordAlreadySet"].Value }),
+                    ServiceError.OperationCancelled => StatusCode(499),
+                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                };
+            }
+
+            return Ok(new
+            {
+                message = _localizer["Signup_Success_PasswordSet"].Value
+            });
+        }
+
 
         // [HttpGet("signup/resume")]
         // public async Task<IActionResult> SignupResume()

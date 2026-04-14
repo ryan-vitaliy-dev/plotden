@@ -1,7 +1,9 @@
 using Application.Accounts;
+using Application.Common;
 using Application.Sessions;
 using Application.Tokens;
 using Domain.Accounts;
+using Domain.Common;
 using Domain.Sessions;
 using Domain.Tokens;
 
@@ -11,63 +13,39 @@ namespace Application.Handlers.Signup
     {
         private readonly AccountService _accountService = accountService;
 
-        // TODO
+        public async Task<ServiceResult<Unit>> HandleAsync(Guid accountId, string password, CancellationToken clt)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
 
-        //public async Task<ServiceResult<AccountSignupResult>> HandleAsync(AccountSignupEmailDTO dto, string ipAddress, string userAgent, CancellationToken clt)
-        //{
-            // if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
-            // {
-            //     return ServiceResult<AccountSignupResult>.Failure(ServiceError.InvalidInput);
-            // }
-            // if(clt.IsCancellationRequested)
-            // {
-            //     return ServiceResult<AccountSignupResult>.Failure(ServiceError.OperationCancelled);
-            // }
-            // DateTimeOffset consistentCreatedAtDateTime = DateTimeOffset.UtcNow;
+            ServiceResult<Account> getAccountResult = await _accountService.FindAccountByIdAsync(accountId, clt);
+            if(getAccountResult.IsFailure)
+            {
+                // TODO: check if this will ever even be called, controller might gaurantee this is safe, not sure yet
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+            Account account = getAccountResult.Value;
 
-            // // Create Account
-            // ServiceResult<Account> accountCreationResult = await _accountService.CreateAccountAsync(dto.Email, dto.Password, consistentCreatedAtDateTime, clt: clt);
-            // if(accountCreationResult.IsFailure)
-            // {
-            //     return accountCreationResult.ErrorCode switch
-            //     {
-            //         ServiceError.InvalidInput => ServiceResult<AccountSignupResult>.Failure(ServiceError.InvalidInput),
-            //         ServiceError.OperationCancelled => ServiceResult<AccountSignupResult>.Failure(ServiceError.OperationCancelled),
-            //         _ => ServiceResult<AccountSignupResult>.Failure(ServiceError.UnknownError)
-            //     };
-            // }
-            // Account createdAccount = accountCreationResult.Value;
+            if(account.VerifiedAt == null)
+            {
+                // Account should be verified before setting password, otherwise something went wrong in the flow
+                return ServiceResult<Unit>.Failure(ServiceError.AccountNotVerified);
+            }
 
-            // // Create Session
-            // ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(createdAccount.AccountId, ipAddress, userAgent, consistentCreatedAtDateTime, clt);
-            // if(sessionCreationResult.IsFailure)
-            // {
-            //     return sessionCreationResult.ErrorCode switch
-            //     {
-            //         ServiceError.InvalidInput => ServiceResult<AccountSignupResult>.Failure(ServiceError.InvalidInput),
-            //         ServiceError.OperationCancelled => ServiceResult<AccountSignupResult>.Failure(ServiceError.OperationCancelled),
-            //         _ => ServiceResult<AccountSignupResult>.Failure(ServiceError.UnknownError)
-            //     };
-            // }
-            // Session createdSession = sessionCreationResult.Value;
+            if(account.PasswordHash != null)
+            {
+                // Account should be verified and not have a password already, otherwise something went wrong in the flow
+                return ServiceResult<Unit>.Failure(ServiceError.PasswordAlreadySet);
+            }
 
-            // // Create Email Verification Token
-            // ServiceResult<Token> emailVerificationTokenCreationResult = await _tokenService.CreateTokenAsync(createdAccount.AccountId, TokenType.EmailVerification, consistentCreatedAtDateTime, clt);
-            // if(emailVerificationTokenCreationResult.IsFailure)
-            // {
-            //     return emailVerificationTokenCreationResult.ErrorCode switch
-            //     {
-            //         ServiceError.InvalidInput => ServiceResult<AccountSignupResult>.Failure(ServiceError.InvalidInput),
-            //         ServiceError.OperationCancelled => ServiceResult<AccountSignupResult>.Failure(ServiceError.OperationCancelled),
-            //         _ => ServiceResult<AccountSignupResult>.Failure(ServiceError.UnknownError)
-            //     };
-            // }
-            // Token createdToken = emailVerificationTokenCreationResult.Value;
-
-            // // TODO: send info
-
-            // AccountSignupResult accountSignupResult = new(accountCreationResult.Value.Email, createdSession.SessionId, createdSession.ExpiresAt);
-            // return ServiceResult<AccountSignupResult>.Success(accountSignupResult);
-        //}
+            ServiceResult<Unit> passwordSetResult = await _accountService.SetAccountPasswordAsync(account, password, clt);
+            if(passwordSetResult.IsFailure)
+            {
+                return ServiceResult<Unit>.Failure(passwordSetResult.ErrorCode!.Value);
+            }
+            return ServiceResult<Unit>.Success(Unit.Value);
+        }
     }
 }

@@ -11,15 +11,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- <Compile Remove="Resources\SharedResource.Designer.cs" /> -->
         <EmbeddedResource Update="Resources\SharedResource.resx">
-        <Generator>PublicResXFileCodeGenerator</Generator>
-        <StronglyTypedFileName>Resources\SharedResource.Designer.cs</StronglyTypedFileName>
-        <StronglyTypedModifier>public</StronglyTypedModifier>
-        <StronglyTypedClassName>SharedResource</StronglyTypedClassName>
-        <StronglyTypedNamespace>Application.Resources</StronglyTypedNamespace>
-        <PublicClass>true</PublicClass>
-        <LastGenOutput>SharedResource.Designer.cs</LastGenOutput>
-        <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <StronglyTypedFileName>Resources\SharedResource.Designer.cs</StronglyTypedFileName>
+            <StronglyTypedModifier>public</StronglyTypedModifier>
+            <StronglyTypedClassName>SharedResource</StronglyTypedClassName>
+            <StronglyTypedNamespace>Application.Resources</StronglyTypedNamespace>
+            <PublicClass>true</PublicClass>
+            <LastGenOutput>SharedResource.Designer.cs</LastGenOutput>
+            <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
         </EmbeddedResource>
     </ItemGroup>
 

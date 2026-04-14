@@ -23,11 +23,16 @@ namespace Domain.Common
         InvalidCredentials,
         NoAccountFound,
         UsernameTaken,
+        PasswordAlreadySet,
+        AccountNotVerified,
         
         // TOKEN
         BadTokenType,
         NoTokenFound,
         TokenExpired,
         TokenInvalid,
+
+        // SESSION
+        SessionCreationFailed
     }
 }

@@ -5,14 +5,17 @@ using Domain.Common;
 using Domain.Profiles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Accounts
 {
-    public class AccountService(IAppDbContext appDbContext, IEmailSender emailSender, IUsernameGenerator usernameGenerator)
+    public class AccountService(IAppDbContext appDbContext, IEmailSender emailSender, ILogger<AccountService> logger, IUsernameGenerator usernameGenerator)
     {
         private readonly IAppDbContext _appDbContext = appDbContext;
 
         private readonly IEmailSender _emailSender = emailSender;
+
+        private readonly ILogger<AccountService> _logger = logger;
 
         private readonly IUsernameGenerator _usernameGenerator = usernameGenerator;
 
@@ -71,10 +74,15 @@ namespace Application.Accounts
 
                 return ServiceResult<Account>.Success(newAccount);
             }
-            catch (OperationCanceledException)
+            catch(OperationCanceledException)
             {
-                await transaction.RollbackAsync(clt);
                 return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(CancellationToken.None);
+                _logger.LogError("Unexpected error occurred when creating new account and profile: {message}", ex.Message);
+                return ServiceResult<Account>.Failure(ServiceError.DbError);
             }
         }
 
@@ -136,6 +144,24 @@ namespace Application.Accounts
             try
             {
                 account.VerifiedAt = DateTimeOffset.UtcNow;
+                await _appDbContext.SaveChangesAsync(clt);
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch (OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+        }
+
+        public async Task<ServiceResult<Unit>> SetAccountPasswordAsync(Account account, string password, CancellationToken clt)
+        {
+            if(account == null || string.IsNullOrWhiteSpace(password))
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+            try
+            {
+                account.PasswordHash = _passwordHasher.HashPassword(account, password);
                 await _appDbContext.SaveChangesAsync(clt);
                 return ServiceResult<Unit>.Success(Unit.Value);
             }

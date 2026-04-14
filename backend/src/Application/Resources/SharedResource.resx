@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Signup_ErrorMissingEmail" xml:space="preserve">
+  <data name="Signup_Error_MissingEmail" xml:space="preserve">
     <value>Email is required.</value>
   </data>
-  <data name="Signup_ErrorMissingPassword" xml:space="preserve">
+  <data name="Signup_Error_MissingPassword" xml:space="preserve">
     <value>Password is required.</value>
   </data>
   <data name="GeneralServerError" xml:space="preserve">
@@ -135,19 +135,19 @@
   <data name="GeneralServiceUnavailableError" xml:space="preserve">
     <value>The service is temporarily unavailable. Please try again later.</value>
   </data>
-  <data name="GeneralInvalidEmail" xml:space="preserve">
+  <data name="General_Error_InvalidEmail" xml:space="preserve">
     <value>Only valid email addresses are allowed.</value>
   </data>
-  <data name="Signup_ErrorInvalidPassword" xml:space="preserve">
+  <data name="Signup_Error_InvalidPassword" xml:space="preserve">
     <value>Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters.</value>
   </data>
   <data name="Signup_VerificationEmailSent" xml:space="preserve">
     <value>A verification link has been sent to the provided email. Click the link in the email message to continue signup.</value>
   </data>
-  <data name="Signup_ErrorMissingToken" xml:space="preserve">
+  <data name="Signup_Error_MissingToken" xml:space="preserve">
     <value>Token is required.</value>
   </data>
-  <data name="Signup_ErrorInvalidToken" xml:space="preserve">
+  <data name="Signup_Error_InvalidToken" xml:space="preserve">
     <value>Token is expired or invalid.</value>
   </data>
   <data name="Email_SubjectAccountAlreadyExists" xml:space="preserve">
@@ -156,7 +156,16 @@
   <data name="Email_SubjectVerifyEmailAddress" xml:space="preserve">
     <value>Verify your email address</value>
   </data>
-  <data name="Signup_SuccessEmailVerified" xml:space="preserve">
+  <data name="Signup_Success_EmailVerified" xml:space="preserve">
     <value>Email verified successfully.</value>
+  </data>
+  <data name="Signup_Success_PasswordSet" xml:space="preserve">
+    <value>Password successfully set.</value>
+  </data>
+  <data name="Signup_Error_PasswordAlreadySet" xml:space="preserve">
+    <value>A password has already been set for your account. To update it, visit your account settings.</value>
+  </data>
+  <data name="General_Error_MissingSession" xml:space="preserve">
+    <value>You must be signed in to perform this action.</value>
   </data>
 </root>

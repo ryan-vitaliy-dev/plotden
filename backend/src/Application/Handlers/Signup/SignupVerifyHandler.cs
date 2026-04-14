@@ -16,12 +16,14 @@ using Domain.Tokens;
 using Domain.Common;
 using Application.Resources;
 using Microsoft.Extensions.Logging;
+using Application.Auth;
 
 namespace Application.Handlers.Signup
 {
     public class SignupVerifyHandler(
         ILogger<SignupVerifyHandler> logger, 
-        AccountService accountService, 
+        AuthService authService,
+        AccountService accountService,
         TokenService tokenService,
         SessionService sessionService, 
         // IEmailSender emailSender,
@@ -32,19 +34,12 @@ namespace Application.Handlers.Signup
         private readonly TokenService _tokenService = tokenService;
 
         private readonly AccountService _accountService = accountService;
+        private readonly AuthService _authService = authService;
         private readonly SessionService _sessionService = sessionService;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
         public async Task<ServiceResult<SignupVerifyResult>> HandleAsync(string rawToken, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
         {
-            // 1. Hash token in query
-            // 2. Check token
-            // 3. If not exists, return error that its expired/invalid
-            // 4. If exists, check if its expired/still active
-            // 5. If not, return error that its expired/invalid
-            // 6. If yes, consume it and mark account as verified
-            // 7. Cont: Attach a session cookie
-            // 8. Cont: Return 200 OK
             
             byte[] generatedTokenBytes = Encoding.UTF8.GetBytes(rawToken);
             byte[] tokenHashBytes = SHA256.HashData(generatedTokenBytes);
@@ -67,29 +62,20 @@ namespace Application.Handlers.Signup
             }
             Account matchingAccount = findMatchingAccountResult.Value;
 
-            // TODO: Make consuming the token and marking the account as verified an atomic operation (via transaction)
-            // note- may need to make a VerificationService.cs or some other way to tie the two together since we dont want db-level stuff in handlers
-
-            ServiceResult<Unit> consumeTokenResult = await _tokenService.ConsumeTokenAsync(matchingToken, clt);
-            if(consumeTokenResult.IsFailure)
+            ServiceResult<Unit> consumeTokenAndVerifyAccountResult = await _authService.ConsumeTokenAndVerifyAccountAsync(matchingToken, matchingAccount, clt);
+            if(consumeTokenAndVerifyAccountResult.IsFailure)
             {
-                // TODO: what should we do if it fails to mark it as consumed?
-                return ServiceResult<SignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
-            }
-
-            ServiceResult<Unit> verifyAccountEmailResult = await _accountService.VerifyAccountEmailAsync(matchingAccount, clt);
-            if(verifyAccountEmailResult.IsFailure)
-            {
-                // TODO: what should we do if it fails to mark it as verified?
-                return ServiceResult<SignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
+                // at this point, it's rolled back. show error.
+                return ServiceResult<SignupVerifyResult>.Failure(consumeTokenAndVerifyAccountResult.ErrorCode!.Value);
             }
 
             // Create a session
             ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(matchingAccount.AccountId, ipAddress, userAgent, null, clt);
             if(sessionCreationResult.IsFailure)
             {
-                // TODO: what should we do if it fails to make a session?
-                return ServiceResult<SignupVerifyResult>.Failure(consumeTokenResult.ErrorCode!.Value);
+                // If session creation fails, show error to user and tell them to try link again
+                _logger.LogError("Session creation failed for account id {AccountId} after successful email verification. Error: {ErrorCode}", matchingAccount.AccountId, sessionCreationResult.ErrorCode);
+                return ServiceResult<SignupVerifyResult>.Failure(ServiceError.SessionCreationFailed);
             }
             Session createdSession = sessionCreationResult.Value;
 
