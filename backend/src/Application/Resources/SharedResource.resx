@@ -126,7 +126,7 @@
   <data name="GeneralServerError" xml:space="preserve">
     <value>There was an unexpected issue when processing the request. Please try again later.</value>
   </data>
-  <data name="GeneralBadRequest" xml:space="preserve">
+  <data name="General_Error_BadRequest" xml:space="preserve">
     <value>There were issues with the request and it could not be processed.</value>
   </data>
   <data name="GeneralSuccess" xml:space="preserve">
@@ -167,5 +167,14 @@
   </data>
   <data name="General_Error_MissingSession" xml:space="preserve">
     <value>You must be signed in to perform this action.</value>
+  </data>
+  <data name="Signup_Error_EmailNotVerified" xml:space="preserve">
+    <value>You must verify your account email to proceed.</value>
+  </data>
+  <data name="General_Error_415UnsupportedMediaType" xml:space="preserve">
+    <value>The request could not be processed as the provided media type is unsupported.</value>
+  </data>
+  <data name="General_Error_405MethodNotAllowed" xml:space="preserve">
+    <value>The request could not be processed as the provided method is not allowed.</value>
   </data>
 </root>

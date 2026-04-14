@@ -76,6 +76,33 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The request could not be processed as the provided method is not allowed..
+        /// </summary>
+        public static string General_Error_405MethodNotAllowed {
+            get {
+                return ResourceManager.GetString("General_Error_405MethodNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request could not be processed as the provided media type is unsupported..
+        /// </summary>
+        public static string General_Error_415UnsupportedMediaType {
+            get {
+                return ResourceManager.GetString("General_Error_415UnsupportedMediaType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There were issues with the request and it could not be processed..
+        /// </summary>
+        public static string General_Error_BadRequest {
+            get {
+                return ResourceManager.GetString("General_Error_BadRequest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only valid email addresses are allowed..
         /// </summary>
         public static string General_Error_InvalidEmail {
@@ -90,15 +117,6 @@ namespace Application.Resources {
         public static string General_Error_MissingSession {
             get {
                 return ResourceManager.GetString("General_Error_MissingSession", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There were issues with the request and it could not be processed..
-        /// </summary>
-        public static string GeneralBadRequest {
-            get {
-                return ResourceManager.GetString("GeneralBadRequest", resourceCulture);
             }
         }
         
@@ -126,6 +144,15 @@ namespace Application.Resources {
         public static string GeneralSuccess {
             get {
                 return ResourceManager.GetString("GeneralSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must verify your account email to proceed..
+        /// </summary>
+        public static string Signup_Error_EmailNotVerified {
+            get {
+                return ResourceManager.GetString("Signup_Error_EmailNotVerified", resourceCulture);
             }
         }
         

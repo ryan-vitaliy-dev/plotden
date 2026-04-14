@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 using Infrastructure.Auth;
+using Microsoft.Extensions.Localization;
+using Application.Resources;
 
 namespace API
 {
@@ -55,8 +57,13 @@ namespace API
                 })
                 .ConfigureApiBehaviorOptions(options =>
                 {
+                    options.SuppressMapClientErrors = true;
                     options.InvalidModelStateResponseFactory = context =>
                     {
+                        IStringLocalizer<SharedResource> localizer = context.HttpContext.RequestServices
+                            .GetRequiredService<IStringLocalizer<SharedResource>>();
+
+                        // TODO: Clean all this up later
                         string errorMessage;
                         var errors = context.ModelState
                             .SelectMany(kvp => kvp.Value!.Errors)
@@ -66,9 +73,9 @@ namespace API
 
                         var firstError = context.ModelState.First(); // Always guaranteed to have one or more errors
                         string fieldName = firstError.Key;
-                        if(fieldName.StartsWith('$') || fieldName.Contains("DTO"))
+                        if(fieldName.StartsWith('$') || fieldName.Contains("dto", StringComparison.OrdinalIgnoreCase))
                         {
-                            errorMessage = "There were errors present in the request and it could not be processed.";
+                            errorMessage = localizer["General_Error_BadRequest"].Value;
                         }
                         else
                         {
@@ -93,7 +100,7 @@ namespace API
             // {
             //     // webApplication.MapOpenApi(); // Configure the HTTP request pipeline.
             // }
-
+            webApplication.UseMiddleware<CustomErrorMiddleware>();
             webApplication.UseRequestLocalization();
             webApplication.UseCors("AllowFrontend");
             webApplication.UseAuthentication();
