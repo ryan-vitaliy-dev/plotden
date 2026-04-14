@@ -1,9 +1,11 @@
-using Application.Common;
-using Application.Common.Interfaces;
-using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
+using MailKit.Net.Smtp;
 using MimeKit;
+
+using Application.Common;
+using Application.Common.Interfaces;
 
 namespace Infrastructure.Email
 {

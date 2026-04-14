@@ -1,8 +1,10 @@
 using System.Reflection;
-using Infrastructure.Auth;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+
+using Infrastructure.Auth;
 
 namespace API
 {

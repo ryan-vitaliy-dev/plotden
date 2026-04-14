@@ -1,22 +1,21 @@
-
-
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 using Application.Accounts;
+using Application.Resources;
 using Application.Auth.DTOs;
 using Application.Common;
 using Application.Sessions;
 using Application.Tokens;
+using Application.Auth;
 using Domain.Accounts;
 using Domain.Sessions;
 using Domain.Tokens;
 using Domain.Common;
-using Application.Resources;
-using Microsoft.Extensions.Logging;
-using Application.Auth;
 
 namespace Application.Handlers.Signup
 {

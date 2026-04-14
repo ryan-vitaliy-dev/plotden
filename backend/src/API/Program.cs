@@ -1,6 +1,6 @@
-using Infrastructure;
-using Application;
 using API;
+using Application;
+using Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

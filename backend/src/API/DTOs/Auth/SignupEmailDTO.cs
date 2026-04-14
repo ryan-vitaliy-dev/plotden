@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+
 using API.DTOs.ValidationAttributes;
 
 namespace API.DTOs.Auth

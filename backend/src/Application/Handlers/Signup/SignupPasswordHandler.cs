@@ -1,17 +1,15 @@
 using Application.Accounts;
+using Application.Auth;
 using Application.Common;
-using Application.Sessions;
-using Application.Tokens;
 using Domain.Accounts;
 using Domain.Common;
-using Domain.Sessions;
-using Domain.Tokens;
 
 namespace Application.Handlers.Signup
 {
-    public class SignupPasswordHandler(AccountService accountService)
+    public class SignupPasswordHandler(AccountService accountService, AuthService authService)
     {
         private readonly AccountService _accountService = accountService;
+        private readonly AuthService _authService = authService;
 
         public async Task<ServiceResult<Unit>> HandleAsync(Guid accountId, string password, CancellationToken clt)
         {
@@ -20,30 +18,30 @@ namespace Application.Handlers.Signup
                 return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
             }
 
-            ServiceResult<Account> getAccountResult = await _accountService.FindAccountByIdAsync(accountId, clt);
-            if(getAccountResult.IsFailure)
+            ServiceResult<Account> findAccountResult = await _accountService.FindAccountByIdAsync(accountId, clt);
+            if(findAccountResult.IsFailure)
             {
-                // TODO: check if this will ever even be called, controller might gaurantee this is safe, not sure yet
                 return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
             }
-            Account account = getAccountResult.Value;
+            Account account = findAccountResult.Value;
+            
+            bool isNotVerified = account.VerifiedAt == null;
+            bool alreadySetPassword = account.PasswordHash != null || account.FinishedSignupAt != null;
 
-            if(account.VerifiedAt == null)
+            if(isNotVerified)
             {
-                // Account should be verified before setting password, otherwise something went wrong in the flow
                 return ServiceResult<Unit>.Failure(ServiceError.AccountNotVerified);
             }
 
-            if(account.PasswordHash != null)
+            if(alreadySetPassword)
             {
-                // Account should be verified and not have a password already, otherwise something went wrong in the flow
                 return ServiceResult<Unit>.Failure(ServiceError.PasswordAlreadySet);
             }
 
-            ServiceResult<Unit> passwordSetResult = await _accountService.SetAccountPasswordAsync(account, password, clt);
-            if(passwordSetResult.IsFailure)
+            ServiceResult<Unit> finishAccountSignupResult = await _authService.FinishAccountSignupAsync(account, password, clt);
+            if(finishAccountSignupResult.IsFailure)
             {
-                return ServiceResult<Unit>.Failure(passwordSetResult.ErrorCode!.Value);
+                return ServiceResult<Unit>.Failure(finishAccountSignupResult.ErrorCode!.Value);
             }
             return ServiceResult<Unit>.Success(Unit.Value);
         }

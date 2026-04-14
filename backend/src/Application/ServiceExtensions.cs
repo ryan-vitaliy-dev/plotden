@@ -1,14 +1,11 @@
-using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+
 using Application.Accounts;
 using Application.Auth;
 using Application.Email;
 using Application.Handlers.Signup;
 using Application.Sessions;
 using Application.Tokens;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Application
 {

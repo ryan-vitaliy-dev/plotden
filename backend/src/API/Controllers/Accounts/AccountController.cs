@@ -1,18 +1,8 @@
-using System.Net;
-
-// using backend.Application.Accounts.DTOs;
-using Application.Handlers;
-using Application.Handlers.Signup;
-using Domain.Accounts;
-
-
-// using backend.Features.Auth.Handlers;
-using Infrastructure.Common;
-using Infrastructure.Persistence;
-using Application.Resources;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+
+using Application.Handlers.Signup;
+using Application.Resources;
 
 namespace API.Controllers.Accounts
 {

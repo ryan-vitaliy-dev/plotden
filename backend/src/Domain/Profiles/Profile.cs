@@ -1,7 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-using Domain.Sessions;
 using Domain.Accounts;
 
 namespace Domain.Profiles

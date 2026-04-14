@@ -1,15 +1,16 @@
 using System.Net;
-using Application.Auth.DTOs;
-using Application.Handlers.Signup;
-using Domain.Common;
-using Application.Resources;
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
+
 using API.DTOs.Auth;
 using Application.Common;
-using Microsoft.AspNetCore.Authorization;
-using Domain.Accounts;
-using System.Security.Claims;
+using Application.Auth.DTOs;
+using Application.Handlers.Signup;
+using Application.Resources;
+using Domain.Common;
 
 namespace API.Controllers.Auth
 {

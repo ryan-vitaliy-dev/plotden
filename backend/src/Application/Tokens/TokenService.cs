@@ -1,13 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Tokens.DTOs;
 using Domain.Common;
 using Domain.Tokens;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Application.Tokens
 {

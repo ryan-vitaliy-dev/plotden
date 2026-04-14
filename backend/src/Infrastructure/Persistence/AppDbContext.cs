@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 
+using Application.Common.Interfaces;
 using Domain.Accounts;
 using Domain.Tokens;
 using Domain.Sessions;
 using Domain.Profiles;
-using Application.Common.Interfaces;
 
 namespace Infrastructure.Persistence
 {

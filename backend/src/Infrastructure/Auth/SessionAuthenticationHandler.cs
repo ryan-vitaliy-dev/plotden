@@ -1,15 +1,16 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using Application.Common.Interfaces;
-using Application.Resources;
-using Domain.Sessions;
-using Infrastructure.Persistence;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Application.Common.Interfaces;
+using Application.Resources;
+using Domain.Sessions;
 
 namespace Infrastructure.Auth
 {
@@ -45,7 +46,7 @@ namespace Infrastructure.Auth
                 failureMessage = _localizer["General_Error_MissingSession"];
                 return AuthenticateResult.Fail(failureMessage);
             }
-            
+
             bool isRevoked = session.RevokedAt != null;
             bool isExpired = session.ExpiresAt <= DateTimeOffset.UtcNow;
             bool isValidSession = !isRevoked && !isExpired;

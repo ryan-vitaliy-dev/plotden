@@ -1,16 +1,21 @@
-using Application.Common;
-using Application.Common.Interfaces;
-using Domain.Common;
-using Application.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Configuration;
-// using Microsoft.Extensions.Localization;
+
+using Application.Common;
+using Application.Common.Interfaces;
+using Application.Resources;
+using Domain.Common;
 
 namespace Application.Email
 {
 
-    public class EmailService(IEmailSender emailSender, IEmailTemplateLoader emailTemplateLoader, ILogger<EmailService> logger, IStringLocalizer<SharedResource> localizer, IConfiguration configuration)
+    public class EmailService(
+        IEmailSender emailSender, 
+        IEmailTemplateLoader emailTemplateLoader, 
+        ILogger<EmailService> logger, 
+        IStringLocalizer<SharedResource> localizer, 
+        IConfiguration configuration)
     {
         private readonly TimeSpan _emailVerificationTokenDuration = TimeSpan.Parse(
             configuration["Tokens:EmailVerification:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:EmailVerification:ExpiresIn is not configured.")

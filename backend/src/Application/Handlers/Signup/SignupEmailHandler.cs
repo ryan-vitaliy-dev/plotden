@@ -1,18 +1,17 @@
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+
 using Application.Accounts;
 using Application.Tokens;
 using Application.Tokens.DTOs;
-
-using Domain.Common;
-
-using Domain.Accounts;
-using Domain.Sessions;
-using Domain.Tokens;
 using Application.Common;
 using Application.Resources;
 using Application.Email;
 using Application.Auth.DTOs;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
+using Domain.Common;
+using Domain.Accounts;
+using Domain.Sessions;
+using Domain.Tokens;
 
 namespace Application.Handlers.Signup
 {

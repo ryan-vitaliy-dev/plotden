@@ -1,11 +1,12 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
 using Application.Common;
 using Application.Common.Interfaces;
 using Domain.Accounts;
 using Domain.Common;
 using Domain.Profiles;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Accounts
 {
@@ -170,6 +171,7 @@ namespace Application.Accounts
                 return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
             }
         }
+        
 
 
         // Old:
