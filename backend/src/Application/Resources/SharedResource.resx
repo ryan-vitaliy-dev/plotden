@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Signup_Error_MissingEmail" xml:space="preserve">
+  <data name="General_Error_MissingEmail" xml:space="preserve">
     <value>Email is required.</value>
   </data>
   <data name="Signup_Error_MissingPassword" xml:space="preserve">
@@ -126,7 +126,7 @@
   <data name="GeneralServerError" xml:space="preserve">
     <value>There was an unexpected issue when processing the request. Please try again later.</value>
   </data>
-  <data name="General_Error_BadRequest" xml:space="preserve">
+  <data name="General_Error_400BadRequest" xml:space="preserve">
     <value>There were issues with the request and it could not be processed.</value>
   </data>
   <data name="GeneralSuccess" xml:space="preserve">
@@ -176,5 +176,8 @@
   </data>
   <data name="General_Error_405MethodNotAllowed" xml:space="preserve">
     <value>The request could not be processed as the provided method is not allowed.</value>
+  </data>
+  <data name="Recover_Success_EmailSent" xml:space="preserve">
+    <value>If an account exists for that email address, you'll receive an email shortly which will contain further instructions.</value>
   </data>
 </root>

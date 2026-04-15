@@ -20,18 +20,20 @@ namespace API.Controllers.Auth
         SignupEmailHandler signupEmailHandler,
         SignupVerifyHandler signupVerifyHandler,
         SignupPasswordHandler signupPasswordHandler,
+        SigninRecoverHandler signinRecoverHandler,
         IStringLocalizer<SharedResource> localizer
     ) : ControllerBase
     {
         private readonly SignupEmailHandler _signupEmailHandler = signupEmailHandler;
         private readonly SignupVerifyHandler _signupVerifyHandler = signupVerifyHandler;
-
         private readonly SignupPasswordHandler _signupPasswordHandler = signupPasswordHandler;
+        private readonly SigninRecoverHandler _signinRecoverHandler = signinRecoverHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
 
 
         [HttpPost("signup/email")]
+        // TODO: Figure out if I need to block request if a session is present
         public async Task<IActionResult> SignupEmail([FromBody] SignupEmailDTO dto, CancellationToken clt)
         {
             ServiceResult<SignupEmailResult> signupResult = await _signupEmailHandler.HandleAsync(dto.Email, clt);
@@ -54,6 +56,7 @@ namespace API.Controllers.Auth
 
 
         [HttpGet("signup/verify")]
+        // TODO: Figure out if I need to block request if a session is present
         public async Task<IActionResult> SignupVerify([FromQuery] SignupVerifyDTO dto, CancellationToken clt)
         {
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
@@ -115,11 +118,24 @@ namespace API.Controllers.Auth
         }
 
 
-        // [HttpGet("signup/resume")]
-        // public async Task<IActionResult> SignupResume()
-        // {
-        //     throw new NotImplementedException();
-        // }
+        [HttpPost("signin/recover")]
+        // TODO: Figure out if I need to block request if a session is present
+        public async Task<IActionResult> SigninRecover(SigninRecoverDTO dto, CancellationToken clt)
+        {
+            // Call recovery handler
+            // Recovery handler figures out account status and what to send for email
+            ServiceResult<Unit> recoverResult = await _signinRecoverHandler.HandleAsync(dto.Email, clt);
+            if(recoverResult.IsFailure)
+            {
+                // TODO
+                throw new NotImplementedException();
+            }
+            return StatusCode(201, new
+            {
+                message = _localizer["Recover_Success_EmailSent"].Value, 
+                provided_email = dto.Email
+            });
+        }
 
 
 

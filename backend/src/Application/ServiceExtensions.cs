@@ -6,6 +6,7 @@ using Application.Email;
 using Application.Handlers.Signup;
 using Application.Sessions;
 using Application.Tokens;
+using Application.Handlers.Common;
 
 namespace Application
 {
@@ -19,6 +20,8 @@ namespace Application
             services.AddScoped<SessionService>();
             services.AddScoped<TokenService>();
 
+            services.AddScoped<TokenEmailHandler>();
+            services.AddScoped<SigninRecoverHandler>();
             services.AddScoped<SignupEmailHandler>();
             services.AddScoped<SignupVerifyHandler>();
             services.AddScoped<SignupPasswordHandler>();

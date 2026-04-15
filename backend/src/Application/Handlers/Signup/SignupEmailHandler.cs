@@ -12,6 +12,7 @@ using Domain.Common;
 using Domain.Accounts;
 using Domain.Sessions;
 using Domain.Tokens;
+using Application.Handlers.Common;
 
 namespace Application.Handlers.Signup
 {
@@ -20,6 +21,7 @@ namespace Application.Handlers.Signup
         AccountService accountService, 
         TokenService tokenService, 
         EmailService emailService,
+        TokenEmailHandler tokenEmailHandler,
         IStringLocalizer<SharedResource> localizer)
     {
 
@@ -27,6 +29,7 @@ namespace Application.Handlers.Signup
         private readonly AccountService _accountService = accountService;
         private readonly EmailService _emailService = emailService;
         private readonly TokenService _tokenService = tokenService;
+        private readonly TokenEmailHandler _tokenEmailHandler = tokenEmailHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         
 
@@ -80,7 +83,7 @@ namespace Application.Handlers.Signup
                 accountToUseForSignup = accountCreationResult.Value;
             }
             // Generate Token, construct link, and send email with link
-            return await GenerateTokenAndSendEmail(accountToUseForSignup, TokenType.EmailVerification, consistentCreatedAtDateTime, clt);
+            return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(accountToUseForSignup, TokenType.EmailVerification, consistentCreatedAtDateTime, clt);
         }
 
 
@@ -104,64 +107,9 @@ namespace Application.Handlers.Signup
                 }
             }
             else {
-                return await GenerateTokenAndSendEmail(existingAccount, TokenType.ResumeSignup, createdAtOverride, clt);
-            }
-        }
-
-
-
-        private async Task<ServiceResult<SignupEmailResult>> GenerateTokenAndSendEmail(Account account, TokenType tokenType, DateTimeOffset? createdAtOverride, 
-        CancellationToken clt)
-        {
-            // Invalidate old tokens
-            ServiceResult<Unit> invalidateTokenResult = await _tokenService.InvalidateTokenAsync(account.AccountId, tokenType, clt);
-            if(invalidateTokenResult.IsFailure)
-            {
-                // Do not issue a new token.
-                return invalidateTokenResult.ErrorCode switch
-                {
-                    ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
-                    ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                    _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
-                };
-            }
-
-            ServiceResult<TokenCreationResult> tokenCreationResult = await _tokenService.CreateTokenAsync(account.AccountId, tokenType, createdAtOverride, clt);
-            if(tokenCreationResult.IsFailure)
-            {
-                _logger.LogWarning("{TokenType} token creation failed for email {Email}. Error: {ErrorCode}", tokenType.ToString(), account.Email, tokenCreationResult.ErrorCode);
-                // Note: If this fails, it doesnt matter if we report it since we have an avenue for them to resend it anyways(?)
-                return tokenCreationResult.ErrorCode switch
-                {
-                    ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
-                    ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                    _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
-                };
-            }
-            TokenCreationResult createdToken = tokenCreationResult.Value;
-
-            ServiceResult<Unit> emailSendResult;
-            if(tokenType == TokenType.EmailVerification)
-            {
-                emailSendResult = await _emailService.SendVerificationEmailAsync(account.Email, createdToken.TokenRaw, clt);
-            }
-            else if(tokenType == TokenType.ResumeSignup)
-            {
-                emailSendResult = await _emailService.SendAccountExistsResumeSignupEmailAsync(account.Email, createdToken.TokenRaw, clt);
-            }
-            else
-            {
-                return ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError);
-            }
-
-            if(emailSendResult.IsSuccess)
-            {
-                SignupEmailResult result = new(account.Email);
-                return ServiceResult<SignupEmailResult>.Success(result);
-            }
-            else
-            {
-                return ServiceResult<SignupEmailResult>.Failure(emailSendResult.ErrorCode!.Value);
+                // TODO: This inherently invalidates previous tokens. Double check to make sure this is okay, since it may be possible that someone enters the email in signup while
+                // the original person requests recovery in the signin page. very niche edge case, probably will just ignore it since it doesnt result in any invalid states, just is a little confusing for the real owner of the inbox if it occurs
+                return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(existingAccount, TokenType.ResumeSignup, createdAtOverride, clt);
             }
         }
     }

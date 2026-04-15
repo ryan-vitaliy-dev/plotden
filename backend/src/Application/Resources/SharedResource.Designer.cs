@@ -76,6 +76,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There were issues with the request and it could not be processed..
+        /// </summary>
+        public static string General_Error_400BadRequest {
+            get {
+                return ResourceManager.GetString("General_Error_400BadRequest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The request could not be processed as the provided method is not allowed..
         /// </summary>
         public static string General_Error_405MethodNotAllowed {
@@ -94,20 +103,20 @@ namespace Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There were issues with the request and it could not be processed..
-        /// </summary>
-        public static string General_Error_BadRequest {
-            get {
-                return ResourceManager.GetString("General_Error_BadRequest", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only valid email addresses are allowed..
         /// </summary>
         public static string General_Error_InvalidEmail {
             get {
                 return ResourceManager.GetString("General_Error_InvalidEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email is required..
+        /// </summary>
+        public static string General_Error_MissingEmail {
+            get {
+                return ResourceManager.GetString("General_Error_MissingEmail", resourceCulture);
             }
         }
         
@@ -148,6 +157,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to If an account exists for that email address, you&apos;ll receive an email shortly which will contain further instructions..
+        /// </summary>
+        public static string Recover_Success_EmailSent {
+            get {
+                return ResourceManager.GetString("Recover_Success_EmailSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You must verify your account email to proceed..
         /// </summary>
         public static string Signup_Error_EmailNotVerified {
@@ -171,15 +189,6 @@ namespace Application.Resources {
         public static string Signup_Error_InvalidToken {
             get {
                 return ResourceManager.GetString("Signup_Error_InvalidToken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Email is required..
-        /// </summary>
-        public static string Signup_Error_MissingEmail {
-            get {
-                return ResourceManager.GetString("Signup_Error_MissingEmail", resourceCulture);
             }
         }
         

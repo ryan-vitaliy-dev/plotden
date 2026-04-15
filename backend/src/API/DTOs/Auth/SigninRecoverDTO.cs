@@ -5,7 +5,7 @@ using API.DTOs.ValidationAttributes;
 
 namespace API.DTOs.Auth
 {
-    public class SignupEmailDTO
+    public class SigninRecoverDTO
     {
         [JsonPropertyName("email")]
         [Required(ErrorMessageResourceName = "General_Error_MissingEmail", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
