@@ -75,7 +75,7 @@ namespace API
                         string fieldName = firstError.Key;
                         if(fieldName.StartsWith('$') || fieldName.Contains("dto", StringComparison.OrdinalIgnoreCase))
                         {
-                            errorMessage = localizer["General_Error_BadRequest"].Value;
+                            errorMessage = localizer["General_Error_400BadRequest"].Value;
                         }
                         else
                         {
