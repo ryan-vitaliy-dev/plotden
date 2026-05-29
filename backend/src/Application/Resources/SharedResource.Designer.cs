@@ -121,6 +121,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters..
+        /// </summary>
+        public static string General_Error_InvalidPassword {
+            get {
+                return ResourceManager.GetString("General_Error_InvalidPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email is required..
         /// </summary>
         public static string General_Error_MissingEmail {
@@ -184,6 +193,51 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid current password..
+        /// </summary>
+        public static string Settings_UpdatePassword_Error_InvalidCurrent {
+            get {
+                return ResourceManager.GetString("Settings_UpdatePassword_Error_InvalidCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current password is required..
+        /// </summary>
+        public static string Settings_UpdatePassword_Error_MissingCurrent {
+            get {
+                return ResourceManager.GetString("Settings_UpdatePassword_Error_MissingCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New password is required..
+        /// </summary>
+        public static string Settings_UpdatePassword_Error_MissingNew {
+            get {
+                return ResourceManager.GetString("Settings_UpdatePassword_Error_MissingNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must set a password first before updating it..
+        /// </summary>
+        public static string Settings_UpdatePassword_Error_NotSet {
+            get {
+                return ResourceManager.GetString("Settings_UpdatePassword_Error_NotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password successfully updated. You have been signed out of all other sessions..
+        /// </summary>
+        public static string Settings_UpdatePassword_Success {
+            get {
+                return ResourceManager.GetString("Settings_UpdatePassword_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid email or password..
         /// </summary>
         public static string Signin_Error_InvalidEmailOrPassword {
@@ -207,15 +261,6 @@ namespace Application.Resources {
         public static string Signup_Error_EmailNotVerified {
             get {
                 return ResourceManager.GetString("Signup_Error_EmailNotVerified", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters..
-        /// </summary>
-        public static string Signup_Error_InvalidPassword {
-            get {
-                return ResourceManager.GetString("Signup_Error_InvalidPassword", resourceCulture);
             }
         }
         

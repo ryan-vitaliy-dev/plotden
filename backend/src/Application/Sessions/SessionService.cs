@@ -102,5 +102,28 @@ namespace Application.Sessions
                 return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
             }
         }
+
+        public async Task<ServiceResult<Unit>> InvalidAllSessionsExceptAsync(Guid accountId, Guid excludedSessionId, CancellationToken clt)
+        {
+            if(accountId == Guid.Empty || excludedSessionId == Guid.Empty)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+            try
+            {
+                await _context.Sessions
+                    .Where(
+                        s => s.AccountId == accountId &&
+                        s.SessionId != excludedSessionId
+                    )
+                    .ExecuteDeleteAsync(clt);
+                await _context.SaveChangesAsync(clt);
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch (OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+        }
     }
 }

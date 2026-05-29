@@ -9,6 +9,7 @@ using API.DTOs.Auth;
 using Application.Common;
 using Application.Auth.Results;
 using Application.Handlers.Signup;
+using Application.Handlers.Signin;
 using Application.Resources;
 using Domain.Common;
 using API.Filters;
@@ -54,9 +55,9 @@ namespace API.Controllers.Auth
             {
                 return signupResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["GeneralBadRequest"].Value }),
+                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["General_Error_400BadRequest"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
-                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
             SignupEmailResult resultData = signupResult.Value;
@@ -82,7 +83,7 @@ namespace API.Controllers.Auth
                 {
                     ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["Signup_Error_InvalidToken"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
-                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
             SignupVerifyResult resultData = verifySignupResult.Value;
@@ -120,7 +121,7 @@ namespace API.Controllers.Auth
                 {
                     ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["Signup_Error_InvalidToken"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
-                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
             SignupResumeResult resultData = resumeSignupResult.Value;
@@ -154,11 +155,11 @@ namespace API.Controllers.Auth
             {
                 return passwordSetResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["GeneralBadRequest"].Value }),
+                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["General_Error_400BadRequest"].Value }),
                     ServiceError.AccountNotVerified => StatusCode(403, new { message = _localizer["Signup_Error_EmailNotVerified"].Value }),
                     ServiceError.PasswordAlreadySet => Conflict(new { message = _localizer["Signup_Error_PasswordAlreadySet"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
-                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
 
@@ -178,7 +179,7 @@ namespace API.Controllers.Auth
             ServiceResult<Unit> recoverResult = await _signinRecoverHandler.HandleAsync(dto.Email, clt);
             if(recoverResult.IsFailure && !_signupRecoverErrors.Contains(recoverResult.ErrorCode!.Value))
             {
-                return StatusCode(500, new { message = _localizer["GeneralServerError"].Value });
+                return StatusCode(500, new { message = _localizer["General_Error_500Server"].Value });
             }
             return Ok(new
             {
@@ -204,7 +205,7 @@ namespace API.Controllers.Auth
                     ServiceError.InvalidInput => BadRequest(new { message = _localizer["Signin_Error_InvalidToken"].Value }),
                     ServiceError.InvalidCredentials => Unauthorized(new { message = _localizer["Signin_Error_InvalidEmailOrPassword"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
-                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
             SigninResult resultData = signinResult.Value;

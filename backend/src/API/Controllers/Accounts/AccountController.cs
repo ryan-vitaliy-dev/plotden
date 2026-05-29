@@ -3,6 +3,12 @@ using Microsoft.Extensions.Localization;
 
 using Application.Handlers.Signup;
 using Application.Resources;
+using API.DTOs.Accounts;
+using Microsoft.AspNetCore.Authorization;
+using Domain.Common;
+using Application.Common;
+using Application.Handlers.Accounts;
+using System.Security.Claims;
 
 namespace API.Controllers.Accounts
 {
@@ -11,19 +17,44 @@ namespace API.Controllers.Accounts
     [Route("api/accounts")]
     // IStringLocalizer<SharedResource> localizer
     public class AccountController(
-        SignupEmailHandler signupEmailHandler,
-        SignupVerifyHandler signupVerifyHandler,
+        UpdatePasswordHandler updatePasswordHandler,
         IStringLocalizer<SharedResource> localizer
         ) : ControllerBase
     {
-        private readonly SignupEmailHandler _signupEmailHandler = signupEmailHandler;
-
-        private readonly SignupVerifyHandler _signupVerifyHandler = signupVerifyHandler;
+        private readonly UpdatePasswordHandler _updatePasswordHandler = updatePasswordHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
         //[HttpPatch("signup/password")] - handles setting password on signup
         //[HttpPatch("settings/email")] - handles updating email
-        //[HttpPatch("settings/password")] - handles updating password later
+
+
+        [HttpPatch("settings/password")] //- handles updating password later
+        [Authorize(Policy = "ValidSession")]
+        public async Task<IActionResult> UpdatePassword(UpdatePasswordDTO dto, CancellationToken clt)
+        {
+            Guid sessionIdFromClaims = Guid.Parse(User.FindFirst("SessionId")!.Value);
+            Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            ServiceResult<Unit> updatePasswordResult = await _updatePasswordHandler.HandleAsync(
+                accountIdFromSession, sessionIdFromClaims, dto.CurrentPassword, dto.NewPassword, clt);
+
+            if(updatePasswordResult.IsFailure)
+            {
+                return updatePasswordResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["Settings_UpdatePassword_Error_Invalid"].Value }),
+                    ServiceError.InvalidCredentials => Unauthorized(new { message = _localizer["Settings_UpdatePassword_Error_InvalidCurrent"].Value }),
+                    ServiceError.PasswordNotSet => BadRequest(new { message = _localizer["Settings_UpdatePassword_Error_NotSet"].Value }),
+                    ServiceError.OperationCancelled => StatusCode(499),
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
+                };
+            }
+            return Ok(new
+            {
+                message = _localizer["Settings_UpdatePassword_Success"].Value
+            });
+        }
+
 
         //[HttpPatch("profiles/username")] - handles updating username
     }

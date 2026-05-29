@@ -138,7 +138,7 @@
   <data name="General_Error_InvalidEmail" xml:space="preserve">
     <value>Only valid email addresses are allowed.</value>
   </data>
-  <data name="Signup_Error_InvalidPassword" xml:space="preserve">
+  <data name="General_Error_InvalidPassword" xml:space="preserve">
     <value>Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters.</value>
   </data>
   <data name="Signup_VerificationEmailSent" xml:space="preserve">
@@ -191,5 +191,20 @@
   </data>
   <data name="Signin_Success" xml:space="preserve">
     <value>Signed in successfully.</value>
+  </data>
+  <data name="Settings_UpdatePassword_Error_MissingCurrent" xml:space="preserve">
+    <value>Current password is required.</value>
+  </data>
+  <data name="Settings_UpdatePassword_Error_MissingNew" xml:space="preserve">
+    <value>New password is required.</value>
+  </data>
+  <data name="Settings_UpdatePassword_Error_InvalidCurrent" xml:space="preserve">
+    <value>Invalid current password.</value>
+  </data>
+  <data name="Settings_UpdatePassword_Success" xml:space="preserve">
+    <value>Password successfully updated. You have been signed out of all other sessions.</value>
+  </data>
+  <data name="Settings_UpdatePassword_Error_NotSet" xml:space="preserve">
+    <value>You must set a password first before updating it.</value>
   </data>
 </root>

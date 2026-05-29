@@ -4,9 +4,11 @@ using Application.Accounts;
 using Application.Auth;
 using Application.Email;
 using Application.Handlers.Signup;
+using Application.Handlers.Signin;
 using Application.Sessions;
 using Application.Tokens;
 using Application.Handlers.Common;
+using Application.Handlers.Accounts;
 
 namespace Application
 {
@@ -21,8 +23,12 @@ namespace Application
             services.AddScoped<TokenService>();
 
             services.AddScoped<TokenEmailHandler>();
+
+            services.AddScoped<UpdatePasswordHandler>();
+
             services.AddScoped<SigninRecoverHandler>();
             services.AddScoped<SigninHandler>();
+
             services.AddScoped<SignupEmailHandler>();
             services.AddScoped<SignupVerifyHandler>();
             services.AddScoped<SignupResumeHandler>();

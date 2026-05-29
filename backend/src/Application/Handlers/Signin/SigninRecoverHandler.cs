@@ -8,7 +8,7 @@ using Domain.Common;
 using Domain.Tokens;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Handlers.Signup
+namespace Application.Handlers.Signin
 {
     public class SigninRecoverHandler(AccountService accountService, SessionService sessionService, TokenEmailHandler tokenEmailHandler, ILogger<SigninRecoverHandler> logger)
     {

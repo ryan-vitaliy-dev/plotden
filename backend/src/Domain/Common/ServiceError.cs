@@ -24,6 +24,7 @@ namespace Domain.Common
         NoAccountFound,
         UsernameTaken,
         PasswordAlreadySet,
+        PasswordNotSet,
         AccountNotVerified,
         
         // TOKEN

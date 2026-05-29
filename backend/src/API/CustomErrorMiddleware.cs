@@ -14,6 +14,8 @@ namespace API
             {
                 var errorMessage = context.Response.StatusCode switch
                 {
+                    503 => localizer["General_Error_503ServiceUnavailable"].Value,
+                    500 => localizer["General_Error_500Server"].Value,
                     405 => localizer["General_Error_405MethodNotAllowed"].Value,
                     415 => localizer["General_Error_415UnsupportedMediaType"].Value,
                     _   => localizer["General_Error_400BadRequest"].Value
