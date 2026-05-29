@@ -178,6 +178,12 @@
     <value>The request could not be processed as the provided method is not allowed.</value>
   </data>
   <data name="Recover_Success_EmailSent" xml:space="preserve">
-    <value>If an account exists for that email address, you'll receive an email shortly which will contain further instructions.</value>
+    <value>If an account is associated with that email address, you'll receive a message shortly with further instructions.</value>
+  </data>
+  <data name="General_Error_AlreadyAuthenticated" xml:space="preserve">
+    <value>You are already signed into an account. Please sign out before continuing.</value>
+  </data>
+  <data name="Recover_Success_SetNew" xml:space="preserve">
+    <value>Account successfully recovered. Set a new password to continue.</value>
   </data>
 </root>

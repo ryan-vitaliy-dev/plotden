@@ -1,8 +1,9 @@
 using System.Net;
-
+using Application.Common;
 using Application.Common.Interfaces;
 using Domain.Common;
 using Domain.Sessions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Sessions
 {
@@ -56,6 +57,26 @@ namespace Application.Sessions
             catch (OperationCanceledException)
             {
                 return ServiceResult<Session>.Failure(ServiceError.OperationCancelled);
+            }
+        }
+
+        public async Task<ServiceResult<Unit>> InvalidateAllSessionsAsync(Guid accountId, CancellationToken clt)
+        {
+            if(accountId == Guid.Empty)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+            try
+            {
+                await _context.Sessions
+                    .Where(s => s.AccountId == accountId)
+                    .ExecuteDeleteAsync(clt);
+                await _context.SaveChangesAsync(clt);
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch (OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
             }
         }
     }

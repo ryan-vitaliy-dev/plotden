@@ -103,6 +103,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You are already signed into an account. Please sign out before continuing..
+        /// </summary>
+        public static string General_Error_AlreadyAuthenticated {
+            get {
+                return ResourceManager.GetString("General_Error_AlreadyAuthenticated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only valid email addresses are allowed..
         /// </summary>
         public static string General_Error_InvalidEmail {
@@ -157,11 +166,20 @@ namespace Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If an account exists for that email address, you&apos;ll receive an email shortly which will contain further instructions..
+        ///   Looks up a localized string similar to If an account is associated with that email address, you&apos;ll receive a message shortly with further instructions..
         /// </summary>
         public static string Recover_Success_EmailSent {
             get {
                 return ResourceManager.GetString("Recover_Success_EmailSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account successfully recovered. Set a new password to continue..
+        /// </summary>
+        public static string Recover_Success_SetNew {
+            get {
+                return ResourceManager.GetString("Recover_Success_SetNew", resourceCulture);
             }
         }
         

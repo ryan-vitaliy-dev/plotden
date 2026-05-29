@@ -11,6 +11,7 @@ using Application.Auth.Results;
 using Application.Handlers.Signup;
 using Application.Resources;
 using Domain.Common;
+using API.Filters;
 
 namespace API.Controllers.Auth
 {
@@ -19,6 +20,7 @@ namespace API.Controllers.Auth
     public class AuthController(
         SignupEmailHandler signupEmailHandler,
         SignupVerifyHandler signupVerifyHandler,
+        SignupResumeHandler signupResumeHandler,
         SignupPasswordHandler signupPasswordHandler,
         SigninRecoverHandler signinRecoverHandler,
         IStringLocalizer<SharedResource> localizer
@@ -26,14 +28,21 @@ namespace API.Controllers.Auth
     {
         private readonly SignupEmailHandler _signupEmailHandler = signupEmailHandler;
         private readonly SignupVerifyHandler _signupVerifyHandler = signupVerifyHandler;
+        private readonly SignupResumeHandler _signupResumeHandler = signupResumeHandler;
         private readonly SignupPasswordHandler _signupPasswordHandler = signupPasswordHandler;
         private readonly SigninRecoverHandler _signinRecoverHandler = signinRecoverHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
+        private static readonly HashSet<ServiceError> _signupRecoverErrors =
+        [
+            ServiceError.NoAccountFound,
+            ServiceError.AccountNotVerified
+        ];
+
 
 
         [HttpPost("signup/email")]
-        // TODO: Figure out if I need to block request if a session is present
+        [BlockIfAuthenticated]
         public async Task<IActionResult> SignupEmail([FromBody] SignupEmailDTO dto, CancellationToken clt)
         {
             ServiceResult<SignupEmailResult> signupResult = await _signupEmailHandler.HandleAsync(dto.Email, clt);
@@ -56,7 +65,7 @@ namespace API.Controllers.Auth
 
 
         [HttpGet("signup/verify")]
-        // TODO: Figure out if I need to block request if a session is present
+        [BlockIfAuthenticated]
         public async Task<IActionResult> SignupVerify([FromQuery] SignupVerifyDTO dto, CancellationToken clt)
         {
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
@@ -87,8 +96,47 @@ namespace API.Controllers.Auth
                 }
             );
 
-            return Ok(new { 
+            return Ok(new 
+            { 
                 message = _localizer["Signup_Success_EmailVerified"].Value
+            });
+        }
+
+        [HttpGet("signup/resume")]
+        [BlockIfAuthenticated]
+        public async Task<IActionResult> SignupResume([FromQuery] SignupResumeDTO dto, CancellationToken clt)
+        {
+            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
+            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+
+            ServiceResult<SignupResumeResult> resumeSignupResult = await _signupResumeHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+
+            if(resumeSignupResult.IsFailure)
+            {
+                return resumeSignupResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["Signup_Error_InvalidToken"].Value }),
+                    ServiceError.OperationCancelled => StatusCode(499),
+                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                };
+            }
+            SignupResumeResult resultData = resumeSignupResult.Value;
+
+            HttpContext.Response.Cookies.Append(
+                "sid",
+                resultData.SessionId,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = resultData.ExpiresAt
+                }
+            );
+
+            return Ok(new 
+            { 
+                message = _localizer["Recover_Success_SetNew"].Value
             });
         }
 
@@ -119,18 +167,17 @@ namespace API.Controllers.Auth
 
 
         [HttpPost("signin/recover")]
-        // TODO: Figure out if I need to block request if a session is present
+        [BlockIfAuthenticated]
         public async Task<IActionResult> SigninRecover(SigninRecoverDTO dto, CancellationToken clt)
         {
             // Call recovery handler
             // Recovery handler figures out account status and what to send for email
             ServiceResult<Unit> recoverResult = await _signinRecoverHandler.HandleAsync(dto.Email, clt);
-            if(recoverResult.IsFailure)
+            if(recoverResult.IsFailure && !_signupRecoverErrors.Contains(recoverResult.ErrorCode!.Value))
             {
-                // TODO
-                throw new NotImplementedException();
+                return StatusCode(500, new { message = _localizer["GeneralServerError"].Value });
             }
-            return StatusCode(201, new
+            return Ok(new
             {
                 message = _localizer["Recover_Success_EmailSent"].Value, 
                 provided_email = dto.Email
@@ -138,21 +185,8 @@ namespace API.Controllers.Auth
         }
 
 
-
         // [HttpPost("signin")]
         // public async Task<IActionResult> SignIn()
-        // {
-        //     throw new NotImplementedException();
-        // }
-
-        // [HttpPost("signin/recover")]
-        // public async Task<IActionResult> SignInRecover()
-        // {
-        //     throw new NotImplementedException();
-        // }
-
-        // [HttpGet("signin/reset-password")]
-        // public async Task<IActionResult> SignInForgotPassword()
         // {
         //     throw new NotImplementedException();
         // }

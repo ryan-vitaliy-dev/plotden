@@ -44,6 +44,27 @@ namespace Application.Auth
             }
         }
 
+        public async Task<ServiceResult<Unit>> ConsumeTokenAndResumeAccountSignupAsync(Token token, Account account, CancellationToken clt)
+        {
+            try
+            {
+                token.ConsumedAt = DateTimeOffset.UtcNow;
+                _appDbContext.Tokens.Update(token);
+                await _appDbContext.SaveChangesAsync(clt);
+
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch(OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Unexpected error occurred when consuming token and marking account as verified: {message}", ex.Message);
+                return ServiceResult<Unit>.Failure(ServiceError.DbError);
+            }
+        }
+
         public async Task<ServiceResult<Unit>> FinishAccountSignupAsync(Account account, string password, CancellationToken clt)
         {
             if(account == null || string.IsNullOrWhiteSpace(password))
