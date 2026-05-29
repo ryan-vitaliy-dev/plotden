@@ -22,6 +22,7 @@ namespace Application
 
             services.AddScoped<TokenEmailHandler>();
             services.AddScoped<SigninRecoverHandler>();
+            services.AddScoped<SigninHandler>();
             services.AddScoped<SignupEmailHandler>();
             services.AddScoped<SignupVerifyHandler>();
             services.AddScoped<SignupResumeHandler>();

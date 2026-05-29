@@ -19,8 +19,8 @@ namespace Infrastructure
             options.UseNpgsql(
                 config.GetConnectionString("AppDb"),
                 b => b.MigrationsAssembly("Infrastructure")
-            )
-            .LogTo(Console.WriteLine, LogLevel.Information));
+            ));
+            // .LogTo(Console.WriteLine, LogLevel.Information));
 
             services.AddScoped<IAppDbContext, AppDbContext>();
 

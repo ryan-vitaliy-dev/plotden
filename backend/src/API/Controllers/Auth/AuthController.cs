@@ -23,6 +23,7 @@ namespace API.Controllers.Auth
         SignupResumeHandler signupResumeHandler,
         SignupPasswordHandler signupPasswordHandler,
         SigninRecoverHandler signinRecoverHandler,
+        SigninHandler signinHandler,
         IStringLocalizer<SharedResource> localizer
     ) : ControllerBase
     {
@@ -31,6 +32,8 @@ namespace API.Controllers.Auth
         private readonly SignupResumeHandler _signupResumeHandler = signupResumeHandler;
         private readonly SignupPasswordHandler _signupPasswordHandler = signupPasswordHandler;
         private readonly SigninRecoverHandler _signinRecoverHandler = signinRecoverHandler;
+
+        private readonly SigninHandler _signinHandler = signinHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
         private static readonly HashSet<ServiceError> _signupRecoverErrors =
@@ -185,10 +188,43 @@ namespace API.Controllers.Auth
         }
 
 
-        // [HttpPost("signin")]
-        // public async Task<IActionResult> SignIn()
-        // {
-        //     throw new NotImplementedException();
-        // }
+        [HttpPost("signin")]
+        [BlockIfAuthenticated]
+        public async Task<IActionResult> SignIn(SigninDTO dto, CancellationToken clt)
+        {
+            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
+            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+
+            ServiceResult<SigninResult> signinResult = await _signinHandler.HandleAsync(dto.Email, dto.Password, ipAddress, userAgent, clt);
+
+            if(signinResult.IsFailure)
+            {
+                return signinResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["Signin_Error_InvalidToken"].Value }),
+                    ServiceError.InvalidCredentials => Unauthorized(new { message = _localizer["Signin_Error_InvalidEmailOrPassword"].Value }),
+                    ServiceError.OperationCancelled => StatusCode(499),
+                    _ => StatusCode(500, new { message = _localizer["GeneralServerError"].Value })
+                };
+            }
+            SigninResult resultData = signinResult.Value;
+
+            HttpContext.Response.Cookies.Append(
+                "sid",
+                resultData.SessionId,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = resultData.ExpiresAt
+                }
+            );
+
+            return Ok(new 
+            { 
+                message = _localizer["Signin_Success"].Value
+            });
+        }
     }
 }

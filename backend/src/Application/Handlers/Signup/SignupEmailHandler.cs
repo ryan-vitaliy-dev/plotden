@@ -92,6 +92,9 @@ namespace Application.Handlers.Signup
         {
             if(existingAccount.FinishedSignupAt != null)
             {
+                // TODO: Add rate limiting per email address before production
+                // e.g. max 3 emails per hour to the same address so they dont get flooded
+                
                 // Simply warn them that someone else tried to sign up a new Account with the email
                 _logger.LogInformation("Signup attempt with email {Email} that already has a verified account. Sending warning email.", existingAccount.Email);
                 

@@ -186,4 +186,10 @@
   <data name="Recover_Success_SetNew" xml:space="preserve">
     <value>Account successfully recovered. Set a new password to continue.</value>
   </data>
+  <data name="Signin_Error_InvalidEmailOrPassword" xml:space="preserve">
+    <value>Invalid email or password.</value>
+  </data>
+  <data name="Signin_Success" xml:space="preserve">
+    <value>Signed in successfully.</value>
+  </data>
 </root>

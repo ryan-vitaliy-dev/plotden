@@ -33,6 +33,7 @@ namespace Domain.Common
         TokenInvalid,
 
         // SESSION
-        SessionCreationFailed
+        SessionCreationFailed,
+        InvalidSession,
     }
 }

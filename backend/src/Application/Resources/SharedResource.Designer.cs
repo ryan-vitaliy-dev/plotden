@@ -184,6 +184,24 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid email or password..
+        /// </summary>
+        public static string Signin_Error_InvalidEmailOrPassword {
+            get {
+                return ResourceManager.GetString("Signin_Error_InvalidEmailOrPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signed in successfully..
+        /// </summary>
+        public static string Signin_Success {
+            get {
+                return ResourceManager.GetString("Signin_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You must verify your account email to proceed..
         /// </summary>
         public static string Signup_Error_EmailNotVerified {

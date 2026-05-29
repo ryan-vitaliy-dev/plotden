@@ -60,6 +60,29 @@ namespace Application.Sessions
             }
         }
 
+        public async Task<ServiceResult<Unit>> IsSessionValidAsync(Guid sessionId, CancellationToken clt)
+        {
+            try
+            {
+                Session? validSession = await _context.Sessions
+                    .FirstOrDefaultAsync(s => 
+                        s.SessionId == sessionId &&
+                        s.RevokedAt == null &&
+                        s.ExpiresAt > DateTimeOffset.UtcNow,
+                    clt);
+
+                if(validSession == null)
+                {
+                    return ServiceResult<Unit>.Failure(ServiceError.InvalidSession);
+                }
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch (OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+        }
+
         public async Task<ServiceResult<Unit>> InvalidateAllSessionsAsync(Guid accountId, CancellationToken clt)
         {
             if(accountId == Guid.Empty)
