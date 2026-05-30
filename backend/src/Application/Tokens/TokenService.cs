@@ -123,7 +123,9 @@ namespace Application.Tokens
                 Token? foundToken = await _appDbContext.Tokens
                     .FirstOrDefaultAsync(t => 
                         t.AccountId == accountId && 
-                        t.TokenType == tokenType, 
+                        t.TokenType == tokenType &&
+                        t.ConsumedAt == null &&
+                        t.RevokedAt == null,
                     clt);
                 if(foundToken == null)
                 {

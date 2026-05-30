@@ -83,7 +83,8 @@ namespace Application.Handlers.Signup
                 accountToUseForSignup = accountCreationResult.Value;
             }
             // Generate Token, construct link, and send email with link
-            return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(accountToUseForSignup, TokenType.EmailVerification, consistentCreatedAtDateTime, clt);
+            // NOTE: The TokenEmailTemplate argument for this call has no affect, it was just a dirty hack fix for now. Will clean up in the future
+            return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(accountToUseForSignup, TokenType.EmailVerification, TokenEmailTemplate.ResumeSignup_Retry, consistentCreatedAtDateTime, clt);
         }
 
 
@@ -112,7 +113,10 @@ namespace Application.Handlers.Signup
             else {
                 // TODO: This inherently invalidates previous tokens. Double check to make sure this is okay, since it may be possible that someone enters the email in signup while
                 // the original person requests recovery in the signin page. very niche edge case, probably will just ignore it since it doesnt result in any invalid states, just is a little confusing for the real owner of the inbox if it occurs
-                return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(existingAccount, TokenType.ResumeSignup, createdAtOverride, clt);
+                // Update 5/29/2026 - note sure what I meant by the above comment, will look into it later. For now, I added TokenEmailTemplate to differentiate the two
+                // cases where ResumeSignup tokentype is used (e.g. 1. for retrying signup and for recovery. May end up removing retrying signup, not sure if I added it as a user
+                // convienence or something)
+                return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(existingAccount, TokenType.ResumeSignup, TokenEmailTemplate.ResumeSignup_Retry, createdAtOverride, clt);
             }
         }
     }

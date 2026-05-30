@@ -123,16 +123,16 @@
   <data name="Signup_Error_MissingPassword" xml:space="preserve">
     <value>Password is required.</value>
   </data>
-  <data name="GeneralServerError" xml:space="preserve">
+  <data name="General_Error_500Server" xml:space="preserve">
     <value>There was an unexpected issue when processing the request. Please try again later.</value>
   </data>
   <data name="General_Error_400BadRequest" xml:space="preserve">
     <value>There were issues with the request and it could not be processed.</value>
   </data>
-  <data name="GeneralSuccess" xml:space="preserve">
+  <data name="General_Success" xml:space="preserve">
     <value>Success.</value>
   </data>
-  <data name="GeneralServiceUnavailableError" xml:space="preserve">
+  <data name="General_Error_503ServiceUnavailable" xml:space="preserve">
     <value>The service is temporarily unavailable. Please try again later.</value>
   </data>
   <data name="General_Error_InvalidEmail" xml:space="preserve">
@@ -144,10 +144,10 @@
   <data name="Signup_VerificationEmailSent" xml:space="preserve">
     <value>A verification link has been sent to the provided email. Click the link in the email message to continue signup.</value>
   </data>
-  <data name="Signup_Error_MissingToken" xml:space="preserve">
+  <data name="General_Error_MissingToken" xml:space="preserve">
     <value>Token is required.</value>
   </data>
-  <data name="Signup_Error_InvalidToken" xml:space="preserve">
+  <data name="General_Error_InvalidToken" xml:space="preserve">
     <value>Token is expired or invalid.</value>
   </data>
   <data name="Email_SubjectAccountAlreadyExists" xml:space="preserve">
@@ -206,5 +206,8 @@
   </data>
   <data name="Settings_UpdatePassword_Error_NotSet" xml:space="preserve">
     <value>You must set a password first before updating it.</value>
+  </data>
+  <data name="Email_SubjectAccountRecovery" xml:space="preserve">
+    <value>Security Alert: Account Recovery</value>
   </data>
 </root>

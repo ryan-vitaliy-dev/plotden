@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace API.DTOs.Auth
 {
-    public class SignupVerifyDTO
+    public class SigninResetPasswordDTO
     {
         [JsonPropertyName("token")]
         [Required(ErrorMessageResourceName = "General_Error_MissingToken", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]

@@ -24,6 +24,7 @@ namespace API.Controllers.Auth
         SignupResumeHandler signupResumeHandler,
         SignupPasswordHandler signupPasswordHandler,
         SigninRecoverHandler signinRecoverHandler,
+        SigninResetPasswordHandler signinResetPasswordHandler,
         SigninHandler signinHandler,
         IStringLocalizer<SharedResource> localizer
     ) : ControllerBase
@@ -33,6 +34,7 @@ namespace API.Controllers.Auth
         private readonly SignupResumeHandler _signupResumeHandler = signupResumeHandler;
         private readonly SignupPasswordHandler _signupPasswordHandler = signupPasswordHandler;
         private readonly SigninRecoverHandler _signinRecoverHandler = signinRecoverHandler;
+        private readonly SigninResetPasswordHandler _signinResetPasswordHandler = signinResetPasswordHandler;
 
         private readonly SigninHandler _signinHandler = signinHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
@@ -81,7 +83,7 @@ namespace API.Controllers.Auth
             {
                 return verifySignupResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["Signup_Error_InvalidToken"].Value }),
+                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["General_Error_InvalidToken"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
@@ -119,7 +121,7 @@ namespace API.Controllers.Auth
             {
                 return resumeSignupResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["Signup_Error_InvalidToken"].Value }),
+                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["General_Error_InvalidToken"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
@@ -145,7 +147,7 @@ namespace API.Controllers.Auth
         }
 
         [HttpPatch("signup/password")]
-        [Authorize(Policy = "ValidSession")]
+        [Authorize(Policy = "IncompleteSignupSession")]
         public async Task<IActionResult> SignupPassword(SignupPasswordDTO dto, CancellationToken clt)
         {
             Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -170,25 +172,6 @@ namespace API.Controllers.Auth
         }
 
 
-        [HttpPost("signin/recover")]
-        [BlockIfAuthenticated]
-        public async Task<IActionResult> SigninRecover(SigninRecoverDTO dto, CancellationToken clt)
-        {
-            // Call recovery handler
-            // Recovery handler figures out account status and what to send for email
-            ServiceResult<Unit> recoverResult = await _signinRecoverHandler.HandleAsync(dto.Email, clt);
-            if(recoverResult.IsFailure && !_signupRecoverErrors.Contains(recoverResult.ErrorCode!.Value))
-            {
-                return StatusCode(500, new { message = _localizer["General_Error_500Server"].Value });
-            }
-            return Ok(new
-            {
-                message = _localizer["Recover_Success_EmailSent"].Value, 
-                provided_email = dto.Email
-            });
-        }
-
-
         [HttpPost("signin")]
         [BlockIfAuthenticated]
         public async Task<IActionResult> SignIn(SigninDTO dto, CancellationToken clt)
@@ -202,7 +185,7 @@ namespace API.Controllers.Auth
             {
                 return signinResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["Signin_Error_InvalidToken"].Value }),
+                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["General_Error_InvalidToken"].Value }),
                     ServiceError.InvalidCredentials => Unauthorized(new { message = _localizer["Signin_Error_InvalidEmailOrPassword"].Value }),
                     ServiceError.OperationCancelled => StatusCode(499),
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
@@ -225,6 +208,62 @@ namespace API.Controllers.Auth
             return Ok(new 
             { 
                 message = _localizer["Signin_Success"].Value
+            });
+        }
+
+        [HttpPost("signin/recover")]
+        [BlockIfAuthenticated]
+        public async Task<IActionResult> SigninRecover(SigninRecoverDTO dto, CancellationToken clt)
+        {
+            // Call recovery handler
+            // Recovery handler figures out account status and what to send for email
+            ServiceResult<Unit> recoverResult = await _signinRecoverHandler.HandleAsync(dto.Email, clt);
+            if(recoverResult.IsFailure && !_signupRecoverErrors.Contains(recoverResult.ErrorCode!.Value))
+            {
+                return StatusCode(500, new { message = _localizer["General_Error_500Server"].Value });
+            }
+            return Ok(new
+            {
+                message = _localizer["Recover_Success_EmailSent"].Value, 
+                provided_email = dto.Email
+            });
+        }
+
+        [HttpGet("signin/reset-password")] 
+        [BlockIfAuthenticated]
+        public async Task<IActionResult> SigninResetPassword([FromQuery] SigninResetPasswordDTO dto, CancellationToken clt)
+        {
+            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
+            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+
+            ServiceResult<SigninResetPasswordResult> resetPasswordResult = await _signinResetPasswordHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+
+            if(resetPasswordResult.IsFailure)
+            {
+                return resetPasswordResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput or ServiceError.NoTokenFound => BadRequest(new { message = _localizer["General_Error_InvalidToken"].Value }),
+                    ServiceError.OperationCancelled => StatusCode(499),
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
+                };
+            }
+            SigninResetPasswordResult resultData = resetPasswordResult.Value;
+
+            HttpContext.Response.Cookies.Append(
+                "sid",
+                resultData.SessionId,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = resultData.ExpiresAt
+                }
+            );
+
+            return Ok(new 
+            { 
+                message = _localizer["Recover_Success_SetNew"].Value
             });
         }
     }

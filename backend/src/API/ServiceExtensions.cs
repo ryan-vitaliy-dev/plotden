@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Auth;
 using Microsoft.Extensions.Localization;
 using Application.Resources;
+using Domain.Sessions;
 
 namespace API
 {
@@ -42,8 +43,17 @@ namespace API
                 );
 
             services.AddAuthorizationBuilder()
-                .AddPolicy("ValidSession", policy => 
+                .AddPolicy("StandardSession", policy => 
                     policy.RequireAuthenticatedUser()
+                    .RequireClaim("SessionType", SessionType.Standard.ToString())
+                )
+                .AddPolicy("IncompleteSignupSession", policy =>
+                    policy.RequireAuthenticatedUser()
+                    .RequireClaim("SessionType", SessionType.IncompleteSignup.ToString())
+                )
+                .AddPolicy("PasswordResetSession", policy =>
+                    policy.RequireAuthenticatedUser()
+                    .RequireClaim("SessionType", SessionType.PasswordReset.ToString())
                 );
 
             services.AddControllers()

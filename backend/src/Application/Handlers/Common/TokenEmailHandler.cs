@@ -16,7 +16,7 @@ namespace Application.Handlers.Common
         private readonly EmailService _emailService = emailService;
         private readonly ILogger<TokenEmailHandler> _logger = logger;
 
-        public async Task<ServiceResult<SignupEmailResult>> GenerateTokenAndSendEmailAsync(Account account, TokenType tokenType, DateTimeOffset? createdAtOverride, CancellationToken clt)
+        public async Task<ServiceResult<SignupEmailResult>> GenerateTokenAndSendEmailAsync(Account account, TokenType tokenType, TokenEmailTemplate template, DateTimeOffset? createdAtOverride, CancellationToken clt)
         {
             // Invalidate old tokens
             // TODO: Move both invalidation and creation into a transaction (for rollback)
@@ -48,7 +48,9 @@ namespace Application.Handlers.Common
             ServiceResult<Unit> emailSendResult = tokenType switch
             {
                 TokenType.EmailVerification => await _emailService.SendVerificationEmailAsync(account.Email, createdToken.TokenRaw, clt),
-                TokenType.ResumeSignup => await _emailService.SendAccountExistsResumeSignupEmailAsync(account.Email, createdToken.TokenRaw, clt),
+                TokenType.ResumeSignup => template == TokenEmailTemplate.ResumeSignup_Recovery
+                    ? await _emailService.SendAccountExistsResumeSignupRecoveryEmailAsync(account.Email, createdToken.TokenRaw, clt)
+                    : await _emailService.SendAccountExistsResumeSignupEmailAsync(account.Email, createdToken.TokenRaw, clt),
                 // WIP
                 _ => ServiceResult<Unit>.Failure(ServiceError.UnknownError)
             };

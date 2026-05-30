@@ -51,10 +51,24 @@ namespace Application.Email
             return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
         }
 
+        // TODO: This is currently used for the case where some other user requests while the first user hasnt yet set a password.
+        // However, it's also used when the user themselves hasnt set a password and tries to recover their account. We should probably split into two separate methods and email templates for better clarity and user experience.
         public async Task<ServiceResult<Unit>> SendAccountExistsResumeSignupEmailAsync(string emailAddress, string rawToken, CancellationToken clt)
         {
             string emailSubject = _localizer["Email_SubjectAccountAlreadyExists"].Value;
             string emailBody = _emailTemplateLoader.LoadTemplate("SignupAttemptAccountIncomplete.html", new Dictionary<string, string>
+            {
+                ["SignupResumeLink"] = "plotden.com/signup/resume?token=" + rawToken,
+                ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
+                ["TimeUnit"] = "minutes"
+            });
+            return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
+        }
+
+        public async Task<ServiceResult<Unit>> SendAccountExistsResumeSignupRecoveryEmailAsync(string emailAddress, string rawToken, CancellationToken clt)
+        {
+            string emailSubject = _localizer["Email_SubjectAccountRecovery"].Value;
+            string emailBody = _emailTemplateLoader.LoadTemplate("RecoverResumeSignup.html", new Dictionary<string, string>
             {
                 ["SignupResumeLink"] = "plotden.com/signup/resume?token=" + rawToken,
                 ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),

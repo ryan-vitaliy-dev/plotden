@@ -12,6 +12,13 @@ namespace Domain.Tokens
         PasswordReset
     }
 
+    // TODO: Temp enum since I ran into issue where a tokentype needed two different email templates, maybe refactor later
+    public enum TokenEmailTemplate
+    {
+        ResumeSignup_Retry,
+        ResumeSignup_Recovery
+    }
+
     public class Token
     {
         [Key]

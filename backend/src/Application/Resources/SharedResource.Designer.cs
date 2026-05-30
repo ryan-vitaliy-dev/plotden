@@ -67,6 +67,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Security Alert: Account Recovery.
+        /// </summary>
+        public static string Email_SubjectAccountRecovery {
+            get {
+                return ResourceManager.GetString("Email_SubjectAccountRecovery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Verify your email address.
         /// </summary>
         public static string Email_SubjectVerifyEmailAddress {
@@ -103,6 +112,24 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was an unexpected issue when processing the request. Please try again later..
+        /// </summary>
+        public static string General_Error_500Server {
+            get {
+                return ResourceManager.GetString("General_Error_500Server", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The service is temporarily unavailable. Please try again later..
+        /// </summary>
+        public static string General_Error_503ServiceUnavailable {
+            get {
+                return ResourceManager.GetString("General_Error_503ServiceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You are already signed into an account. Please sign out before continuing..
         /// </summary>
         public static string General_Error_AlreadyAuthenticated {
@@ -130,6 +157,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Token is expired or invalid..
+        /// </summary>
+        public static string General_Error_InvalidToken {
+            get {
+                return ResourceManager.GetString("General_Error_InvalidToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email is required..
         /// </summary>
         public static string General_Error_MissingEmail {
@@ -148,29 +184,20 @@ namespace Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There was an unexpected issue when processing the request. Please try again later..
+        ///   Looks up a localized string similar to Token is required..
         /// </summary>
-        public static string GeneralServerError {
+        public static string General_Error_MissingToken {
             get {
-                return ResourceManager.GetString("GeneralServerError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The service is temporarily unavailable. Please try again later..
-        /// </summary>
-        public static string GeneralServiceUnavailableError {
-            get {
-                return ResourceManager.GetString("GeneralServiceUnavailableError", resourceCulture);
+                return ResourceManager.GetString("General_Error_MissingToken", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Success..
         /// </summary>
-        public static string GeneralSuccess {
+        public static string General_Success {
             get {
-                return ResourceManager.GetString("GeneralSuccess", resourceCulture);
+                return ResourceManager.GetString("General_Success", resourceCulture);
             }
         }
         
@@ -265,29 +292,11 @@ namespace Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Token is expired or invalid..
-        /// </summary>
-        public static string Signup_Error_InvalidToken {
-            get {
-                return ResourceManager.GetString("Signup_Error_InvalidToken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Password is required..
         /// </summary>
         public static string Signup_Error_MissingPassword {
             get {
                 return ResourceManager.GetString("Signup_Error_MissingPassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Token is required..
-        /// </summary>
-        public static string Signup_Error_MissingToken {
-            get {
-                return ResourceManager.GetString("Signup_Error_MissingToken", resourceCulture);
             }
         }
         

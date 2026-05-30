@@ -7,6 +7,11 @@
         <UserSecretsId>f99adeaa-737c-4e53-a976-7878b6c633fc</UserSecretsId>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <UseCurrentRuntimeIdentifier>false</UseCurrentRuntimeIdentifier>
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Application\Application.csproj" />
         <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />

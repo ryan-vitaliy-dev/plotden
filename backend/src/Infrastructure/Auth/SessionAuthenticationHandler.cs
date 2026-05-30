@@ -59,7 +59,8 @@ namespace Infrastructure.Auth
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, session.AccountId.ToString()),
-                new Claim("SessionId", session.SessionId.ToString())
+                new Claim("SessionId", session.SessionId.ToString()),
+                new Claim("SessionType", session.SessionType.ToString())
             };
 
             var identity = new ClaimsIdentity(claims, Scheme.Name);

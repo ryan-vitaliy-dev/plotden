@@ -68,7 +68,8 @@ namespace Application.Handlers.Signin
         {
             ServiceResult<SignupEmailResult> generateAndSendResumeSignupEmailResult = await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
                 account, 
-                TokenType.ResumeSignup, 
+                TokenType.ResumeSignup,
+                TokenEmailTemplate.ResumeSignup_Recovery, 
                 null, 
                 clt
             );

@@ -42,7 +42,7 @@ namespace Application.Handlers.Signup
 
             // TODO: Enforce a max session amount maybe per device later for production, just in case
 
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(account.AccountId, ipAddress, userAgent, null, clt);
+            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(account.AccountId, SessionType.Standard, ipAddress, userAgent, null, clt);
             if(sessionCreationResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again

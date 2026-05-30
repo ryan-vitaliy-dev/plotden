@@ -28,8 +28,8 @@ namespace API.Controllers.Accounts
         //[HttpPatch("settings/email")] - handles updating email
 
 
-        [HttpPatch("settings/password")] //- handles updating password later
-        [Authorize(Policy = "ValidSession")]
+        [HttpPatch("settings/password")]
+        [Authorize(Policy = "StandardSession")]
         public async Task<IActionResult> UpdatePassword(UpdatePasswordDTO dto, CancellationToken clt)
         {
             Guid sessionIdFromClaims = Guid.Parse(User.FindFirst("SessionId")!.Value);

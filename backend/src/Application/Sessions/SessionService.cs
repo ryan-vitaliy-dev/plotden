@@ -31,7 +31,7 @@ namespace Application.Sessions
         /// A <see cref="ServiceResult{T}"/> containing an <see cref="Session"/> if the creation succeeds,
         /// or a failure with an appropriate <see cref="ServiceError"/>.
         /// </returns>
-        public async Task<ServiceResult<Session>> CreateSessionAsync(Guid accountId, IPAddress? ipAddress, string? userAgent, DateTimeOffset? createdAtOverride, CancellationToken clt)
+        public async Task<ServiceResult<Session>> CreateSessionAsync(Guid accountId, SessionType sessionType, IPAddress? ipAddress, string? userAgent, DateTimeOffset? createdAtOverride, CancellationToken clt)
         {
             if(accountId == Guid.Empty)
             {
@@ -44,6 +44,7 @@ namespace Application.Sessions
                 Session newSession = new()
                 {
                     AccountId = accountId,
+                    SessionType = sessionType,
                     CreatedAt = createdAt,
                     ExpiresAt = expiresAt,
                     UserAgent = userAgent,
@@ -92,7 +93,10 @@ namespace Application.Sessions
             try
             {
                 await _context.Sessions
-                    .Where(s => s.AccountId == accountId)
+                    .Where(s => 
+                        s.AccountId == accountId &&
+                        s.RevokedAt == null
+                    )
                     .ExecuteDeleteAsync(clt);
                 await _context.SaveChangesAsync(clt);
                 return ServiceResult<Unit>.Success(Unit.Value);
@@ -114,6 +118,7 @@ namespace Application.Sessions
                 await _context.Sessions
                     .Where(
                         s => s.AccountId == accountId &&
+                        s.RevokedAt == null && // not technically necessary to check for right now as RevokedAt for sessions is unused, and thus never set, but may change later
                         s.SessionId != excludedSessionId
                     )
                     .ExecuteDeleteAsync(clt);

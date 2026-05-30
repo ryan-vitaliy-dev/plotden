@@ -79,7 +79,7 @@ namespace Application.Handlers.Signup
 
             // TODO: See if I should move this above the other check, to prevent failed of session creation after consuming token?
             // Create a session
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(matchingAccount.AccountId, ipAddress, userAgent, null, clt);
+            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(matchingAccount.AccountId, SessionType.IncompleteSignup, ipAddress, userAgent, null, clt);
             if(sessionCreationResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again
