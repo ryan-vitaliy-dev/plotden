@@ -94,6 +94,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You do not have permission to perform this action..
+        /// </summary>
+        public static string General_Error_403Forbidden {
+            get {
+                return ResourceManager.GetString("General_Error_403Forbidden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The request could not be processed as the provided method is not allowed..
         /// </summary>
         public static string General_Error_405MethodNotAllowed {

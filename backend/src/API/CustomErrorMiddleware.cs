@@ -18,6 +18,7 @@ namespace API
                     500 => localizer["General_Error_500Server"].Value,
                     405 => localizer["General_Error_405MethodNotAllowed"].Value,
                     415 => localizer["General_Error_415UnsupportedMediaType"].Value,
+                    403 => localizer["General_Error_403Forbidden"].Value,
                     _   => localizer["General_Error_400BadRequest"].Value
                 };
 

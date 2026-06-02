@@ -213,4 +213,7 @@
   <data name="Recover_Success_PasswordReset" xml:space="preserve">
     <value>Password successfully reset.</value>
   </data>
+  <data name="General_Error_403Forbidden" xml:space="preserve">
+    <value>You do not have permission to perform this action.</value>
+  </data>
 </root>

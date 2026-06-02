@@ -24,10 +24,6 @@ namespace API.Controllers.Accounts
         private readonly UpdatePasswordHandler _updatePasswordHandler = updatePasswordHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
-        //[HttpPatch("signup/password")] - handles setting password on signup
-        //[HttpPatch("settings/email")] - handles updating email
-
-
         [HttpPatch("settings/password")]
         [Authorize(Policy = "StandardSession")]
         public async Task<IActionResult> UpdatePassword(UpdatePasswordDTO dto, CancellationToken clt)
@@ -54,8 +50,5 @@ namespace API.Controllers.Accounts
                 message = _localizer["Settings_UpdatePassword_Success"].Value
             });
         }
-
-
-        //[HttpPatch("profiles/username")] - handles updating username
     }
 }

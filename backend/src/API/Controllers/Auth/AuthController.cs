@@ -153,10 +153,11 @@ namespace API.Controllers.Auth
         [Authorize(Policy = "IncompleteSignupSession")]
         public async Task<IActionResult> SignupPassword(SignupPasswordDTO dto, CancellationToken clt)
         {
-            // TODO: upgrade them to a standard session after setting password, so they can access the settings page to set up 2FA and change password and stuff like that
             Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
+            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<Unit> passwordSetResult = await _signupPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, clt);
+            ServiceResult<SignupResumeResult> passwordSetResult = await _signupPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
             if(passwordSetResult.IsFailure)
             {
                 return passwordSetResult.ErrorCode switch
@@ -168,6 +169,20 @@ namespace API.Controllers.Auth
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
+
+            SignupResumeResult resultData = passwordSetResult.Value;
+
+            HttpContext.Response.Cookies.Append(
+                "sid",
+                resultData.SessionId,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = resultData.ExpiresAt
+                }
+            );
 
             return Ok(new
             {
@@ -276,8 +291,10 @@ namespace API.Controllers.Auth
         public async Task<IActionResult> ApplyPasswordReset(SignupPasswordDTO dto, CancellationToken clt)
         {
             Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
+            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<Unit> applyPasswordResult = await _signinApplyResetPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, clt);
+            ServiceResult<SigninResetPasswordResult> applyPasswordResult = await _signinApplyResetPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
             if(applyPasswordResult.IsFailure)
             {
                 return applyPasswordResult.ErrorCode switch
@@ -289,6 +306,20 @@ namespace API.Controllers.Auth
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
+
+            SigninResetPasswordResult resultData = applyPasswordResult.Value;
+
+            HttpContext.Response.Cookies.Append(
+                "sid",
+                resultData.SessionId,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = resultData.ExpiresAt
+                }
+            );
 
             return Ok(new
             {
