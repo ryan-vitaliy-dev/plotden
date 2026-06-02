@@ -210,4 +210,7 @@
   <data name="Email_SubjectAccountRecovery" xml:space="preserve">
     <value>Security Alert: Account Recovery</value>
   </data>
+  <data name="Recover_Success_PasswordReset" xml:space="preserve">
+    <value>Password successfully reset.</value>
+  </data>
 </root>

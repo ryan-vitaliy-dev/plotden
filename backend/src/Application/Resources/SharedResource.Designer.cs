@@ -211,6 +211,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Password successfully reset..
+        /// </summary>
+        public static string Recover_Success_PasswordReset {
+            get {
+                return ResourceManager.GetString("Recover_Success_PasswordReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Account successfully recovered. Set a new password to continue..
         /// </summary>
         public static string Recover_Success_SetNew {

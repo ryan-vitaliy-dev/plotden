@@ -51,7 +51,7 @@ namespace Application.Handlers.Common
                 TokenType.ResumeSignup => template == TokenEmailTemplate.ResumeSignup_Recovery
                     ? await _emailService.SendAccountExistsResumeSignupRecoveryEmailAsync(account.Email, createdToken.TokenRaw, clt)
                     : await _emailService.SendAccountExistsResumeSignupEmailAsync(account.Email, createdToken.TokenRaw, clt),
-                // WIP
+                TokenType.PasswordReset => await _emailService.SendPasswordResetEmailAsync(account.Email, createdToken.TokenRaw, clt),
                 _ => ServiceResult<Unit>.Failure(ServiceError.UnknownError)
             };
             

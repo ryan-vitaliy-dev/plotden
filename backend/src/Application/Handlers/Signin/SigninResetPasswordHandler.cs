@@ -83,7 +83,7 @@ namespace Application.Handlers.Signup
             if(sessionCreationResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again
-                _logger.LogError("Session creation failed for account id {AccountId} after successful email verification. Error: {ErrorCode}", matchingAccount.AccountId, sessionCreationResult.ErrorCode);
+                _logger.LogError("Session creation failed for account id {AccountId} after successful password reset email verification. Error: {ErrorCode}", matchingAccount.AccountId, sessionCreationResult.ErrorCode);
                 return ServiceResult<SigninResetPasswordResult>.Failure(ServiceError.SessionCreationFailed);
             }
             Session createdSession = sessionCreationResult.Value;

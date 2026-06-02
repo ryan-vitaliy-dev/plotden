@@ -60,8 +60,18 @@ namespace Application.Handlers.Signin
 
         public async Task<ServiceResult<Unit>> HandlePasswordResetAsync(Account account, CancellationToken clt)
         {
-            // ServiceResult<SignupEmailResult> generateAndSendPasswordResetResult = await _tokenEmailHandler.
-            throw new NotImplementedException();
+            ServiceResult<SignupEmailResult> generateAndSendResetPasswordEmailResult = await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
+                account, 
+                TokenType.PasswordReset,
+                TokenEmailTemplate.ResumeSignup_Recovery, // Still part of dirty hack, is unused here
+                null, 
+                clt
+            );
+            if(generateAndSendResetPasswordEmailResult.IsFailure)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.UnknownError);
+            }
+            return ServiceResult<Unit>.Success(Unit.Value);
         }
 
         public async Task<ServiceResult<Unit>> HandleResumeSignupAsync(Account account, CancellationToken clt)

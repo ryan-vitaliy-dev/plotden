@@ -67,6 +67,7 @@ namespace Application.Auth
 
         public async Task<ServiceResult<Unit>> FinishAccountSignupAsync(Account account, string password, CancellationToken clt)
         {
+            // Note: probably dont need a transaction for this since its only updating one entity
             if(account == null || string.IsNullOrWhiteSpace(password))
             {
                 return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
@@ -92,6 +93,37 @@ namespace Application.Auth
             {
                 await transaction.RollbackAsync(CancellationToken.None);
                 _logger.LogError("Unexpected error occurred when finishing signup for account {AccountId}: {message}", account.AccountId, ex.Message);
+                return ServiceResult<Unit>.Failure(ServiceError.DbError);
+            }
+        }
+
+        public async Task<ServiceResult<Unit>> FinishResetPasswordAsync(Account account, string password, CancellationToken clt)
+        {
+            // Note: probably dont need a transaction for this since its only updating one entity
+            if(account == null || string.IsNullOrWhiteSpace(password))
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+
+            await using var transaction = await _appDbContext.Database.BeginTransactionAsync(clt);
+            try
+            {                
+                account.PasswordHash = _passwordHasher.HashPassword(account, password);
+                _appDbContext.Accounts.Update(account);
+
+                await _appDbContext.SaveChangesAsync(clt);
+                await transaction.CommitAsync(clt);
+
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch(OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(CancellationToken.None);
+                _logger.LogError("Unexpected error occurred when saving new password for account {AccountId}: {message}", account.AccountId, ex.Message);
                 return ServiceResult<Unit>.Failure(ServiceError.DbError);
             }
         }

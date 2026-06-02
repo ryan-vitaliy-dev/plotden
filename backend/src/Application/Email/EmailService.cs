@@ -25,6 +25,10 @@ namespace Application.Email
             configuration["Tokens:ResumeSignup:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:ResumeSignup:ExpiresIn is not configured.")
         );
 
+        private readonly TimeSpan _passwordResetTokenDuration = TimeSpan.Parse(
+            configuration["Tokens:PasswordReset:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:PasswordReset:ExpiresIn is not configured.")
+        );
+
         private readonly IEmailSender _emailSender = emailSender;
         private readonly IEmailTemplateLoader _emailTemplateLoader = emailTemplateLoader;
 
@@ -72,6 +76,18 @@ namespace Application.Email
             {
                 ["SignupResumeLink"] = "plotden.com/signup/resume?token=" + rawToken,
                 ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
+                ["TimeUnit"] = "minutes"
+            });
+            return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
+        }
+
+        public async Task<ServiceResult<Unit>> SendPasswordResetEmailAsync(string emailAddress, string rawToken, CancellationToken clt)
+        {
+            string emailSubject = _localizer["Email_SubjectAccountRecovery"].Value;
+            string emailBody = _emailTemplateLoader.LoadTemplate("RecoverPasswordReset.html", new Dictionary<string, string>
+            {
+                ["PasswordResetLink"] = "plotden.com/reset-password?token=" + rawToken,
+                ["TimeValue"] = _passwordResetTokenDuration.Minutes.ToString(),
                 ["TimeUnit"] = "minutes"
             });
             return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);

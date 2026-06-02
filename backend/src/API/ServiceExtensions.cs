@@ -8,6 +8,7 @@ using Infrastructure.Auth;
 using Microsoft.Extensions.Localization;
 using Application.Resources;
 using Domain.Sessions;
+using Scalar.AspNetCore;
 
 namespace API
 {
@@ -15,6 +16,7 @@ namespace API
     {
         public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddOpenApi();
             services.AddLocalization();
 
             services.AddRequestLocalization(options =>
@@ -106,16 +108,17 @@ namespace API
                 webApplication.UseHttpsRedirection();
                 webApplication.UseHsts();
             }
-            // else
-            // {
-            //     // webApplication.MapOpenApi(); // Configure the HTTP request pipeline.
-            // }
             webApplication.UseMiddleware<CustomErrorMiddleware>();
             webApplication.UseRequestLocalization();
             webApplication.UseCors("AllowFrontend");
             webApplication.UseAuthentication();
             webApplication.UseAuthorization();
             webApplication.MapControllers();
+            if(webApplication.Environment.IsDevelopment())
+            {
+                webApplication.MapOpenApi();
+                webApplication.MapScalarApiReference();
+            }
 
             return webApplication;
         }

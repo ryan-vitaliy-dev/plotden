@@ -25,6 +25,7 @@ namespace API.Controllers.Auth
         SignupPasswordHandler signupPasswordHandler,
         SigninRecoverHandler signinRecoverHandler,
         SigninResetPasswordHandler signinResetPasswordHandler,
+        SigninApplyResetPasswordHandler signinApplyResetPasswordHandler,
         SigninHandler signinHandler,
         IStringLocalizer<SharedResource> localizer
     ) : ControllerBase
@@ -35,6 +36,8 @@ namespace API.Controllers.Auth
         private readonly SignupPasswordHandler _signupPasswordHandler = signupPasswordHandler;
         private readonly SigninRecoverHandler _signinRecoverHandler = signinRecoverHandler;
         private readonly SigninResetPasswordHandler _signinResetPasswordHandler = signinResetPasswordHandler;
+
+        private readonly SigninApplyResetPasswordHandler _signinApplyResetPasswordHandler = signinApplyResetPasswordHandler;
 
         private readonly SigninHandler _signinHandler = signinHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
@@ -150,6 +153,7 @@ namespace API.Controllers.Auth
         [Authorize(Policy = "IncompleteSignupSession")]
         public async Task<IActionResult> SignupPassword(SignupPasswordDTO dto, CancellationToken clt)
         {
+            // TODO: upgrade them to a standard session after setting password, so they can access the settings page to set up 2FA and change password and stuff like that
             Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             ServiceResult<Unit> passwordSetResult = await _signupPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, clt);
@@ -229,9 +233,9 @@ namespace API.Controllers.Auth
             });
         }
 
-        [HttpGet("signin/reset-password")] 
+        [HttpGet("reset-password")] 
         [BlockIfAuthenticated]
-        public async Task<IActionResult> SigninResetPassword([FromQuery] SigninResetPasswordDTO dto, CancellationToken clt)
+        public async Task<IActionResult> VerifyPasswordReset([FromQuery] SigninResetPasswordDTO dto, CancellationToken clt)
         {
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
@@ -264,6 +268,31 @@ namespace API.Controllers.Auth
             return Ok(new 
             { 
                 message = _localizer["Recover_Success_SetNew"].Value
+            });
+        }
+
+        [HttpPatch("reset-password")]
+        [Authorize(Policy = "PasswordResetSession")]
+        public async Task<IActionResult> ApplyPasswordReset(SignupPasswordDTO dto, CancellationToken clt)
+        {
+            Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            ServiceResult<Unit> applyPasswordResult = await _signinApplyResetPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, clt);
+            if(applyPasswordResult.IsFailure)
+            {
+                return applyPasswordResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput => BadRequest(new { message = _localizer["General_Error_400BadRequest"].Value }),
+                    ServiceError.AccountNotVerified => StatusCode(403, new { message = _localizer["Signup_Error_EmailNotVerified"].Value }),
+                    ServiceError.PasswordAlreadySet => Conflict(new { message = _localizer["Signup_Error_PasswordAlreadySet"].Value }),
+                    ServiceError.OperationCancelled => StatusCode(499),
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
+                };
+            }
+
+            return Ok(new
+            {
+                message = _localizer["Recover_Success_PasswordReset"].Value
             });
         }
     }
