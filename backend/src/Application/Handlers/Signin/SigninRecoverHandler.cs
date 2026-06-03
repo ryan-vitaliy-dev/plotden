@@ -1,12 +1,12 @@
+using Microsoft.Extensions.Logging;
+
 using Application.Accounts;
-using Application.Auth.Results;
 using Application.Common;
 using Application.Handlers.Common;
 using Application.Sessions;
 using Domain.Accounts;
 using Domain.Common;
 using Domain.Tokens;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Handlers.Signin
 {
@@ -60,7 +60,7 @@ namespace Application.Handlers.Signin
 
         public async Task<ServiceResult<Unit>> HandlePasswordResetAsync(Account account, CancellationToken clt)
         {
-            ServiceResult<SignupEmailResult> generateAndSendResetPasswordEmailResult = await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
+            ServiceResult<Unit> generateAndSendResetPasswordEmailResult = await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
                 account, 
                 TokenType.PasswordReset,
                 TokenEmailTemplate.ResumeSignup_Recovery, // Still part of dirty hack, is unused here
@@ -76,7 +76,7 @@ namespace Application.Handlers.Signin
 
         public async Task<ServiceResult<Unit>> HandleResumeSignupAsync(Account account, CancellationToken clt)
         {
-            ServiceResult<SignupEmailResult> generateAndSendResumeSignupEmailResult = await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
+            ServiceResult<Unit> generateAndSendResumeSignupEmailResult = await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
                 account, 
                 TokenType.ResumeSignup,
                 TokenEmailTemplate.ResumeSignup_Recovery, 

@@ -1,4 +1,7 @@
 using System.Net;
+
+using Microsoft.Extensions.Logging;
+
 using Application.Accounts;
 using Application.Auth;
 using Application.Auth.Results;
@@ -7,7 +10,6 @@ using Application.Sessions;
 using Domain.Accounts;
 using Domain.Common;
 using Domain.Sessions;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Handlers.Signin
 {
@@ -20,24 +22,24 @@ namespace Application.Handlers.Signin
 
         private readonly ILogger<SigninApplyResetPasswordHandler> _logger = logger;
 
-        public async Task<ServiceResult<SigninResetPasswordResult>> HandleAsync(Guid accountId, string password, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
+        public async Task<ServiceResult<CreatedSession>> HandleAsync(Guid accountId, string password, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
         {
             if (string.IsNullOrWhiteSpace(password))
             {
-                return ServiceResult<SigninResetPasswordResult>.Failure(ServiceError.InvalidInput);
+                return ServiceResult<CreatedSession>.Failure(ServiceError.InvalidInput);
             }
 
             ServiceResult<Account> findAccountResult = await _accountService.FindAccountByIdAsync(accountId, clt);
             if(findAccountResult.IsFailure)
             {
-                return ServiceResult<SigninResetPasswordResult>.Failure(ServiceError.InvalidInput);
+                return ServiceResult<CreatedSession>.Failure(ServiceError.InvalidInput);
             }
             Account account = findAccountResult.Value;
 
             ServiceResult<Unit> resetPasswordResult = await _authService.FinishResetPasswordAsync(account, password, clt);
             if(resetPasswordResult.IsFailure)
             {
-                return ServiceResult<SigninResetPasswordResult>.Failure(resetPasswordResult.ErrorCode!.Value);
+                return ServiceResult<CreatedSession>.Failure(resetPasswordResult.ErrorCode!.Value);
             }
 
             // TODO: Maybe check the ordering and see if this is okay, if transaction needed, etc
@@ -46,7 +48,7 @@ namespace Application.Handlers.Signin
             if(invalidateExistingSessionsResult.IsFailure)
             {
                 _logger.LogError("Failed to invalidate existing sessions for account with id {AccountId}", account.AccountId);
-                return ServiceResult<SigninResetPasswordResult>.Failure(invalidateExistingSessionsResult.ErrorCode!.Value);
+                return ServiceResult<CreatedSession>.Failure(invalidateExistingSessionsResult.ErrorCode!.Value);
             }
 
             // Create new standard session
@@ -55,13 +57,13 @@ namespace Application.Handlers.Signin
             {
                 // If session creation fails, show error to user and tell them to try link again
                 _logger.LogError("Session creation failed for account id {AccountId} after successfully applying password reset. Error: {ErrorCode}", account.AccountId, sessionCreationResult.ErrorCode);
-                return ServiceResult<SigninResetPasswordResult>.Failure(ServiceError.SessionCreationFailed);
+                return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
             Session createdSession = sessionCreationResult.Value;
 
-            SigninResetPasswordResult result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
+            CreatedSession result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
 
-            return ServiceResult<SigninResetPasswordResult>.Success(result);
+            return ServiceResult<CreatedSession>.Success(result);
         }
     }
 }

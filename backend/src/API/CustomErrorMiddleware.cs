@@ -1,5 +1,7 @@
-using Application.Resources;
 using Microsoft.Extensions.Localization;
+
+using Application.Resources;
+
 
 namespace API
 {

@@ -3,14 +3,11 @@ using Microsoft.Extensions.Logging;
 
 using Application.Accounts;
 using Application.Tokens;
-using Application.Tokens.Results;
 using Application.Common;
 using Application.Resources;
 using Application.Email;
-using Application.Auth.Results;
 using Domain.Common;
 using Domain.Accounts;
-using Domain.Sessions;
 using Domain.Tokens;
 using Application.Handlers.Common;
 
@@ -33,16 +30,16 @@ namespace Application.Handlers.Signup
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         
 
-        /// <summary>
-        /// Handles account signup by creating the <see cref="Account"/>, initiating a <see cref="Session"/>, generating an email verification token, and sending the token to the user's email.
-        /// </summary>
-        /// <param name="dto">The Data Transfer Object containing the email and password for the new account.</param>
-        /// <param name="clt">A <see cref="CancellationToken"/> to observe while performing the operation.</param>
-        /// <returns>
-        /// A <see cref="ServiceResult{T}"/> containing an <see cref="AccountSignupEmailResult"/> if the signup succeeds,
-        /// or a failure with an appropriate <see cref="ServiceError"/> if any step fails.
-        /// </returns>
-        public async Task<ServiceResult<SignupEmailResult>> HandleAsync(string email, 
+        // / <summary>
+        // / Handles account signup by creating the <see cref="Account"/>, initiating a <see cref="Session"/>, generating an email verification token, and sending the token to the user's email.
+        // / </summary>
+        // / <param name="dto">The Data Transfer Object containing the email and password for the new account.</param>
+        // / <param name="clt">A <see cref="CancellationToken"/> to observe while performing the operation.</param>
+        // / <returns>
+        // / A <see cref="ServiceResult{T}"/> containing an <see cref="EmailData"/> if the signup succeeds,
+        // / or a failure with an appropriate <see cref="ServiceError"/> if any step fails.
+        // / </returns>
+        public async Task<ServiceResult<Unit>> HandleAsync(string email, 
         CancellationToken clt)
         {
             Account? accountToUseForSignup = null;
@@ -64,7 +61,7 @@ namespace Application.Handlers.Signup
             {
                 // Other issue occurred - either invalid email somehow or 
                 // TODO: FE sees error like "Unknown error - try again later"
-                return ServiceResult<SignupEmailResult>.Failure(existingAccountCheckResult.ErrorCode.Value);
+                return ServiceResult<Unit>.Failure(existingAccountCheckResult.ErrorCode.Value);
             }
 
             if(accountToUseForSignup == null)
@@ -75,9 +72,9 @@ namespace Application.Handlers.Signup
                     _logger.LogError("Account creation failed for email {Email}. Error: {ErrorCode}", email, accountCreationResult.ErrorCode);
                     return accountCreationResult.ErrorCode switch
                     {
-                        ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
-                        ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                        _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
+                        ServiceError.InvalidInput => ServiceResult<Unit>.Failure(ServiceError.InvalidInput),
+                        ServiceError.OperationCancelled => ServiceResult<Unit>.Failure(ServiceError.OperationCancelled),
+                        _ => ServiceResult<Unit>.Failure(ServiceError.UnknownError)
                     };
                 }
                 accountToUseForSignup = accountCreationResult.Value;
@@ -88,7 +85,7 @@ namespace Application.Handlers.Signup
         }
 
 
-        private async Task<ServiceResult<SignupEmailResult>> HandleExistingVerifiedAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, 
+        private async Task<ServiceResult<Unit>> HandleExistingVerifiedAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, 
         CancellationToken clt)
         {
             if(existingAccount.FinishedSignupAt != null)
@@ -102,12 +99,11 @@ namespace Application.Handlers.Signup
                 ServiceResult<Unit> emailSendResult = await _emailService.SendAccountExistsEmailAsync(existingAccount.Email, clt);
                 if(emailSendResult.IsSuccess)
                 {
-                    SignupEmailResult result = new(existingAccount.Email);
-                    return ServiceResult<SignupEmailResult>.Success(result);
+                    return ServiceResult<Unit>.Success(Unit.Value);
                 }
                 else
                 {
-                    return ServiceResult<SignupEmailResult>.Failure(emailSendResult.ErrorCode!.Value);
+                    return ServiceResult<Unit>.Failure(emailSendResult.ErrorCode!.Value);
                 }
             }
             else {

@@ -1,15 +1,11 @@
-using System.Net;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+
 using Application.Accounts;
-using Application.Auth.Results;
 using Application.Common;
-using Application.Handlers.Common;
 using Application.Sessions;
 using Domain.Accounts;
 using Domain.Common;
-using Domain.Sessions;
-using Domain.Tokens;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Handlers.Accounts
 {

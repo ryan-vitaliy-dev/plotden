@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
 
 using API.DTOs.Auth;
+using API.Filters;
 using Application.Common;
 using Application.Auth.Results;
 using Application.Handlers.Signup;
 using Application.Handlers.Signin;
 using Application.Resources;
 using Domain.Common;
-using API.Filters;
 
 namespace API.Controllers.Auth
 {
@@ -36,9 +36,7 @@ namespace API.Controllers.Auth
         private readonly SignupPasswordHandler _signupPasswordHandler = signupPasswordHandler;
         private readonly SigninRecoverHandler _signinRecoverHandler = signinRecoverHandler;
         private readonly SigninResetPasswordHandler _signinResetPasswordHandler = signinResetPasswordHandler;
-
         private readonly SigninApplyResetPasswordHandler _signinApplyResetPasswordHandler = signinApplyResetPasswordHandler;
-
         private readonly SigninHandler _signinHandler = signinHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
@@ -54,7 +52,7 @@ namespace API.Controllers.Auth
         [BlockIfAuthenticated]
         public async Task<IActionResult> SignupEmail([FromBody] SignupEmailDTO dto, CancellationToken clt)
         {
-            ServiceResult<SignupEmailResult> signupResult = await _signupEmailHandler.HandleAsync(dto.Email, clt);
+            ServiceResult<Unit> signupResult = await _signupEmailHandler.HandleAsync(dto.Email, clt);
 
             if(signupResult.IsFailure)
             {
@@ -65,10 +63,9 @@ namespace API.Controllers.Auth
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
-            SignupEmailResult resultData = signupResult.Value;
             return StatusCode(201, new { 
                 message = _localizer["Signup_VerificationEmailSent"].Value, 
-                provided_email = resultData.Email
+                provided_email = dto.Email
             });
         }
 
@@ -80,7 +77,7 @@ namespace API.Controllers.Auth
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<SignupVerifyResult> verifySignupResult = await _signupVerifyHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> verifySignupResult = await _signupVerifyHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
 
             if(verifySignupResult.IsFailure)
             {
@@ -91,7 +88,7 @@ namespace API.Controllers.Auth
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
-            SignupVerifyResult resultData = verifySignupResult.Value;
+            CreatedSession resultData = verifySignupResult.Value;
 
             HttpContext.Response.Cookies.Append(
                 "sid",
@@ -118,7 +115,7 @@ namespace API.Controllers.Auth
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<SignupResumeResult> resumeSignupResult = await _signupResumeHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> resumeSignupResult = await _signupResumeHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
 
             if(resumeSignupResult.IsFailure)
             {
@@ -129,7 +126,7 @@ namespace API.Controllers.Auth
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
-            SignupResumeResult resultData = resumeSignupResult.Value;
+            CreatedSession resultData = resumeSignupResult.Value;
 
             HttpContext.Response.Cookies.Append(
                 "sid",
@@ -157,7 +154,7 @@ namespace API.Controllers.Auth
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<SignupResumeResult> passwordSetResult = await _signupPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> passwordSetResult = await _signupPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
             if(passwordSetResult.IsFailure)
             {
                 return passwordSetResult.ErrorCode switch
@@ -170,7 +167,7 @@ namespace API.Controllers.Auth
                 };
             }
 
-            SignupResumeResult resultData = passwordSetResult.Value;
+            CreatedSession resultData = passwordSetResult.Value;
 
             HttpContext.Response.Cookies.Append(
                 "sid",
@@ -198,7 +195,7 @@ namespace API.Controllers.Auth
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<SigninResult> signinResult = await _signinHandler.HandleAsync(dto.Email, dto.Password, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> signinResult = await _signinHandler.HandleAsync(dto.Email, dto.Password, ipAddress, userAgent, clt);
 
             if(signinResult.IsFailure)
             {
@@ -210,7 +207,7 @@ namespace API.Controllers.Auth
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
-            SigninResult resultData = signinResult.Value;
+            CreatedSession resultData = signinResult.Value;
 
             HttpContext.Response.Cookies.Append(
                 "sid",
@@ -255,7 +252,7 @@ namespace API.Controllers.Auth
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<SigninResetPasswordResult> resetPasswordResult = await _signinResetPasswordHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> resetPasswordResult = await _signinResetPasswordHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
 
             if(resetPasswordResult.IsFailure)
             {
@@ -266,7 +263,7 @@ namespace API.Controllers.Auth
                     _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value })
                 };
             }
-            SigninResetPasswordResult resultData = resetPasswordResult.Value;
+            CreatedSession resultData = resetPasswordResult.Value;
 
             HttpContext.Response.Cookies.Append(
                 "sid",
@@ -294,7 +291,7 @@ namespace API.Controllers.Auth
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();
 
-            ServiceResult<SigninResetPasswordResult> applyPasswordResult = await _signinApplyResetPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> applyPasswordResult = await _signinApplyResetPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
             if(applyPasswordResult.IsFailure)
             {
                 return applyPasswordResult.ErrorCode switch
@@ -307,7 +304,7 @@ namespace API.Controllers.Auth
                 };
             }
 
-            SigninResetPasswordResult resultData = applyPasswordResult.Value;
+            CreatedSession resultData = applyPasswordResult.Value;
 
             HttpContext.Response.Cookies.Append(
                 "sid",

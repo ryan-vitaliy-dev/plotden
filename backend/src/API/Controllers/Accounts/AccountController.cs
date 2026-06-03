@@ -1,14 +1,14 @@
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-
-using Application.Handlers.Signup;
-using Application.Resources;
-using API.DTOs.Accounts;
 using Microsoft.AspNetCore.Authorization;
-using Domain.Common;
+
+using API.DTOs.Accounts;
 using Application.Common;
 using Application.Handlers.Accounts;
-using System.Security.Claims;
+using Application.Resources;
+using Domain.Common;
 
 namespace API.Controllers.Accounts
 {

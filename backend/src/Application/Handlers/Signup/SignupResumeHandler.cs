@@ -36,7 +36,7 @@ namespace Application.Handlers.Signup
         private readonly SessionService _sessionService = sessionService;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
-        public async Task<ServiceResult<SignupResumeResult>> HandleAsync(string rawToken, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
+        public async Task<ServiceResult<CreatedSession>> HandleAsync(string rawToken, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
         {
             
             byte[] generatedTokenBytes = Encoding.UTF8.GetBytes(rawToken);
@@ -47,7 +47,7 @@ namespace Application.Handlers.Signup
             if(findMatchingTokenResult.IsFailure)
             {
                 // Either a DB error such as a connection error or the token is invalid/expired
-                return ServiceResult<SignupResumeResult>.Failure(findMatchingTokenResult.ErrorCode!.Value);
+                return ServiceResult<CreatedSession>.Failure(findMatchingTokenResult.ErrorCode!.Value);
             }
             Token matchingToken = findMatchingTokenResult.Value;
 
@@ -56,7 +56,7 @@ namespace Application.Handlers.Signup
             {
                 // Either a DB error such as connection error or some other unexpected error, log it for safety
                 _logger.LogError("Could not find matching account with id {AccountId} for token hash {TokenHash}", matchingToken.AccountId, matchingToken.TokenHash);
-                return ServiceResult<SignupResumeResult>.Failure(findMatchingAccountResult.ErrorCode!.Value);
+                return ServiceResult<CreatedSession>.Failure(findMatchingAccountResult.ErrorCode!.Value);
             }
             Account matchingAccount = findMatchingAccountResult.Value;
 
@@ -65,7 +65,7 @@ namespace Application.Handlers.Signup
             if(invalidateExistingSessionsResult.IsFailure)
             {
                 _logger.LogError("Failed to invalidate existing sessions for account with id {AccountId}", matchingToken.AccountId);
-                return ServiceResult<SignupResumeResult>.Failure(invalidateExistingSessionsResult.ErrorCode!.Value);
+                return ServiceResult<CreatedSession>.Failure(invalidateExistingSessionsResult.ErrorCode!.Value);
             }
 
             // TODO: May need to make this safer in terms of rolling back or something? Its not at the db level so cant use transaction but maybe there
@@ -74,7 +74,7 @@ namespace Application.Handlers.Signup
             if(consumeTokenAndResumeSignupResult.IsFailure)
             {
                 // Couldn't consume the token for some reason
-                return ServiceResult<SignupResumeResult>.Failure(consumeTokenAndResumeSignupResult.ErrorCode!.Value);
+                return ServiceResult<CreatedSession>.Failure(consumeTokenAndResumeSignupResult.ErrorCode!.Value);
             }
 
             // TODO: See if I should move this above the other check, to prevent failed of session creation after consuming token?
@@ -84,12 +84,12 @@ namespace Application.Handlers.Signup
             {
                 // If session creation fails, show error to user and tell them to try link again
                 _logger.LogError("Session creation failed for account id {AccountId} after successful email verification. Error: {ErrorCode}", matchingAccount.AccountId, sessionCreationResult.ErrorCode);
-                return ServiceResult<SignupResumeResult>.Failure(ServiceError.SessionCreationFailed);
+                return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
             Session createdSession = sessionCreationResult.Value;
 
-            SignupResumeResult result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
-            return ServiceResult<SignupResumeResult>.Success(result);
+            CreatedSession result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
+            return ServiceResult<CreatedSession>.Success(result);
         }
     }
 }

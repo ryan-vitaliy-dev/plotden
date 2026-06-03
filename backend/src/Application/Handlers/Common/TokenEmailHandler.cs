@@ -1,4 +1,5 @@
-using Application.Auth.Results;
+using Microsoft.Extensions.Logging;
+
 using Application.Common;
 using Application.Email;
 using Application.Tokens;
@@ -6,7 +7,6 @@ using Application.Tokens.Results;
 using Domain.Accounts;
 using Domain.Common;
 using Domain.Tokens;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Handlers.Common
 {
@@ -16,7 +16,7 @@ namespace Application.Handlers.Common
         private readonly EmailService _emailService = emailService;
         private readonly ILogger<TokenEmailHandler> _logger = logger;
 
-        public async Task<ServiceResult<SignupEmailResult>> GenerateTokenAndSendEmailAsync(Account account, TokenType tokenType, TokenEmailTemplate template, DateTimeOffset? createdAtOverride, CancellationToken clt)
+        public async Task<ServiceResult<Unit>> GenerateTokenAndSendEmailAsync(Account account, TokenType tokenType, TokenEmailTemplate template, DateTimeOffset? createdAtOverride, CancellationToken clt)
         {
             // Invalidate old tokens
             // TODO: Move both invalidation and creation into a transaction (for rollback)
@@ -26,9 +26,9 @@ namespace Application.Handlers.Common
                 // Do not issue a new token.
                 return invalidateTokenResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
-                    ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                    _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
+                    ServiceError.InvalidInput => ServiceResult<Unit>.Failure(ServiceError.InvalidInput),
+                    ServiceError.OperationCancelled => ServiceResult<Unit>.Failure(ServiceError.OperationCancelled),
+                    _ => ServiceResult<Unit>.Failure(ServiceError.UnknownError)
                 };
             }
 
@@ -38,9 +38,9 @@ namespace Application.Handlers.Common
                 _logger.LogWarning("{TokenType} token creation failed for email {Email}. Error: {ErrorCode}", tokenType.ToString(), account.Email, tokenCreationResult.ErrorCode);
                 return tokenCreationResult.ErrorCode switch
                 {
-                    ServiceError.InvalidInput => ServiceResult<SignupEmailResult>.Failure(ServiceError.InvalidInput),
-                    ServiceError.OperationCancelled => ServiceResult<SignupEmailResult>.Failure(ServiceError.OperationCancelled),
-                    _ => ServiceResult<SignupEmailResult>.Failure(ServiceError.UnknownError)
+                    ServiceError.InvalidInput => ServiceResult<Unit>.Failure(ServiceError.InvalidInput),
+                    ServiceError.OperationCancelled => ServiceResult<Unit>.Failure(ServiceError.OperationCancelled),
+                    _ => ServiceResult<Unit>.Failure(ServiceError.UnknownError)
                 };
             }
             TokenCreationResult createdToken = tokenCreationResult.Value;
@@ -57,11 +57,9 @@ namespace Application.Handlers.Common
             
             if(emailSendResult.IsFailure)
             {
-                return ServiceResult<SignupEmailResult>.Failure(emailSendResult.ErrorCode!.Value);
+                return ServiceResult<Unit>.Failure(emailSendResult.ErrorCode!.Value);
             }
-
-            SignupEmailResult result = new(account.Email);
-            return ServiceResult<SignupEmailResult>.Success(result);
+            return ServiceResult<Unit>.Success(Unit.Value);
         }
     }
 }

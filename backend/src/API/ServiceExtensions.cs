@@ -1,14 +1,15 @@
 using System.Reflection;
 
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using Infrastructure.Auth;
-using Microsoft.Extensions.Localization;
-using Application.Resources;
-using Domain.Sessions;
 using Scalar.AspNetCore;
+
+using Application.Resources;
+using Infrastructure.Auth;
+using Domain.Sessions;
 
 namespace API
 {
