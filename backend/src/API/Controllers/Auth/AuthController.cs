@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
 
+using Asp.Versioning;
+
 using API.DTOs.Auth;
 using API.Filters;
 using Application.Common;
@@ -17,7 +19,8 @@ using Domain.Common;
 namespace API.Controllers.Auth
 {
     [ApiController]
-    [Route("api/auth")]
+    [ApiVersion(1)]
+    [Route("api/v{version:apiVersion}/auth")]
     public class AuthController(
         SignupEmailHandler signupEmailHandler,
         SignupVerifyHandler signupVerifyHandler,
@@ -47,7 +50,6 @@ namespace API.Controllers.Auth
         ];
 
 
-
         [HttpPost("signup/email")]
         [BlockIfAuthenticated]
         public async Task<IActionResult> SignupEmail([FromBody] SignupEmailDTO dto, CancellationToken clt)
@@ -72,7 +74,7 @@ namespace API.Controllers.Auth
 
         [HttpGet("signup/verify")]
         [BlockIfAuthenticated]
-        public async Task<IActionResult> SignupVerify([FromQuery] SignupVerifyDTO dto, CancellationToken clt)
+        public async Task<IActionResult> SignupVerifyEmail([FromQuery] SignupVerifyDTO dto, CancellationToken clt)
         {
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             string? userAgent = HttpContext.Request.Headers.UserAgent.First();

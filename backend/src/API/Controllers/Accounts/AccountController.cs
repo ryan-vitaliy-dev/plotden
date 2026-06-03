@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.AspNetCore.Authorization;
 
+using Asp.Versioning;
+
 using API.DTOs.Accounts;
 using Application.Common;
 using Application.Handlers.Accounts;
@@ -14,15 +16,17 @@ namespace API.Controllers.Accounts
 {
 
     [ApiController]
-    [Route("api/accounts")]
-    // IStringLocalizer<SharedResource> localizer
+    [ApiVersion(1)]
+    [Route("api/v{version:apiVersion}/accounts")]
+
     public class AccountController(
         UpdatePasswordHandler updatePasswordHandler,
         IStringLocalizer<SharedResource> localizer
-        ) : ControllerBase
+    ) : ControllerBase
     {
         private readonly UpdatePasswordHandler _updatePasswordHandler = updatePasswordHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
+
 
         [HttpPatch("settings/password")]
         [Authorize(Policy = "StandardSession")]

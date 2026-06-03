@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 using Scalar.AspNetCore;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 
 using Application.Resources;
 using Infrastructure.Auth;
@@ -98,6 +100,19 @@ namespace API
                         return new BadRequestObjectResult(new { message = errorMessage });
                     };
                 });
+
+                services.AddApiVersioning(options =>
+                {
+                    options.DefaultApiVersion = new ApiVersion(1);
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.ReportApiVersions = true;
+                    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+                }).AddApiExplorer(options =>
+                {
+                    options.GroupNameFormat = "'v'V";
+                    options.SubstituteApiVersionInUrl = true;
+                });
+                
 
             return services;
         }
