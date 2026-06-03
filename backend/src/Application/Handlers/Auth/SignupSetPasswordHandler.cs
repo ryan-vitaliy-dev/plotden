@@ -11,15 +11,15 @@ using Domain.Accounts;
 using Domain.Common;
 using Domain.Sessions;
 
-namespace Application.Handlers.Signup
+namespace Application.Handlers.Auth
 {
-    public class SignupPasswordHandler(AccountService accountService, SessionService sessionService, AuthService authService, ILogger<SignupPasswordHandler> logger)
+    public class SignupSetPasswordHandler(AccountService accountService, SessionService sessionService, AuthService authService, ILogger<SignupSetPasswordHandler> logger)
     {
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
         private readonly AuthService _authService = authService;
 
-        private readonly ILogger<SignupPasswordHandler> _logger = logger;
+        private readonly ILogger<SignupSetPasswordHandler> _logger = logger;
 
         // NOTE: Returns CreatedSession for now, we need a unified session return result for later to prevent duplicated code
         public async Task<ServiceResult<CreatedSession>> HandleAsync(Guid accountId, string password, IPAddress? ipAddress, string? userAgent, CancellationToken clt)

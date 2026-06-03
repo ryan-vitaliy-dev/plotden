@@ -10,7 +10,7 @@ using Domain.Accounts;
 using Domain.Common;
 using Domain.Sessions;
 
-namespace Application.Handlers.Signin
+namespace Application.Handlers.Auth
 {
     public class SigninHandler(AccountService accountService, SessionService sessionService, ILogger<SigninHandler> logger)
     {

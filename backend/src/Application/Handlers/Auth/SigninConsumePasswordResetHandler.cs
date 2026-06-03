@@ -17,10 +17,10 @@ using Domain.Sessions;
 using Domain.Tokens;
 using Domain.Common;
 
-namespace Application.Handlers.Signin
+namespace Application.Handlers.Auth
 {
-    public class SigninResetPasswordHandler(
-        ILogger<SigninResetPasswordHandler> logger, 
+    public class SigninConsumePasswordResetHandler(
+        ILogger<SigninConsumePasswordResetHandler> logger, 
         AuthService authService,
         AccountService accountService,
         TokenService tokenService,
@@ -28,7 +28,7 @@ namespace Application.Handlers.Signin
         // IEmailSender emailSender,
         IStringLocalizer<SharedResource> localizer)
     {
-        private readonly ILogger<SigninResetPasswordHandler> _logger = logger;
+        private readonly ILogger<SigninConsumePasswordResetHandler> _logger = logger;
 
         private readonly TokenService _tokenService = tokenService;
         private readonly AccountService _accountService = accountService;

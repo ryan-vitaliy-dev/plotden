@@ -17,10 +17,10 @@ using Domain.Sessions;
 using Domain.Tokens;
 using Domain.Common;
 
-namespace Application.Handlers.Signup
+namespace Application.Handlers.Auth
 {
-    public class SignupResumeHandler(
-        ILogger<SignupResumeHandler> logger, 
+    public class SignupVerifyEmailHandler(
+        ILogger<SignupVerifyEmailHandler> logger, 
         AuthService authService,
         AccountService accountService,
         TokenService tokenService,
@@ -28,9 +28,10 @@ namespace Application.Handlers.Signup
         // IEmailSender emailSender,
         IStringLocalizer<SharedResource> localizer)
     {
-        private readonly ILogger<SignupResumeHandler> _logger = logger;
+        private readonly ILogger<SignupVerifyEmailHandler> _logger = logger;
 
         private readonly TokenService _tokenService = tokenService;
+
         private readonly AccountService _accountService = accountService;
         private readonly AuthService _authService = authService;
         private readonly SessionService _sessionService = sessionService;
@@ -60,21 +61,11 @@ namespace Application.Handlers.Signup
             }
             Account matchingAccount = findMatchingAccountResult.Value;
 
-            // Invalidate all prior existing sessions
-            ServiceResult<Unit> invalidateExistingSessionsResult = await _sessionService.InvalidateAllSessionsAsync(matchingAccount.AccountId, clt);
-            if(invalidateExistingSessionsResult.IsFailure)
+            ServiceResult<Unit> consumeTokenAndVerifyAccountResult = await _authService.ConsumeTokenAndVerifyAccountAsync(matchingToken, matchingAccount, clt);
+            if(consumeTokenAndVerifyAccountResult.IsFailure)
             {
-                _logger.LogError("Failed to invalidate existing sessions for account with id {AccountId}", matchingToken.AccountId);
-                return ServiceResult<CreatedSession>.Failure(invalidateExistingSessionsResult.ErrorCode!.Value);
-            }
-
-            // TODO: May need to make this safer in terms of rolling back or something? Its not at the db level so cant use transaction but maybe there
-            // is something else I can do
-            ServiceResult<Unit> consumeTokenAndResumeSignupResult = await _authService.ConsumeTokenAndResumeAccountSignupAsync(matchingToken, matchingAccount, clt);
-            if(consumeTokenAndResumeSignupResult.IsFailure)
-            {
-                // Couldn't consume the token for some reason
-                return ServiceResult<CreatedSession>.Failure(consumeTokenAndResumeSignupResult.ErrorCode!.Value);
+                // at this point, it's rolled back. show error.
+                return ServiceResult<CreatedSession>.Failure(consumeTokenAndVerifyAccountResult.ErrorCode!.Value);
             }
 
             // TODO: See if I should move this above the other check, to prevent failed of session creation after consuming token?

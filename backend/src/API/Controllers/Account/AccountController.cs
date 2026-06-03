@@ -12,12 +12,12 @@ using Application.Handlers.Accounts;
 using Application.Resources;
 using Domain.Common;
 
-namespace API.Controllers.Accounts
+namespace API.Controllers.Account
 {
 
     [ApiController]
     [ApiVersion(1)]
-    [Route("api/v{version:apiVersion}/accounts")]
+    [Route("api/v{version:apiVersion}/account")]
 
     public class AccountController(
         UpdatePasswordHandler updatePasswordHandler,

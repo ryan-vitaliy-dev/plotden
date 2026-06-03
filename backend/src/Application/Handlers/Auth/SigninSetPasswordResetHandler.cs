@@ -11,16 +11,16 @@ using Domain.Accounts;
 using Domain.Common;
 using Domain.Sessions;
 
-namespace Application.Handlers.Signin
+namespace Application.Handlers.Auth
 {
-    public class SigninApplyResetPasswordHandler(AccountService accountService, SessionService sessionService, AuthService authService, ILogger<SigninApplyResetPasswordHandler> logger)
+    public class SigninSetPasswordResetHandler(AccountService accountService, SessionService sessionService, AuthService authService, ILogger<SigninSetPasswordResetHandler> logger)
     {
         private readonly AccountService _accountService = accountService;
 
         private readonly SessionService _sessionService = sessionService;
         private readonly AuthService _authService = authService;
 
-        private readonly ILogger<SigninApplyResetPasswordHandler> _logger = logger;
+        private readonly ILogger<SigninSetPasswordResetHandler> _logger = logger;
 
         public async Task<ServiceResult<CreatedSession>> HandleAsync(Guid accountId, string password, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
         {

@@ -11,10 +11,10 @@ using Domain.Accounts;
 using Domain.Tokens;
 using Application.Handlers.Common;
 
-namespace Application.Handlers.Signup
+namespace Application.Handlers.Auth
 {
-    public class SignupEmailHandler(
-        ILogger<SignupEmailHandler> logger, 
+    public class SignupRequestEmailHandler(
+        ILogger<SignupRequestEmailHandler> logger, 
         AccountService accountService, 
         TokenService tokenService, 
         EmailService emailService,
@@ -22,7 +22,7 @@ namespace Application.Handlers.Signup
         IStringLocalizer<SharedResource> localizer)
     {
 
-        private readonly ILogger<SignupEmailHandler> _logger = logger;
+        private readonly ILogger<SignupRequestEmailHandler> _logger = logger;
         private readonly AccountService _accountService = accountService;
         private readonly EmailService _emailService = emailService;
         private readonly TokenService _tokenService = tokenService;

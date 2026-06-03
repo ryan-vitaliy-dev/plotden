@@ -8,14 +8,14 @@ using Domain.Accounts;
 using Domain.Common;
 using Domain.Tokens;
 
-namespace Application.Handlers.Signin
+namespace Application.Handlers.Auth
 {
-    public class SigninRecoverHandler(AccountService accountService, SessionService sessionService, TokenEmailHandler tokenEmailHandler, ILogger<SigninRecoverHandler> logger)
+    public class SigninRequestRecoveryHandler(AccountService accountService, SessionService sessionService, TokenEmailHandler tokenEmailHandler, ILogger<SigninRequestRecoveryHandler> logger)
     {
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
         private readonly TokenEmailHandler _tokenEmailHandler = tokenEmailHandler;
-        private readonly ILogger<SigninRecoverHandler> _logger = logger;
+        private readonly ILogger<SigninRequestRecoveryHandler> _logger = logger;
 
         public async Task<ServiceResult<Unit>> HandleAsync(string email, CancellationToken clt)
         {
