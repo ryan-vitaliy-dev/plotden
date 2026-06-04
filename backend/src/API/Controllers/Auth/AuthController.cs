@@ -1,4 +1,3 @@
-using System.Net;
 using System.Security.Claims;
 
 using Microsoft.AspNetCore.Mvc;
@@ -21,26 +20,26 @@ namespace API.Controllers.Auth
     [ApiVersion(1)]
     [Route("api/v{version:apiVersion}/auth")]
     public class AuthController(
+        IStringLocalizer<SharedResource> localizer,
         SignupRequestEmailHandler signupRequestEmailHandler,
         SignupVerifyEmailHandler signupVerifyEmailHandler,
         SignupResumeSessionHandler signupResumeSessionHandler,
         SignupSetPasswordHandler signupSetPasswordHandler,
+        SigninHandler signinHandler,
         SigninRequestRecoveryHandler signinRequestRecoveryHandler,
         SigninConsumePasswordResetHandler signinConsumePasswordResetHandler,
-        SigninSetPasswordResetHandler signinSetPasswordResetHandler,
-        SigninHandler signinHandler,
-        IStringLocalizer<SharedResource> localizer
+        SigninSetPasswordResetHandler signinSetPasswordResetHandler
     ) : ControllerBase
     {
+        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         private readonly SignupRequestEmailHandler _signupRequestEmailHandler = signupRequestEmailHandler;
         private readonly SignupVerifyEmailHandler _signupVerifyEmailHandler = signupVerifyEmailHandler;
         private readonly SignupResumeSessionHandler _signupResumeSessionHandler = signupResumeSessionHandler;
         private readonly SignupSetPasswordHandler _signupSetPasswordHandler = signupSetPasswordHandler;
+        private readonly SigninHandler _signinHandler = signinHandler;
         private readonly SigninRequestRecoveryHandler _signinRequestRecoveryHandler = signinRequestRecoveryHandler;
         private readonly SigninConsumePasswordResetHandler _signinConsumePasswordResetHandler = signinConsumePasswordResetHandler;
         private readonly SigninSetPasswordResetHandler _signinSetPasswordResetHandler = signinSetPasswordResetHandler;
-        private readonly SigninHandler _signinHandler = signinHandler;
-        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
         private static readonly HashSet<ServiceError> _signupRecoverErrors =
         [
@@ -75,10 +74,9 @@ namespace API.Controllers.Auth
         [BlockIfAuthenticated]
         public async Task<IActionResult> SignupVerifyEmail([FromQuery] SignupVerifyDTO dto, CancellationToken clt)
         {
-            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+            ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
-            ServiceResult<CreatedSession> verifySignupResult = await _signupVerifyEmailHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> verifySignupResult = await _signupVerifyEmailHandler.HandleAsync(dto.Token, clientInfo, clt);
 
             if(verifySignupResult.IsFailure)
             {
@@ -113,10 +111,9 @@ namespace API.Controllers.Auth
         [BlockIfAuthenticated]
         public async Task<IActionResult> SignupResumeSession([FromQuery] SignupResumeDTO dto, CancellationToken clt)
         {
-            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+            ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
-            ServiceResult<CreatedSession> resumeSignupResult = await _signupResumeSessionHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> resumeSignupResult = await _signupResumeSessionHandler.HandleAsync(dto.Token, clientInfo, clt);
 
             if(resumeSignupResult.IsFailure)
             {
@@ -152,10 +149,10 @@ namespace API.Controllers.Auth
         public async Task<IActionResult> SignupSetPassword(SignupPasswordDTO dto, CancellationToken clt)
         {
             Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+            ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
-            ServiceResult<CreatedSession> passwordSetResult = await _signupSetPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> passwordSetResult = await _signupSetPasswordHandler.HandleAsync(accountIdFromSession, dto.Password, clientInfo, clt);
+
             if(passwordSetResult.IsFailure)
             {
                 return passwordSetResult.ErrorCode switch
@@ -193,10 +190,9 @@ namespace API.Controllers.Auth
         [BlockIfAuthenticated]
         public async Task<IActionResult> Signin(SigninDTO dto, CancellationToken clt)
         {
-            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+            ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
-            ServiceResult<CreatedSession> signinResult = await _signinHandler.HandleAsync(dto.Email, dto.Password, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> signinResult = await _signinHandler.HandleAsync(dto.Email, dto.Password, clientInfo, clt);
 
             if(signinResult.IsFailure)
             {
@@ -232,9 +228,8 @@ namespace API.Controllers.Auth
         [BlockIfAuthenticated]
         public async Task<IActionResult> SigninRequestRecovery(SigninRecoverDTO dto, CancellationToken clt)
         {
-            // Call recovery handler
-            // Recovery handler figures out account status and what to send for email
             ServiceResult<Unit> recoverResult = await _signinRequestRecoveryHandler.HandleAsync(dto.Email, clt);
+
             if(recoverResult.IsFailure && !_signupRecoverErrors.Contains(recoverResult.ErrorCode!.Value))
             {
                 return StatusCode(500, new { message = _localizer["General_Error_500Server"].Value });
@@ -250,10 +245,9 @@ namespace API.Controllers.Auth
         [BlockIfAuthenticated]
         public async Task<IActionResult> SigninConsumePasswordReset([FromQuery] SigninResetPasswordDTO dto, CancellationToken clt)
         {
-            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+            ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
-            ServiceResult<CreatedSession> resetPasswordResult = await _signinConsumePasswordResetHandler.HandleAsync(dto.Token, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> resetPasswordResult = await _signinConsumePasswordResetHandler.HandleAsync(dto.Token, clientInfo, clt);
 
             if(resetPasswordResult.IsFailure)
             {
@@ -289,10 +283,10 @@ namespace API.Controllers.Auth
         public async Task<IActionResult> SigninSetPasswordReset(SignupPasswordDTO dto, CancellationToken clt)
         {
             Guid accountIdFromSession = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string? userAgent = HttpContext.Request.Headers.UserAgent.First();
+            ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
-            ServiceResult<CreatedSession> applyPasswordResult = await _signinSetPasswordResetHandler.HandleAsync(accountIdFromSession, dto.Password, ipAddress, userAgent, clt);
+            ServiceResult<CreatedSession> applyPasswordResult = await _signinSetPasswordResetHandler.HandleAsync(accountIdFromSession, dto.Password, clientInfo, clt);
+
             if(applyPasswordResult.IsFailure)
             {
                 return applyPasswordResult.ErrorCode switch

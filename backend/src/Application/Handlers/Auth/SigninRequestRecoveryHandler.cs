@@ -10,12 +10,18 @@ using Domain.Tokens;
 
 namespace Application.Handlers.Auth
 {
-    public class SigninRequestRecoveryHandler(AccountService accountService, SessionService sessionService, TokenEmailHandler tokenEmailHandler, ILogger<SigninRequestRecoveryHandler> logger)
+    public class SigninRequestRecoveryHandler(
+        ILogger<SigninRequestRecoveryHandler> logger,
+        AccountService accountService, 
+        SessionService sessionService, 
+        TokenEmailHandler tokenEmailHandler
+    )
     {
+        private readonly ILogger<SigninRequestRecoveryHandler> _logger = logger;
+        
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
         private readonly TokenEmailHandler _tokenEmailHandler = tokenEmailHandler;
-        private readonly ILogger<SigninRequestRecoveryHandler> _logger = logger;
 
         public async Task<ServiceResult<Unit>> HandleAsync(string email, CancellationToken clt)
         {

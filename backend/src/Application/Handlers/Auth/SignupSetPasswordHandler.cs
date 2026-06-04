@@ -13,16 +13,20 @@ using Domain.Sessions;
 
 namespace Application.Handlers.Auth
 {
-    public class SignupSetPasswordHandler(AccountService accountService, SessionService sessionService, AuthService authService, ILogger<SignupSetPasswordHandler> logger)
+    public class SignupSetPasswordHandler(
+        ILogger<SignupSetPasswordHandler> logger,
+        AccountService accountService, 
+        SessionService sessionService, 
+        AuthService authService
+    )
     {
+        private readonly ILogger<SignupSetPasswordHandler> _logger = logger;
+
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
         private readonly AuthService _authService = authService;
 
-        private readonly ILogger<SignupSetPasswordHandler> _logger = logger;
-
-        // NOTE: Returns CreatedSession for now, we need a unified session return result for later to prevent duplicated code
-        public async Task<ServiceResult<CreatedSession>> HandleAsync(Guid accountId, string password, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
+        public async Task<ServiceResult<CreatedSession>> HandleAsync(Guid accountId, string password, ClientInfo clientInfo, CancellationToken clt)
         {
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -63,11 +67,21 @@ namespace Application.Handlers.Auth
             }
 
             // Create new standard session
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(account.AccountId, SessionType.Standard, ipAddress, userAgent, null, clt);
+            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(
+                account.AccountId, 
+                SessionType.Standard, 
+                clientInfo, 
+                null, 
+                clt
+            );
             if(sessionCreationResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again
-                _logger.LogError("Session creation failed for account id {AccountId} after successfully applying password reset. Error: {ErrorCode}", account.AccountId, sessionCreationResult.ErrorCode);
+                _logger.LogError(
+                    "Session creation failed for account id {AccountId} after successfully applying password reset. Error: {ErrorCode}", 
+                    account.AccountId, 
+                    sessionCreationResult.ErrorCode
+                );
                 return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
             Session createdSession = sessionCreationResult.Value;

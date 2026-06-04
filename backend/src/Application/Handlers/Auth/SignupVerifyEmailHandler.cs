@@ -20,24 +20,23 @@ using Domain.Common;
 namespace Application.Handlers.Auth
 {
     public class SignupVerifyEmailHandler(
-        ILogger<SignupVerifyEmailHandler> logger, 
+        ILogger<SignupVerifyEmailHandler> logger,
+        IStringLocalizer<SharedResource> localizer, 
         AuthService authService,
         AccountService accountService,
         TokenService tokenService,
-        SessionService sessionService, 
-        // IEmailSender emailSender,
-        IStringLocalizer<SharedResource> localizer)
+        SessionService sessionService
+    )
     {
         private readonly ILogger<SignupVerifyEmailHandler> _logger = logger;
+        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
         private readonly TokenService _tokenService = tokenService;
-
         private readonly AccountService _accountService = accountService;
         private readonly AuthService _authService = authService;
         private readonly SessionService _sessionService = sessionService;
-        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
-        public async Task<ServiceResult<CreatedSession>> HandleAsync(string rawToken, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
+        public async Task<ServiceResult<CreatedSession>> HandleAsync(string rawToken, ClientInfo clientInfo, CancellationToken clt)
         {
             
             byte[] generatedTokenBytes = Encoding.UTF8.GetBytes(rawToken);
@@ -70,16 +69,27 @@ namespace Application.Handlers.Auth
 
             // TODO: See if I should move this above the other check, to prevent failed of session creation after consuming token?
             // Create a session
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(matchingAccount.AccountId, SessionType.IncompleteSignup, ipAddress, userAgent, null, clt);
+            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(
+                matchingAccount.AccountId, 
+                SessionType.IncompleteSignup, 
+                clientInfo,
+                null, 
+                clt
+            );
             if(sessionCreationResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again
-                _logger.LogError("Session creation failed for account id {AccountId} after successful email verification. Error: {ErrorCode}", matchingAccount.AccountId, sessionCreationResult.ErrorCode);
+                _logger.LogError(
+                    "Session creation failed for account id {AccountId} after successful email verification. Error: {ErrorCode}", 
+                    matchingAccount.AccountId, 
+                    sessionCreationResult.ErrorCode
+                );
                 return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
             Session createdSession = sessionCreationResult.Value;
 
             CreatedSession result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
+
             return ServiceResult<CreatedSession>.Success(result);
         }
     }

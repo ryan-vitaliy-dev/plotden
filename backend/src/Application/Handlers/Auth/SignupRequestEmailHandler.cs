@@ -15,19 +15,21 @@ namespace Application.Handlers.Auth
 {
     public class SignupRequestEmailHandler(
         ILogger<SignupRequestEmailHandler> logger, 
+        IStringLocalizer<SharedResource> localizer,
         AccountService accountService, 
         TokenService tokenService, 
         EmailService emailService,
-        TokenEmailHandler tokenEmailHandler,
-        IStringLocalizer<SharedResource> localizer)
+        TokenEmailHandler tokenEmailHandler
+    )
     {
 
         private readonly ILogger<SignupRequestEmailHandler> _logger = logger;
+        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
+
         private readonly AccountService _accountService = accountService;
         private readonly EmailService _emailService = emailService;
         private readonly TokenService _tokenService = tokenService;
         private readonly TokenEmailHandler _tokenEmailHandler = tokenEmailHandler;
-        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         
 
         // / <summary>
@@ -39,8 +41,7 @@ namespace Application.Handlers.Auth
         // / A <see cref="ServiceResult{T}"/> containing an <see cref="EmailData"/> if the signup succeeds,
         // / or a failure with an appropriate <see cref="ServiceError"/> if any step fails.
         // / </returns>
-        public async Task<ServiceResult<Unit>> HandleAsync(string email, 
-        CancellationToken clt)
+        public async Task<ServiceResult<Unit>> HandleAsync(string email, CancellationToken clt)
         {
             Account? accountToUseForSignup = null;
             DateTimeOffset consistentCreatedAtDateTime = DateTimeOffset.UtcNow;
@@ -81,12 +82,17 @@ namespace Application.Handlers.Auth
             }
             // Generate Token, construct link, and send email with link
             // NOTE: The TokenEmailTemplate argument for this call has no affect, it was just a dirty hack fix for now. Will clean up in the future
-            return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(accountToUseForSignup, TokenType.EmailVerification, TokenEmailTemplate.ResumeSignup_Retry, consistentCreatedAtDateTime, clt);
+            return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
+                accountToUseForSignup, 
+                TokenType.EmailVerification, 
+                TokenEmailTemplate.ResumeSignup_Retry, 
+                consistentCreatedAtDateTime, 
+                clt
+            );
         }
 
 
-        private async Task<ServiceResult<Unit>> HandleExistingVerifiedAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, 
-        CancellationToken clt)
+        private async Task<ServiceResult<Unit>> HandleExistingVerifiedAccountAsync(Account existingAccount, DateTimeOffset? createdAtOverride, CancellationToken clt)
         {
             if(existingAccount.FinishedSignupAt != null)
             {
@@ -112,7 +118,13 @@ namespace Application.Handlers.Auth
                 // Update 5/29/2026 - note sure what I meant by the above comment, will look into it later. For now, I added TokenEmailTemplate to differentiate the two
                 // cases where ResumeSignup tokentype is used (e.g. 1. for retrying signup and for recovery. May end up removing retrying signup, not sure if I added it as a user
                 // convienence or something)
-                return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(existingAccount, TokenType.ResumeSignup, TokenEmailTemplate.ResumeSignup_Retry, createdAtOverride, clt);
+                return await _tokenEmailHandler.GenerateTokenAndSendEmailAsync(
+                    existingAccount, 
+                    TokenType.ResumeSignup, 
+                    TokenEmailTemplate.ResumeSignup_Retry, 
+                    createdAtOverride, 
+                    clt
+                );
             }
         }
     }

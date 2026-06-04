@@ -10,13 +10,24 @@ using Domain.Tokens;
 
 namespace Application.Handlers.Common
 {
-    public class TokenEmailHandler(TokenService tokenService, EmailService emailService, ILogger<TokenEmailHandler> logger)
+    public class TokenEmailHandler(
+        ILogger<TokenEmailHandler> logger,
+        TokenService tokenService, 
+        EmailService emailService
+    )
     {
-        private readonly TokenService _tokenService = tokenService;
-        private readonly EmailService _emailService = emailService;
         private readonly ILogger<TokenEmailHandler> _logger = logger;
 
-        public async Task<ServiceResult<Unit>> GenerateTokenAndSendEmailAsync(Account account, TokenType tokenType, TokenEmailTemplate template, DateTimeOffset? createdAtOverride, CancellationToken clt)
+        private readonly TokenService _tokenService = tokenService;
+        private readonly EmailService _emailService = emailService;
+
+        public async Task<ServiceResult<Unit>> GenerateTokenAndSendEmailAsync(
+            Account account, 
+            TokenType tokenType, 
+            TokenEmailTemplate template, 
+            DateTimeOffset? createdAtOverride, 
+            CancellationToken clt
+        )
         {
             // Invalidate old tokens
             // TODO: Move both invalidation and creation into a transaction (for rollback)
@@ -35,7 +46,12 @@ namespace Application.Handlers.Common
             ServiceResult<TokenCreationResult> tokenCreationResult = await _tokenService.CreateTokenAsync(account.AccountId, tokenType, createdAtOverride, clt);
             if(tokenCreationResult.IsFailure)
             {
-                _logger.LogWarning("{TokenType} token creation failed for email {Email}. Error: {ErrorCode}", tokenType.ToString(), account.Email, tokenCreationResult.ErrorCode);
+                _logger.LogWarning(
+                    "{TokenType} token creation failed for email {Email}. Error: {ErrorCode}", 
+                    tokenType.ToString(), 
+                    account.Email, 
+                    tokenCreationResult.ErrorCode
+                );
                 return tokenCreationResult.ErrorCode switch
                 {
                     ServiceError.InvalidInput => ServiceResult<Unit>.Failure(ServiceError.InvalidInput),

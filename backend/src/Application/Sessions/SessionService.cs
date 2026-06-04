@@ -11,27 +11,13 @@ namespace Application.Sessions
     {
         private readonly IAppDbContext _context = context;
 
-        /*
-
-            + CreateSessionAsync
-        + GetSessionByIdAsync
-        + InvalidateSessionAsync
-
-        */
-
-        /// <summary>
-        /// Creates a new <see cref="Session"/> for an existing <see cref="Account"/>.
-        /// </summary>
-        /// <param name="accountId">The ID of the account to create a new session for.</param>
-        /// <param name="ipAddress">The IP Address of the requesting client that owns the account.</param>
-        /// <param name="userAgent">The user agent string of the requesting client that owns the account.</param>
-        /// <param name="createdAtOverride">Optional, the <see cref="DateTimeOffset"/> to use instead of the default (<see cref="DateTimeOffset.UtcNow"/>).</param>
-        /// <param name="clt">A <see cref="CancellationToken"/> to observe while performing the operation.</param>
-        /// <returns>
-        /// A <see cref="ServiceResult{T}"/> containing an <see cref="Session"/> if the creation succeeds,
-        /// or a failure with an appropriate <see cref="ServiceError"/>.
-        /// </returns>
-        public async Task<ServiceResult<Session>> CreateSessionAsync(Guid accountId, SessionType sessionType, IPAddress? ipAddress, string? userAgent, DateTimeOffset? createdAtOverride, CancellationToken clt)
+        public async Task<ServiceResult<Session>> CreateSessionAsync(
+            Guid accountId, 
+            SessionType sessionType, 
+            ClientInfo clientInfo, 
+            DateTimeOffset? createdAtOverride, 
+            CancellationToken clt
+        )
         {
             if(accountId == Guid.Empty)
             {
@@ -47,8 +33,8 @@ namespace Application.Sessions
                     SessionType = sessionType,
                     CreatedAt = createdAt,
                     ExpiresAt = expiresAt,
-                    UserAgent = userAgent,
-                    IpAddress = ipAddress,
+                    UserAgent = clientInfo.UserAgent,
+                    IpAddress = clientInfo.IpAddress,
                 };
 
                 await _context.Sessions.AddAsync(newSession, clt);

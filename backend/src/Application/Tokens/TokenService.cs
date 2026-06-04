@@ -14,11 +14,13 @@ namespace Application.Tokens
 {
     public class TokenService(IAppDbContext appDbContext, ITokenGenerator tokenGenerator, IConfiguration configuration)
     {
-        private readonly TimeSpan _emailVerificationTokenDuration 
-        = TimeSpan.Parse(configuration["Tokens:EmailVerification:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:EmailVerification:ExpiresIn is not configured."));
+        private readonly TimeSpan _emailVerificationTokenDuration = 
+            TimeSpan.Parse(configuration["Tokens:EmailVerification:ExpiresIn"] 
+            ?? throw new InvalidOperationException("Tokens:EmailVerification:ExpiresIn is not configured."));
 
-        private readonly TimeSpan _resumeSignupTokenDuration 
-        = TimeSpan.Parse(configuration["Tokens:ResumeSignup:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:ResumeSignup:ExpiresIn is not configured."));
+        private readonly TimeSpan _resumeSignupTokenDuration = 
+            TimeSpan.Parse(configuration["Tokens:ResumeSignup:ExpiresIn"] 
+            ?? throw new InvalidOperationException("Tokens:ResumeSignup:ExpiresIn is not configured."));
 
         private readonly IAppDbContext _appDbContext = appDbContext;
 
@@ -94,24 +96,6 @@ namespace Application.Tokens
             }
         }
 
-        // public async Task<ServiceResult<Unit>> ConsumeTokenAsync(Token token, CancellationToken clt)
-        // {
-        //     if(token == null)
-        //     {
-        //         return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
-        //     }
-        //     try
-        //     {
-        //         token.ConsumedAt = DateTimeOffset.UtcNow;
-        //         await _appDbContext.SaveChangesAsync(clt);
-        //         return ServiceResult<Unit>.Success(Unit.Value);
-        //     }
-        //     catch (OperationCanceledException)
-        //     {
-        //         return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
-        //     }
-        // }
-
         public async Task<ServiceResult<Unit>> InvalidateTokenAsync(Guid accountId, TokenType tokenType, CancellationToken clt)
         {
             if(accountId == Guid.Empty)
@@ -140,58 +124,5 @@ namespace Application.Tokens
                 return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
             }
         }
-
-        // Not currently in use. May need later, so keeping it for now.
-        // public async Task<ServiceResult<Token>> FindTokenByHashAsync(string tokenHash, CancellationToken clt)
-        // {
-        //     if(string.IsNullOrWhiteSpace(tokenHash))
-        //     {
-        //         return ServiceResult<Token>.Failure(ServiceError.InvalidInput);
-        //     }
-        //     try
-        //     {
-        //         Token? foundToken = await _appDbContext.Tokens
-        //             .FirstOrDefaultAsync(t => t.TokenHash == tokenHash, clt);
-        //         if(foundToken == null)
-        //         {
-        //             return ServiceResult<Token>.Failure(ServiceError.NoTokenFound);
-        //         }
-        //         return ServiceResult<Token>.Success(foundToken);
-        //     }
-        //     catch (OperationCanceledException)
-        //     {
-        //         return ServiceResult<Token>.Failure(ServiceError.OperationCancelled);
-        //     }
-        // }
-
-        // Not currently in use. May need later, so keeping it for now.
-        // public async Task<ServiceResult<Token>> FindActiveTokenByAccountAndTypeAsync(Guid accountId, TokenType tokenType, CancellationToken clt)
-        // {
-        //     if(accountId == Guid.Empty)
-        //     {
-        //         return ServiceResult<Token>.Failure(ServiceError.InvalidInput);
-        //     }
-        //     try
-        //     {
-        //         Token? foundToken = await _appDbContext.Tokens
-        //             .AsNoTracking()
-        //             .FirstOrDefaultAsync(t => 
-        //                 t.AccountId == accountId && 
-        //                 t.TokenType == tokenType &&
-        //                 t.RevokedAt == null &&
-        //                 t.ConsumedAt == null &&
-        //                 t.ExpiresAt > DateTimeOffset.UtcNow, 
-        //             clt);
-        //         if(foundToken == null)
-        //         {
-        //             return ServiceResult<Token>.Failure(ServiceError.NoTokenFound);
-        //         }
-        //         return ServiceResult<Token>.Success(foundToken);
-        //     }
-        //     catch (OperationCanceledException)
-        //     {
-        //         return ServiceResult<Token>.Failure(ServiceError.OperationCancelled);
-        //     }
-        // }
     }
 }

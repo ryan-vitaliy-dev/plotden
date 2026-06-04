@@ -9,18 +9,24 @@ using Application.Sessions;
 using Domain.Accounts;
 using Domain.Common;
 using Domain.Sessions;
+using Application.Common;
 
 namespace Application.Handlers.Auth
 {
-    public class SigninHandler(AccountService accountService, SessionService sessionService, ILogger<SigninHandler> logger)
+    public class SigninHandler(
+        ILogger<SigninHandler> logger,
+        AccountService accountService, 
+        SessionService sessionService
+    )
     {
+        private readonly ILogger<SigninHandler> _logger = logger;
+
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
-        private readonly ILogger<SigninHandler> _logger = logger;
-        
+
         private readonly PasswordHasher<Account> _passwordHasher = new();
 
-        public async Task<ServiceResult<CreatedSession>> HandleAsync(string email, string password, IPAddress? ipAddress, string? userAgent, CancellationToken clt)
+        public async Task<ServiceResult<CreatedSession>> HandleAsync(string email, string password, ClientInfo clientInfo, CancellationToken clt)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
@@ -41,11 +47,21 @@ namespace Application.Handlers.Auth
 
             // TODO: Enforce a max session amount maybe per device later for production, just in case
 
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(account.AccountId, SessionType.Standard, ipAddress, userAgent, null, clt);
+            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(
+                account.AccountId, 
+                SessionType.Standard, 
+                clientInfo, 
+                null, 
+                clt
+            );
             if(sessionCreationResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again
-                _logger.LogError("Session creation failed for account id {AccountId} after successful sign in. Error: {ErrorCode}", account.AccountId, sessionCreationResult.ErrorCode);
+                _logger.LogError(
+                    "Session creation failed for account id {AccountId} after successful sign in. Error: {ErrorCode}", 
+                    account.AccountId, 
+                    sessionCreationResult.ErrorCode
+                );
                 return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
             Session createdSession = sessionCreationResult.Value;
