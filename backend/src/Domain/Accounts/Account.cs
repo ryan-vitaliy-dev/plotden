@@ -9,6 +9,7 @@ namespace Domain.Accounts
 {
     public class Account
     {
+        // old stuff
         // [Key]
         // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         // public long Id { get; set; }

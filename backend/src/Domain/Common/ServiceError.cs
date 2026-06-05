@@ -26,6 +26,7 @@ namespace Domain.Common
         PasswordAlreadySet,
         PasswordNotSet,
         AccountNotVerified,
+        AccountFinishedSignup,
         
         // TOKEN
         BadTokenType,

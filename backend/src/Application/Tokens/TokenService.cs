@@ -9,11 +9,22 @@ using Application.Common.Interfaces;
 using Application.Tokens.Results;
 using Domain.Common;
 using Domain.Tokens;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Tokens
 {
-    public class TokenService(IAppDbContext appDbContext, ITokenGenerator tokenGenerator, IConfiguration configuration)
+    public class TokenService(
+        IAppDbContext appDbContext,
+        ILogger<TokenService> logger, 
+        ITokenGenerator tokenGenerator, 
+        IConfiguration configuration
+    )
     {
+        private readonly IAppDbContext _appDbContext = appDbContext;
+        private readonly ILogger<TokenService> _logger = logger;
+        private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
+
+
         private readonly TimeSpan _emailVerificationTokenDuration = 
             TimeSpan.Parse(configuration["Tokens:EmailVerification:ExpiresIn"] 
             ?? throw new InvalidOperationException("Tokens:EmailVerification:ExpiresIn is not configured."));
@@ -22,15 +33,12 @@ namespace Application.Tokens
             TimeSpan.Parse(configuration["Tokens:ResumeSignup:ExpiresIn"] 
             ?? throw new InvalidOperationException("Tokens:ResumeSignup:ExpiresIn is not configured."));
 
-        private readonly IAppDbContext _appDbContext = appDbContext;
 
-        private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
-
-        public async Task<ServiceResult<TokenCreationResult>> CreateTokenAsync(Guid accountId, TokenType tokenType, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
+        public async Task<ServiceResult<CreatedToken>> CreateTokenAsync(Guid accountId, TokenType tokenType, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
         {
             if(accountId == Guid.Empty)
             {
-                return ServiceResult<TokenCreationResult>.Failure(ServiceError.InvalidInput);
+                return ServiceResult<CreatedToken>.Failure(ServiceError.InvalidInput);
             }
             try
             {
@@ -60,12 +68,17 @@ namespace Application.Tokens
 
                 await _appDbContext.Tokens.AddAsync(newToken, clt);
                 await _appDbContext.SaveChangesAsync(clt);
-                TokenCreationResult result = new(generatedToken);
-                return ServiceResult<TokenCreationResult>.Success(result);    
+                CreatedToken result = new(generatedToken);
+                return ServiceResult<CreatedToken>.Success(result);    
             }
             catch (OperationCanceledException)
             {
-                return ServiceResult<TokenCreationResult>.Failure(ServiceError.OperationCancelled);
+                return ServiceResult<CreatedToken>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Exception occurred when creating token: {message}", ex.Message);
+                return ServiceResult<CreatedToken>.Failure(ServiceError.DbError);
             }
         }
 
@@ -93,6 +106,30 @@ namespace Application.Tokens
             catch (OperationCanceledException)
             {
                 return ServiceResult<Token>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Exception occurred when finding token: {message}", ex.Message);
+                return ServiceResult<Token>.Failure(ServiceError.DbError);
+            }
+        }
+
+        public async Task<ServiceResult<Unit>> ConsumeTokenAsync(Token token, CancellationToken clt)
+        {
+            try
+            {
+                token.ConsumedAt = DateTimeOffset.UtcNow;
+                await _appDbContext.SaveChangesAsync(clt);
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch(OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Exception occurred when consuming token: {message}", ex.Message);
+                return ServiceResult<Unit>.Failure(ServiceError.DbError);
             }
         }
 
@@ -122,6 +159,11 @@ namespace Application.Tokens
             catch (OperationCanceledException)
             {
                 return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Exception occurred when invalidating token: {message}", ex.Message);
+                return ServiceResult<Unit>.Failure(ServiceError.DbError);
             }
         }
     }

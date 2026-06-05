@@ -6,14 +6,22 @@ using Application.Common;
 using Application.Sessions;
 using Domain.Accounts;
 using Domain.Common;
+using Application.Common.Interfaces;
 
 namespace Application.Handlers.Accounts
 {
-    public class UpdatePasswordHandler(AccountService accountService, SessionService sessionService, ILogger<UpdatePasswordHandler> logger)
+    public class UpdatePasswordHandler(
+        ILogger<UpdatePasswordHandler> logger,
+        IUnitOfWork unitOfWork,
+        AccountService accountService, 
+        SessionService sessionService 
+    )
     {
+        private readonly ILogger<UpdatePasswordHandler> _logger = logger;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
-        private readonly ILogger<UpdatePasswordHandler> _logger = logger;
         
         private readonly PasswordHasher<Account> _passwordHasher = new();
 
@@ -43,17 +51,25 @@ namespace Application.Handlers.Accounts
             }
             // TODO: handle rehash stuff later if needed
 
-            ServiceResult<Unit> updatePasswordResult = await _accountService.SetAccountPasswordAsync(account, newPassword, clt);
+
+            await using var tx = await _unitOfWork.BeginTransactionAsync(clt);
+            
+            ServiceResult<Unit> updatePasswordResult = await _accountService.SetPasswordAsync(account, newPassword, clt);
             if(updatePasswordResult.IsFailure)
             {
-                return ServiceResult<Unit>.Failure(updatePasswordResult.ErrorCode!.Value);
+                await tx.RollbackAsync(CancellationToken.None);
+                return ServiceResult<Unit>.Failure(updatePasswordResult.ErrorCode!.Value); // TODO: See if this is ok
             }
 
-            ServiceResult<Unit> invalidateAllOtherSessionsResult = await _sessionService.InvalidAllSessionsExceptAsync(account.AccountId, currentSessionId, clt);
-            if(invalidateAllOtherSessionsResult.IsFailure)
+
+            ServiceResult<Unit> invalidateOtherSessionsResult = await _sessionService.InvalidateOtherSessionsAsync(account.AccountId, currentSessionId, clt);
+            if(invalidateOtherSessionsResult.IsFailure)
             {
-                return ServiceResult<Unit>.Failure(updatePasswordResult.ErrorCode!.Value);
+                await tx.RollbackAsync(CancellationToken.None);
+                return ServiceResult<Unit>.Failure(updatePasswordResult.ErrorCode!.Value); // TODO: See if this is ok
             }
+
+            await tx.CommitAsync(clt);
 
             return ServiceResult<Unit>.Success(Unit.Value);
         }

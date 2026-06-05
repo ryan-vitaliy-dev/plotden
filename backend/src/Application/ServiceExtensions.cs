@@ -1,12 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using Application.Accounts;
-using Application.Auth;
 using Application.Email;
 using Application.Handlers.Auth;
 using Application.Sessions;
 using Application.Tokens;
-using Application.Handlers.Common;
 using Application.Handlers.Accounts;
 
 namespace Application
@@ -18,10 +16,7 @@ namespace Application
             services.AddScoped<SessionService>();
             services.AddScoped<TokenService>();
             services.AddScoped<EmailService>();
-            services.AddScoped<AuthService>();
             services.AddScoped<AccountService>();
-
-            services.AddScoped<TokenEmailHandler>();
 
             services.AddScoped<UpdatePasswordHandler>();
 

@@ -70,7 +70,7 @@ namespace Application.Sessions
             }
         }
 
-        public async Task<ServiceResult<Unit>> InvalidateAllSessionsAsync(Guid accountId, CancellationToken clt)
+        public async Task<ServiceResult<Unit>> InvalidateSessionsAsync(Guid accountId, CancellationToken clt)
         {
             if(accountId == Guid.Empty)
             {
@@ -93,7 +93,7 @@ namespace Application.Sessions
             }
         }
 
-        public async Task<ServiceResult<Unit>> InvalidAllSessionsExceptAsync(Guid accountId, Guid excludedSessionId, CancellationToken clt)
+        public async Task<ServiceResult<Unit>> InvalidateOtherSessionsAsync(Guid accountId, Guid excludedSessionId, CancellationToken clt)
         {
             if(accountId == Guid.Empty || excludedSessionId == Guid.Empty)
             {

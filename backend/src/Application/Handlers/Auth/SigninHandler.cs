@@ -1,15 +1,13 @@
-using System.Net;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 using Application.Accounts;
-using Application.Auth.Results;
 using Application.Sessions;
 using Domain.Accounts;
 using Domain.Common;
 using Domain.Sessions;
 using Application.Common;
+using Application.Sessions.Results;
 
 namespace Application.Handlers.Auth
 {
@@ -33,38 +31,37 @@ namespace Application.Handlers.Auth
                 return ServiceResult<CreatedSession>.Failure(ServiceError.InvalidInput);
             }
 
-            ServiceResult<Account> existingAccountCheckResult = await _accountService.FindAccountByEmailAsync(email, clt);
-            Account account = existingAccountCheckResult.IsFailure 
+            ServiceResult<Account> findAccountResult = await _accountService.FindAccountByEmailAsync(email, clt);
+            Account account = findAccountResult.IsFailure 
                 ? new Account()
-                : existingAccountCheckResult.Value;
+                : findAccountResult.Value;
 
             PasswordVerificationResult passwordVerificationResult = _passwordHasher.VerifyHashedPassword(account, account.PasswordHash ?? string.Empty, password);
-            if(existingAccountCheckResult.IsFailure || passwordVerificationResult == PasswordVerificationResult.Failed)
+            if(findAccountResult.IsFailure || passwordVerificationResult == PasswordVerificationResult.Failed)
             {
                 return ServiceResult<CreatedSession>.Failure(ServiceError.InvalidCredentials);
             }
             // TODO: handle rehash stuff later if needed
 
-            // TODO: Enforce a max session amount maybe per device later for production, just in case
 
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(
+            ServiceResult<Session> createSessionResult = await _sessionService.CreateSessionAsync(
                 account.AccountId, 
                 SessionType.Standard, 
                 clientInfo, 
                 null, 
                 clt
             );
-            if(sessionCreationResult.IsFailure)
+            if(createSessionResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again
                 _logger.LogError(
-                    "Session creation failed for account id {AccountId} after successful sign in. Error: {ErrorCode}", 
+                    "Failed to create session for account id {AccountId} - Error: {ErrorCode}", 
                     account.AccountId, 
-                    sessionCreationResult.ErrorCode
+                    createSessionResult.ErrorCode
                 );
                 return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
-            Session createdSession = sessionCreationResult.Value;
+            Session createdSession = createSessionResult.Value;
 
             CreatedSession result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
 

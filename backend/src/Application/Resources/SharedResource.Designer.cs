@@ -58,29 +58,47 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Verify your email address!.
+        /// </summary>
+        public static string Email_Subject_EmailVerification {
+            get {
+                return ResourceManager.GetString("Email_Subject_EmailVerification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Security Alert: Attempted account signup.
         /// </summary>
-        public static string Email_SubjectAccountAlreadyExists {
+        public static string Email_Subject_ExistingAccountSignup {
             get {
-                return ResourceManager.GetString("Email_SubjectAccountAlreadyExists", resourceCulture);
+                return ResourceManager.GetString("Email_Subject_ExistingAccountSignup", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Security Alert: Account Recovery.
         /// </summary>
-        public static string Email_SubjectAccountRecovery {
+        public static string Email_Subject_IncompleteAccountRecovery {
             get {
-                return ResourceManager.GetString("Email_SubjectAccountRecovery", resourceCulture);
+                return ResourceManager.GetString("Email_Subject_IncompleteAccountRecovery", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verify your email address.
+        ///   Looks up a localized string similar to Security Alert: Attempted account signup.
         /// </summary>
-        public static string Email_SubjectVerifyEmailAddress {
+        public static string Email_Subject_IncompleteAccountSignup {
             get {
-                return ResourceManager.GetString("Email_SubjectVerifyEmailAddress", resourceCulture);
+                return ResourceManager.GetString("Email_Subject_IncompleteAccountSignup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security Alert: Account Recovery.
+        /// </summary>
+        public static string Email_Subject_PasswordReset {
+            get {
+                return ResourceManager.GetString("Email_Subject_PasswordReset", resourceCulture);
             }
         }
         

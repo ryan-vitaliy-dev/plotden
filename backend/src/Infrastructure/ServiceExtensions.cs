@@ -29,6 +29,8 @@ namespace Infrastructure
             services.AddTransient<IEmailSender, FluentEmailSender>();
             services.AddScoped<IEmailTemplateLoader, EmailTemplateLoader>();
 
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             return services;
         }
     }

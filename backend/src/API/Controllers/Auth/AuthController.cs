@@ -9,10 +9,10 @@ using Asp.Versioning;
 using API.DTOs.Auth;
 using API.Filters;
 using Application.Common;
-using Application.Auth.Results;
 using Application.Handlers.Auth;
 using Application.Resources;
 using Domain.Common;
+using Application.Sessions.Results;
 
 namespace API.Controllers.Auth
 {

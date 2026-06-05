@@ -9,7 +9,6 @@ using Domain.Common;
 
 namespace Application.Email
 {
-
     public class EmailService(
         IEmailSender emailSender, 
         IEmailTemplateLoader emailTemplateLoader, 
@@ -34,67 +33,69 @@ namespace Application.Email
 
         private readonly ILogger<EmailService> _logger = logger;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
-        
 
-        public async Task<ServiceResult<Unit>> SendVerificationEmailAsync(string emailAddress, string rawToken, CancellationToken clt)
+
+        // Overload for omitting token
+        public Task<ServiceResult<Unit>> SendEmailAsync(string emailAddress, EmailTemplate emailTemplate, CancellationToken clt)
+            => SendEmailAsync(emailAddress, emailTemplate, null!, clt);
+
+        public async Task<ServiceResult<Unit>> SendEmailAsync(string emailAddress, EmailTemplate emailTemplate, string rawToken, CancellationToken clt)
         {
-            string emailSubject = _localizer["Email_SubjectVerifyEmailAddress"].Value;
-            string emailBody = _emailTemplateLoader.LoadTemplate("SignupVerificationLink.html", new Dictionary<string, string>
+            var (emailSubject, emailTemplateFile, emailVariables) = emailTemplate switch
             {
-                ["VerificationLink"] = "plotden.com/signup/verify?token=" + rawToken,
-                ["TimeValue"] = _emailVerificationTokenDuration.Minutes.ToString(),
-                ["TimeUnit"] = "minutes"
-            });
-            return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
-        }
+                EmailTemplate.EmailVerification => (
+                    _localizer["Email_Subject_EmailVerification"].Value, 
+                    "EmailVerification.html",
+                    new Dictionary<string, string>
+                    {
+                        ["VerificationLink"] = "plotden.com/signup/verify?token=" + rawToken,
+                        ["TimeValue"] = _emailVerificationTokenDuration.Minutes.ToString(),
+                        ["TimeUnit"] = "minutes"
+                    }
+                ),
+                EmailTemplate.IncompleteAccountSignup => (
+                    _localizer["Email_Subject_IncompleteAccountSignup"].Value, 
+                    "IncompleteAccountSignup.html",
+                    new Dictionary<string, string>
+                    {
+                        ["ResumeLink"] = "plotden.com/signup/resume?token=" + rawToken,
+                        ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
+                        ["TimeUnit"] = "minutes"
+                    }
+                ),
+                EmailTemplate.ExistingAccountSignup => (
+                    _localizer["Email_Subject_ExistingAccountSignup"].Value, 
+                    "ExistingAccountSignup.html",
+                    []
+                ),
+                EmailTemplate.IncompleteAccountRecovery => (
+                    _localizer["Email_Subject_IncompleteAccountRecovery"].Value, 
+                    "IncompleteAccountRecovery.html",
+                    new Dictionary<string, string>
+                    {
+                        ["RecoveryLink"] = "plotden.com/account/recover?token=" + rawToken,
+                        ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
+                        ["TimeUnit"] = "minutes"
+                    }
+                ),
+                EmailTemplate.EmailUpdate => throw new NotImplementedException("Not implemented yet."),
+                EmailTemplate.PasswordReset => (
+                    _localizer["Email_Subject_PasswordReset"].Value, 
+                    "PasswordReset.html",
+                    new Dictionary<string, string>
+                    {
+                        ["ResetLink"] = "plotden.com/account/reset-password?token=" + rawToken,
+                        ["TimeValue"] = _passwordResetTokenDuration.Minutes.ToString(),
+                        ["TimeUnit"] = "minutes"
+                    }
+                ),
+                _ => throw new ArgumentOutOfRangeException(nameof(emailTemplate))
+            };
 
-        public async Task<ServiceResult<Unit>> SendAccountExistsEmailAsync(string emailAddress, CancellationToken clt)
-        {
-            string emailSubject = _localizer["Email_SubjectAccountAlreadyExists"].Value;
-            string emailBody = _emailTemplateLoader.LoadTemplate("SignupAttemptAccountExists.html");
-            return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
-        }
+            
+            string emailBody = _emailTemplateLoader.LoadTemplate(emailTemplateFile, emailVariables);
+            EmailMessage emailMessage = new(emailAddress, emailSubject, emailBody);
 
-        // TODO: This is currently used for the case where some other user requests while the first user hasnt yet set a password.
-        // However, it's also used when the user themselves hasnt set a password and tries to recover their account. We should probably split into two separate methods and email templates for better clarity and user experience.
-        public async Task<ServiceResult<Unit>> SendAccountExistsResumeSignupEmailAsync(string emailAddress, string rawToken, CancellationToken clt)
-        {
-            string emailSubject = _localizer["Email_SubjectAccountAlreadyExists"].Value;
-            string emailBody = _emailTemplateLoader.LoadTemplate("SignupAttemptAccountIncomplete.html", new Dictionary<string, string>
-            {
-                ["SignupResumeLink"] = "plotden.com/signup/resume?token=" + rawToken,
-                ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
-                ["TimeUnit"] = "minutes"
-            });
-            return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
-        }
-
-        public async Task<ServiceResult<Unit>> SendAccountExistsResumeSignupRecoveryEmailAsync(string emailAddress, string rawToken, CancellationToken clt)
-        {
-            string emailSubject = _localizer["Email_SubjectAccountRecovery"].Value;
-            string emailBody = _emailTemplateLoader.LoadTemplate("RecoverResumeSignup.html", new Dictionary<string, string>
-            {
-                ["SignupResumeLink"] = "plotden.com/signup/resume?token=" + rawToken,
-                ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
-                ["TimeUnit"] = "minutes"
-            });
-            return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
-        }
-
-        public async Task<ServiceResult<Unit>> SendPasswordResetEmailAsync(string emailAddress, string rawToken, CancellationToken clt)
-        {
-            string emailSubject = _localizer["Email_SubjectAccountRecovery"].Value;
-            string emailBody = _emailTemplateLoader.LoadTemplate("RecoverPasswordReset.html", new Dictionary<string, string>
-            {
-                ["PasswordResetLink"] = "plotden.com/reset-password?token=" + rawToken,
-                ["TimeValue"] = _passwordResetTokenDuration.Minutes.ToString(),
-                ["TimeUnit"] = "minutes"
-            });
-            return await SendEmailAsync(new EmailMessage(emailAddress, emailSubject, emailBody), clt);
-        }
-
-        private async Task<ServiceResult<Unit>> SendEmailAsync(EmailMessage emailMessage, CancellationToken clt)
-        {
             bool emailSent = await _emailSender.SendAsync(emailMessage, clt);
             if(emailSent)
             {
@@ -102,7 +103,11 @@ namespace Application.Email
             }
             else
             {
-                _logger.LogWarning("\"{EmailSubject}\" email failed to be sent to email {Email}.", emailMessage.Subject, emailMessage.To);
+                _logger.LogWarning(
+                    "Failed to send {EmailTemplate} email to address {Email}", 
+                    emailTemplate, 
+                    emailMessage.To
+                );
                 return ServiceResult<Unit>.Failure(ServiceError.UnknownError);
             }
         }

@@ -136,7 +136,7 @@ namespace Application.Accounts
             }
         }
 
-        public async Task<ServiceResult<Unit>> VerifyAccountEmailAsync(Account account, CancellationToken clt)
+        public async Task<ServiceResult<Unit>> MarkVerifiedEmailAsync(Account account, CancellationToken clt)
         {
             if(account == null)
             {
@@ -154,7 +154,8 @@ namespace Application.Accounts
             }
         }
 
-        public async Task<ServiceResult<Unit>> SetAccountPasswordAsync(Account account, string password, CancellationToken clt)
+        // TODO: Look into if this should be on the entity as business rule(?)
+        public async Task<ServiceResult<Unit>> SetPasswordAsync(Account account, string password, CancellationToken clt)
         {
             if(account == null || string.IsNullOrWhiteSpace(password))
             {
@@ -169,6 +170,35 @@ namespace Application.Accounts
             catch (OperationCanceledException)
             {
                 return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+        }
+
+        // TODO: Look into if this should be on the entity as business rule(?)
+        public async Task<ServiceResult<Unit>> MarkFinishedSignupAsync(Account account, CancellationToken clt)
+        {
+            if(account == null)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+
+            try
+            {   
+                account.FinishedSignupAt = DateTimeOffset.UtcNow;
+                await _appDbContext.SaveChangesAsync(clt);
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch(OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    "Unexpected error occurred when marking account {AccountId} as having finished signup: {message}", 
+                    account.AccountId, 
+                    ex.Message
+                );
+                return ServiceResult<Unit>.Failure(ServiceError.DbError);
             }
         }
         

@@ -1,4 +1,3 @@
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,22 +6,22 @@ using Microsoft.Extensions.Logging;
 
 using Application.Accounts;
 using Application.Resources;
-using Application.Auth.Results;
 using Application.Common;
 using Application.Sessions;
 using Application.Tokens;
-using Application.Auth;
 using Domain.Accounts;
 using Domain.Sessions;
 using Domain.Tokens;
 using Domain.Common;
+using Application.Common.Interfaces;
+using Application.Sessions.Results;
 
 namespace Application.Handlers.Auth
 {
     public class SigninConsumePasswordResetHandler(
         ILogger<SigninConsumePasswordResetHandler> logger,
         IStringLocalizer<SharedResource> localizer, 
-        AuthService authService,
+        IUnitOfWork unitOfWork,
         AccountService accountService,
         TokenService tokenService,
         SessionService sessionService
@@ -30,75 +29,89 @@ namespace Application.Handlers.Auth
     {
         private readonly ILogger<SigninConsumePasswordResetHandler> _logger = logger;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         
         private readonly TokenService _tokenService = tokenService;
         private readonly AccountService _accountService = accountService;
-        private readonly AuthService _authService = authService;
         private readonly SessionService _sessionService = sessionService;
 
         public async Task<ServiceResult<CreatedSession>> HandleAsync(string rawToken, ClientInfo clientInfo, CancellationToken clt)
         {
-            
             byte[] generatedTokenBytes = Encoding.UTF8.GetBytes(rawToken);
             byte[] tokenHashBytes = SHA256.HashData(generatedTokenBytes);
             string tokenHash = Convert.ToHexStringLower(tokenHashBytes);
 
-            ServiceResult<Token> findMatchingTokenResult = await _tokenService.FindActiveTokenByHashAsync(tokenHash, clt);
-            if(findMatchingTokenResult.IsFailure)
+            ServiceResult<Token> findTokenResult = await _tokenService.FindActiveTokenByHashAsync(tokenHash, clt);
+            if(findTokenResult.IsFailure)
             {
-                // Either a DB error such as a connection error or the token is invalid/expired
-                return ServiceResult<CreatedSession>.Failure(findMatchingTokenResult.ErrorCode!.Value);
+                return ServiceResult<CreatedSession>.Failure(findTokenResult.ErrorCode!.Value);
             }
-            Token matchingToken = findMatchingTokenResult.Value;
+            Token token = findTokenResult.Value;
 
-            ServiceResult<Account> findMatchingAccountResult = await _accountService.FindAccountByIdAsync(matchingToken.AccountId, clt);
-            if(findMatchingAccountResult.IsFailure)
+            ServiceResult<Account> findAccountResult = await _accountService.FindAccountByIdAsync(token.AccountId, clt);
+            if(findAccountResult.IsFailure)
             {
-                // Either a DB error such as connection error or some other unexpected error, log it for safety
-                _logger.LogError("Could not find matching account with id {AccountId} for token hash {TokenHash}", matchingToken.AccountId, matchingToken.TokenHash);
-                return ServiceResult<CreatedSession>.Failure(findMatchingAccountResult.ErrorCode!.Value);
+                _logger.LogError("Failed to find account with id {AccountId} for token hash {TokenHash}", token.AccountId, token.TokenHash);
+                return ServiceResult<CreatedSession>.Failure(findAccountResult.ErrorCode!.Value);
             }
-            Account matchingAccount = findMatchingAccountResult.Value;
+            Account account = findAccountResult.Value;
 
-            // Invalidate all prior existing sessions
-            ServiceResult<Unit> invalidateExistingSessionsResult = await _sessionService.InvalidateAllSessionsAsync(matchingAccount.AccountId, clt);
-            if(invalidateExistingSessionsResult.IsFailure)
-            {
-                _logger.LogError("Failed to invalidate existing sessions for account with id {AccountId}", matchingToken.AccountId);
-                return ServiceResult<CreatedSession>.Failure(invalidateExistingSessionsResult.ErrorCode!.Value);
-            }
 
-            // TODO: May need to make this safer in terms of rolling back or something? Its not at the db level so cant use transaction but maybe there
-            // is something else I can do
-            ServiceResult<Unit> consumeTokenAndResumeSignupResult = await _authService.ConsumeTokenAndResumeAccountSignupAsync(matchingToken, matchingAccount, clt);
-            if(consumeTokenAndResumeSignupResult.IsFailure)
+            await using var tx = await _unitOfWork.BeginTransactionAsync(clt);
+
+
+            ServiceResult<Unit> consumeTokenResult = await _tokenService.ConsumeTokenAsync(token, clt);
+            if(consumeTokenResult.IsFailure)
             {
-                // Couldn't consume the token for some reason
-                return ServiceResult<CreatedSession>.Failure(consumeTokenAndResumeSignupResult.ErrorCode!.Value);
+                await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to consume token with token hash {TokenHash} for account with id {AccountId} - Error: {ErrorCode}", 
+                    token.TokenHash,
+                    account.AccountId,
+                    consumeTokenResult.ErrorCode
+                );
+                return ServiceResult<CreatedSession>.Failure(consumeTokenResult.ErrorCode!.Value); // TODO: Check if this is ok
             }
 
-            // TODO: See if I should move this above the other check, to prevent failed of session creation after consuming token?
-            // Create a session
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(
-                matchingAccount.AccountId, 
+
+            ServiceResult<Unit> invalidateSessionsResult = await _sessionService.InvalidateSessionsAsync(account.AccountId, clt);
+            if(invalidateSessionsResult.IsFailure)
+            {
+                await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to invalidate sessions for account with id {AccountId} - Error: {ErrorCode}", 
+                    account.AccountId,
+                    invalidateSessionsResult.ErrorCode
+                );
+                return ServiceResult<CreatedSession>.Failure(invalidateSessionsResult.ErrorCode!.Value); // TODO: Check if this is ok
+            }
+
+
+            ServiceResult<Session> createSessionResult = await _sessionService.CreateSessionAsync(
+                account.AccountId, 
                 SessionType.PasswordReset, 
                 clientInfo,
                 null, 
                 clt
             );
-            if(sessionCreationResult.IsFailure)
+            if(createSessionResult.IsFailure)
             {
                 // If session creation fails, show error to user and tell them to try link again
                 _logger.LogError(
-                    "Session creation failed for account id {AccountId} after successful password reset email verification. Error: {ErrorCode}", 
-                    matchingAccount.AccountId, 
-                    sessionCreationResult.ErrorCode
+                    "Failed to create session for account id {AccountId} - Error: {ErrorCode}", 
+                    account.AccountId, 
+                    createSessionResult.ErrorCode
                 );
                 return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
-            Session createdSession = sessionCreationResult.Value;
+
+            await tx.CommitAsync(clt);
+
+
+            Session createdSession = createSessionResult.Value;
 
             CreatedSession result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
+
             return ServiceResult<CreatedSession>.Success(result);
         }
     }

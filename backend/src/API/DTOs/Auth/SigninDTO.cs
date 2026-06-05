@@ -13,7 +13,7 @@ namespace API.DTOs.Auth
 
         [JsonPropertyName("password")]
         [Required(ErrorMessageResourceName = "Signin_Error_MissingPassword", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
-        [MaxLength(100, ErrorMessageResourceName = "Signin_Error_InvalidPassword", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
+        [MaxLength(100, ErrorMessageResourceName = "General_Error_InvalidPassword", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
         public string Password { get; set; } = null!;
     }
 }

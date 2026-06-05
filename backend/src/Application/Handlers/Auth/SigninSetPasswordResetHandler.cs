@@ -1,30 +1,28 @@
-using System.Net;
-
 using Microsoft.Extensions.Logging;
 
 using Application.Accounts;
-using Application.Auth;
-using Application.Auth.Results;
 using Application.Common;
 using Application.Sessions;
 using Domain.Accounts;
 using Domain.Common;
 using Domain.Sessions;
+using Application.Common.Interfaces;
+using Application.Sessions.Results;
 
 namespace Application.Handlers.Auth
 {
     public class SigninSetPasswordResetHandler(
         ILogger<SigninSetPasswordResetHandler> logger,
+        IUnitOfWork unitOfWork,
         AccountService accountService, 
-        SessionService sessionService, 
-        AuthService authService
+        SessionService sessionService
     )
     {
         private readonly ILogger<SigninSetPasswordResetHandler> _logger = logger;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         private readonly AccountService _accountService = accountService;
         private readonly SessionService _sessionService = sessionService;
-        private readonly AuthService _authService = authService;
 
         public async Task<ServiceResult<CreatedSession>> HandleAsync(Guid accountId, string password, ClientInfo clientInfo, CancellationToken clt)
         {
@@ -36,44 +34,62 @@ namespace Application.Handlers.Auth
             ServiceResult<Account> findAccountResult = await _accountService.FindAccountByIdAsync(accountId, clt);
             if(findAccountResult.IsFailure)
             {
+                // TODO: Do we need a logger here?
                 return ServiceResult<CreatedSession>.Failure(ServiceError.InvalidInput);
             }
             Account account = findAccountResult.Value;
 
-            ServiceResult<Unit> resetPasswordResult = await _authService.FinishResetPasswordAsync(account, password, clt);
-            if(resetPasswordResult.IsFailure)
+
+            await using var tx = await _unitOfWork.BeginTransactionAsync(clt);
+
+            ServiceResult<Unit> setPasswordResult = await _accountService.SetPasswordAsync(account, password, clt);
+            if(setPasswordResult.IsFailure)
             {
-                return ServiceResult<CreatedSession>.Failure(resetPasswordResult.ErrorCode!.Value);
+                await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to set new password for account with id {AccountId} - Error: {ErrorCode}",
+                    account.AccountId,
+                    setPasswordResult.ErrorCode
+                );
+                return ServiceResult<CreatedSession>.Failure(setPasswordResult.ErrorCode!.Value); // TODO: Check if this is ok
             }
 
-            // TODO: Maybe check the ordering and see if this is okay, if transaction needed, etc
-            // Invalidate all prior existing sessions
-            ServiceResult<Unit> invalidateExistingSessionsResult = await _sessionService.InvalidateAllSessionsAsync(account.AccountId, clt);
-            if(invalidateExistingSessionsResult.IsFailure)
+
+            ServiceResult<Unit> invalidateSessionsResult = await _sessionService.InvalidateSessionsAsync(account.AccountId, clt);
+            if(invalidateSessionsResult.IsFailure)
             {
-                _logger.LogError("Failed to invalidate existing sessions for account with id {AccountId}", account.AccountId);
-                return ServiceResult<CreatedSession>.Failure(invalidateExistingSessionsResult.ErrorCode!.Value);
+                await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to invalidate sessions for account with id {AccountId} - Error: {ErrorCode}",
+                    account.AccountId,
+                    invalidateSessionsResult.ErrorCode
+                );
+                return ServiceResult<CreatedSession>.Failure(invalidateSessionsResult.ErrorCode!.Value); // TODO: Check if this is ok
             }
 
-            // Create new standard session
-            ServiceResult<Session> sessionCreationResult = await _sessionService.CreateSessionAsync(
+
+            ServiceResult<Session> createSessionResult = await _sessionService.CreateSessionAsync(
                 account.AccountId, 
                 SessionType.Standard, 
                 clientInfo, 
                 null, 
                 clt
             );
-            if(sessionCreationResult.IsFailure)
+            if(createSessionResult.IsFailure)
             {
-                // If session creation fails, show error to user and tell them to try link again
+                await tx.RollbackAsync(CancellationToken.None);
                 _logger.LogError(
-                    "Session creation failed for account id {AccountId} after successfully applying password reset. Error: {ErrorCode}",
+                    "Failed to create session for account with id {AccountId} - Error: {ErrorCode}",
                     account.AccountId, 
-                    sessionCreationResult.ErrorCode
+                    createSessionResult.ErrorCode
                 );
                 return ServiceResult<CreatedSession>.Failure(ServiceError.SessionCreationFailed);
             }
-            Session createdSession = sessionCreationResult.Value;
+
+            await tx.CommitAsync(CancellationToken.None);
+
+
+            Session createdSession = createSessionResult.Value;
 
             CreatedSession result = new(createdSession.SessionId.ToString(), createdSession.ExpiresAt);
 
