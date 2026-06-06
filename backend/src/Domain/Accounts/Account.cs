@@ -36,6 +36,8 @@ namespace Domain.Accounts
 
         public ICollection<Token> TokensById { get; set; } = [];
 
+        public ICollection<EmailUpdateRequest> EmailUpdateRequests { get; set; } = [];
+
         // public ICollection<UserToken> UserTokensByEmail { get; set; } = [];
 
     }

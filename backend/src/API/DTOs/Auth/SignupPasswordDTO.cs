@@ -9,7 +9,7 @@ namespace API.DTOs.Auth
         [Required(ErrorMessageResourceName = "Signup_Error_MissingPassword", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]
         [RegularExpression(
             @"^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!?@#$%^&*\-_=+~:;])[A-Za-z0-9!?@#$%^&*\-_=+~:; ]{12,100}$", 
-            ErrorMessageResourceName = "General_Error_InvalidPassword", ErrorMessageResourceType = typeof(Application.Resources.SharedResource)
+            ErrorMessageResourceName = "General_Error_InvalidPasswordRequirements", ErrorMessageResourceType = typeof(Application.Resources.SharedResource)
         )]
         public string Password { get; set; } = null!;
 

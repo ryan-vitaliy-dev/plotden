@@ -17,18 +17,23 @@ namespace Application
             services.AddScoped<TokenService>();
             services.AddScoped<EmailService>();
             services.AddScoped<AccountService>();
+            services.AddScoped<EmailUpdateRequestService>();
 
             services.AddScoped<UpdatePasswordHandler>();
 
             services.AddScoped<SigninHandler>();
             services.AddScoped<SigninRequestRecoveryHandler>();
-            services.AddScoped<SigninConsumePasswordResetHandler>();
+            services.AddScoped<SigninVerifyPasswordResetHandler>();
             services.AddScoped<SigninSetPasswordResetHandler>();
 
             services.AddScoped<SignupRequestEmailHandler>();
             services.AddScoped<SignupVerifyEmailHandler>();
             services.AddScoped<SignupResumeSessionHandler>();
             services.AddScoped<SignupSetPasswordHandler>();
+
+            services.AddScoped<SignoutHandler>();
+
+            services.AddScoped<RequestEmailUpdateHandler>();
 
             return services;
         }

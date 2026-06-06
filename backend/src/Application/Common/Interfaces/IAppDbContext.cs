@@ -15,6 +15,8 @@ namespace Application.Common.Interfaces
         DbSet<Session> Sessions { get ; }
         DbSet<Token> Tokens { get ; }
 
+        DbSet<EmailUpdateRequest> EmailUpdateRequests { get ; }
+
         Task<int> SaveChangesAsync(CancellationToken clt);
         DatabaseFacade Database { get ; }
 

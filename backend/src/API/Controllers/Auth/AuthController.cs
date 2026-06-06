@@ -27,8 +27,9 @@ namespace API.Controllers.Auth
         SignupSetPasswordHandler signupSetPasswordHandler,
         SigninHandler signinHandler,
         SigninRequestRecoveryHandler signinRequestRecoveryHandler,
-        SigninConsumePasswordResetHandler signinConsumePasswordResetHandler,
-        SigninSetPasswordResetHandler signinSetPasswordResetHandler
+        SigninVerifyPasswordResetHandler signinVerifyPasswordResetHandler,
+        SigninSetPasswordResetHandler signinSetPasswordResetHandler,
+        SignoutHandler signoutHandler
     ) : ControllerBase
     {
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
@@ -38,8 +39,10 @@ namespace API.Controllers.Auth
         private readonly SignupSetPasswordHandler _signupSetPasswordHandler = signupSetPasswordHandler;
         private readonly SigninHandler _signinHandler = signinHandler;
         private readonly SigninRequestRecoveryHandler _signinRequestRecoveryHandler = signinRequestRecoveryHandler;
-        private readonly SigninConsumePasswordResetHandler _signinConsumePasswordResetHandler = signinConsumePasswordResetHandler;
+        private readonly SigninVerifyPasswordResetHandler _signinVerifyPasswordResetHandler = signinVerifyPasswordResetHandler;
         private readonly SigninSetPasswordResetHandler _signinSetPasswordResetHandler = signinSetPasswordResetHandler;
+
+        private readonly SignoutHandler _signoutHandler = signoutHandler;
 
         private static readonly HashSet<ServiceError> _signupRecoverErrors =
         [
@@ -70,9 +73,9 @@ namespace API.Controllers.Auth
         }
 
 
-        [HttpGet("signup/verify")]
+        [HttpPost("signup/verify")]
         [BlockIfAuthenticated]
-        public async Task<IActionResult> SignupVerifyEmail([FromQuery] SignupVerifyDTO dto, CancellationToken clt)
+        public async Task<IActionResult> SignupVerifyEmail([FromBody] SignupVerifyDTO dto, CancellationToken clt)
         {
             ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
@@ -107,9 +110,9 @@ namespace API.Controllers.Auth
             });
         }
 
-        [HttpGet("signup/resume")]
+        [HttpPost("signup/resume")]
         [BlockIfAuthenticated]
-        public async Task<IActionResult> SignupResumeSession([FromQuery] SignupResumeDTO dto, CancellationToken clt)
+        public async Task<IActionResult> SignupResumeSession([FromBody] SignupResumeDTO dto, CancellationToken clt)
         {
             ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
@@ -140,7 +143,7 @@ namespace API.Controllers.Auth
 
             return Ok(new 
             { 
-                message = _localizer["Recover_Success_SetNew"].Value
+                message = _localizer["Recovery_Success_SetNew"].Value
             });
         }
 
@@ -225,7 +228,7 @@ namespace API.Controllers.Auth
         }
 
         [HttpPost("signin/recover")]
-        [BlockIfAuthenticated]
+        [BlockIfAuthenticated] // TODO: determine if this should be blocked, unblocked, or make a new route for context of "recovery when still signed in"
         public async Task<IActionResult> SigninRequestRecovery(SigninRecoverDTO dto, CancellationToken clt)
         {
             ServiceResult<Unit> recoverResult = await _signinRequestRecoveryHandler.HandleAsync(dto.Email, clt);
@@ -236,18 +239,18 @@ namespace API.Controllers.Auth
             }
             return Ok(new
             {
-                message = _localizer["Recover_Success_EmailSent"].Value, 
+                message = _localizer["Recovery_Success_EmailSent"].Value, 
                 provided_email = dto.Email
             });
         }
 
-        [HttpGet("reset-password")] 
-        [BlockIfAuthenticated]
-        public async Task<IActionResult> SigninConsumePasswordReset([FromQuery] SigninResetPasswordDTO dto, CancellationToken clt)
+        [HttpPost("reset-password/verify")] 
+        // [BlockIfAuthenticated] commented out to allow users who are already signed in to use password reset flow if they need to, can consider adding some extra checks in the handler later if needed
+        public async Task<IActionResult> SigninConsumePasswordReset([FromBody] SigninResetPasswordDTO dto, CancellationToken clt)
         {
             ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
-            ServiceResult<CreatedSession> resetPasswordResult = await _signinConsumePasswordResetHandler.HandleAsync(dto.Token, clientInfo, clt);
+            ServiceResult<CreatedSession> resetPasswordResult = await _signinVerifyPasswordResetHandler.HandleAsync(dto.Token, clientInfo, clt);
 
             if(resetPasswordResult.IsFailure)
             {
@@ -274,7 +277,7 @@ namespace API.Controllers.Auth
 
             return Ok(new 
             { 
-                message = _localizer["Recover_Success_SetNew"].Value
+                message = _localizer["Recovery_Success_SetNew"].Value
             });
         }
 
@@ -315,7 +318,39 @@ namespace API.Controllers.Auth
 
             return Ok(new
             {
-                message = _localizer["Recover_Success_PasswordReset"].Value
+                message = _localizer["Recovery_Success_PasswordReset"].Value
+            });
+        }
+
+        [HttpPost("signout")]
+        public async Task<IActionResult> Signout(CancellationToken clt)
+        {
+            // Guid sessionIdFromClaims = Guid.Parse(User.FindFirst("SessionId")!.Value);
+            string? rawSessionId = Request.Cookies["sid"];
+
+            if(string.IsNullOrEmpty(rawSessionId) || !Guid.TryParse(rawSessionId, out Guid sessionId)) 
+            {
+                await _signoutHandler.HandleAsync(Guid.CreateVersion7(), clt);
+            }
+            else {
+                await _signoutHandler.HandleAsync(sessionId, clt);
+            }
+
+            HttpContext.Response.Cookies.Append(
+                "sid",
+                "",
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddDays(-1)
+                }
+            );
+
+            return Ok(new 
+            { 
+                message = _localizer["Signout_Success"].Value
             });
         }
     }

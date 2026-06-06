@@ -58,6 +58,60 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A verification link has been sent to your new email address. Click the link in the message to confirm the change..
+        /// </summary>
+        public static string Account_UpdateEmail_EmailSent {
+            get {
+                return ResourceManager.GetString("Account_UpdateEmail_EmailSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid password..
+        /// </summary>
+        public static string Account_UpdateEmail_Error_InvalidPassword {
+            get {
+                return ResourceManager.GetString("Account_UpdateEmail_Error_InvalidPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid current password..
+        /// </summary>
+        public static string Account_UpdatePassword_Error_InvalidCurrent {
+            get {
+                return ResourceManager.GetString("Account_UpdatePassword_Error_InvalidCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current password is required..
+        /// </summary>
+        public static string Account_UpdatePassword_Error_MissingCurrent {
+            get {
+                return ResourceManager.GetString("Account_UpdatePassword_Error_MissingCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New password is required..
+        /// </summary>
+        public static string Account_UpdatePassword_Error_MissingNew {
+            get {
+                return ResourceManager.GetString("Account_UpdatePassword_Error_MissingNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password successfully updated. You have been signed out of all other sessions..
+        /// </summary>
+        public static string Account_UpdatePassword_Success {
+            get {
+                return ResourceManager.GetString("Account_UpdatePassword_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Verify your email address!.
         /// </summary>
         public static string Email_Subject_EmailVerification {
@@ -177,9 +231,9 @@ namespace Application.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters..
         /// </summary>
-        public static string General_Error_InvalidPassword {
+        public static string General_Error_InvalidPasswordRequirements_____ {
             get {
-                return ResourceManager.GetString("General_Error_InvalidPassword", resourceCulture);
+                return ResourceManager.GetString("General_Error_InvalidPasswordRequirements     ", resourceCulture);
             }
         }
         
@@ -229,74 +283,29 @@ namespace Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If an account is associated with that email address, you&apos;ll receive a message shortly with further instructions..
+        ///   Looks up a localized string similar to If an account is associated with this email address, you&apos;ll receive a message shortly with further instructions..
         /// </summary>
-        public static string Recover_Success_EmailSent {
+        public static string Recovery_Success_EmailSent {
             get {
-                return ResourceManager.GetString("Recover_Success_EmailSent", resourceCulture);
+                return ResourceManager.GetString("Recovery_Success_EmailSent", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Password successfully reset..
+        ///   Looks up a localized string similar to Password reset successfully..
         /// </summary>
-        public static string Recover_Success_PasswordReset {
+        public static string Recovery_Success_PasswordReset {
             get {
-                return ResourceManager.GetString("Recover_Success_PasswordReset", resourceCulture);
+                return ResourceManager.GetString("Recovery_Success_PasswordReset", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Account successfully recovered. Set a new password to continue..
+        ///   Looks up a localized string similar to Account recovered successfully. Set a new password to continue..
         /// </summary>
-        public static string Recover_Success_SetNew {
+        public static string Recovery_Success_SetNew {
             get {
-                return ResourceManager.GetString("Recover_Success_SetNew", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid current password..
-        /// </summary>
-        public static string Settings_UpdatePassword_Error_InvalidCurrent {
-            get {
-                return ResourceManager.GetString("Settings_UpdatePassword_Error_InvalidCurrent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current password is required..
-        /// </summary>
-        public static string Settings_UpdatePassword_Error_MissingCurrent {
-            get {
-                return ResourceManager.GetString("Settings_UpdatePassword_Error_MissingCurrent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to New password is required..
-        /// </summary>
-        public static string Settings_UpdatePassword_Error_MissingNew {
-            get {
-                return ResourceManager.GetString("Settings_UpdatePassword_Error_MissingNew", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You must set a password first before updating it..
-        /// </summary>
-        public static string Settings_UpdatePassword_Error_NotSet {
-            get {
-                return ResourceManager.GetString("Settings_UpdatePassword_Error_NotSet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Password successfully updated. You have been signed out of all other sessions..
-        /// </summary>
-        public static string Settings_UpdatePassword_Success {
-            get {
-                return ResourceManager.GetString("Settings_UpdatePassword_Success", resourceCulture);
+                return ResourceManager.GetString("Recovery_Success_SetNew", resourceCulture);
             }
         }
         
@@ -315,6 +324,15 @@ namespace Application.Resources {
         public static string Signin_Success {
             get {
                 return ResourceManager.GetString("Signin_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signed out successfully..
+        /// </summary>
+        public static string Signout_Success {
+            get {
+                return ResourceManager.GetString("Signout_Success", resourceCulture);
             }
         }
         
@@ -355,7 +373,7 @@ namespace Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Password successfully set..
+        ///   Looks up a localized string similar to Password set successfully..
         /// </summary>
         public static string Signup_Success_PasswordSet {
             get {
@@ -364,7 +382,7 @@ namespace Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A verification link has been sent to the provided email. Click the link in the email message to continue signup..
+        ///   Looks up a localized string similar to A verification link has been sent to your email. Click the link in the message to continue signup..
         /// </summary>
         public static string Signup_VerificationEmailSent {
             get {

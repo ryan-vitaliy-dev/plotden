@@ -57,8 +57,8 @@ namespace Infrastructure.Auth
             }
 
             var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, session.AccountId.ToString()),
+            {   // could probably change to "AccountId" instead, but would have to change everything that references it
+                new Claim(ClaimTypes.NameIdentifier, session.AccountId.ToString()), 
                 new Claim("SessionId", session.SessionId.ToString()),
                 new Claim("SessionType", session.SessionType.ToString())
             };

@@ -130,6 +130,12 @@ namespace Application.Handlers.Auth
             if(invalidateTokensResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to invalidate tokens with tokentype {TokenType} for email {Email} - Error: {ErrorCode}",
+                    tokenType,
+                    accountEmail,
+                    invalidateTokensResult.ErrorCode
+                );
                 return ServiceResult<Unit>.Failure(invalidateTokensResult.ErrorCode!.Value); // TODO: Check if this is ok
             }
 
@@ -143,6 +149,12 @@ namespace Application.Handlers.Auth
             if(createTokenResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to create token with tokentype {TokenType} for email {Email} - Error: {ErrorCode}",
+                    tokenType,
+                    accountEmail,
+                    createTokenResult.ErrorCode
+                );
                 return ServiceResult<Unit>.Failure(createTokenResult.ErrorCode!.Value); // TODO: Check if this is ok
             }
             CreatedToken token = createTokenResult.Value;
@@ -153,6 +165,12 @@ namespace Application.Handlers.Auth
             if(sendEmailResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to send email with tokentype {TokenType} for email {Email} - Error: {ErrorCode}",
+                    tokenType,
+                    accountEmail,
+                    sendEmailResult.ErrorCode
+                );
                 return ServiceResult<Unit>.Failure(createTokenResult.ErrorCode!.Value); // TODO: Check if this is ok
             }
 

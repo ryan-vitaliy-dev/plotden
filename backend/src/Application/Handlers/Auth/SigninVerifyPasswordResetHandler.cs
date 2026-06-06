@@ -18,8 +18,8 @@ using Application.Sessions.Results;
 
 namespace Application.Handlers.Auth
 {
-    public class SigninConsumePasswordResetHandler(
-        ILogger<SigninConsumePasswordResetHandler> logger,
+    public class SigninVerifyPasswordResetHandler(
+        ILogger<SigninVerifyPasswordResetHandler> logger,
         IStringLocalizer<SharedResource> localizer, 
         IUnitOfWork unitOfWork,
         AccountService accountService,
@@ -27,7 +27,7 @@ namespace Application.Handlers.Auth
         SessionService sessionService
     )
     {
-        private readonly ILogger<SigninConsumePasswordResetHandler> _logger = logger;
+        private readonly ILogger<SigninVerifyPasswordResetHandler> _logger = logger;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         
@@ -74,7 +74,7 @@ namespace Application.Handlers.Auth
             }
 
 
-            ServiceResult<Unit> invalidateSessionsResult = await _sessionService.InvalidateSessionsAsync(account.AccountId, clt);
+            ServiceResult<Unit> invalidateSessionsResult = await _sessionService.InvalidateAllSessionsAsync(account.AccountId, clt);
             if(invalidateSessionsResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);

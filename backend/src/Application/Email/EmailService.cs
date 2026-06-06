@@ -28,6 +28,10 @@ namespace Application.Email
             configuration["Tokens:PasswordReset:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:PasswordReset:ExpiresIn is not configured.")
         );
 
+        private readonly TimeSpan _emailUpdateTokenDuration = TimeSpan.Parse(
+            configuration["Tokens:EmailUpdate:ExpiresIn"] ?? throw new InvalidOperationException("Tokens:EmailUpdate:ExpiresIn is not configured.")
+        );
+
         private readonly IEmailSender _emailSender = emailSender;
         private readonly IEmailTemplateLoader _emailTemplateLoader = emailTemplateLoader;
 
@@ -78,7 +82,16 @@ namespace Application.Email
                         ["TimeUnit"] = "minutes"
                     }
                 ),
-                EmailTemplate.EmailUpdate => throw new NotImplementedException("Not implemented yet."),
+                EmailTemplate.EmailUpdate => (
+                    _localizer["Email_Subject_EmailUpdate"].Value,
+                    "EmailUpdate.html",
+                    new Dictionary<string, string>
+                    {
+                        ["UpdateLink"] = "plotden.com/account/update-email?token=" + rawToken,
+                        ["TimeValue"] = _emailUpdateTokenDuration.Minutes.ToString(),
+                        ["TimeUnit"] = "minutes"
+                    }
+                ),
                 EmailTemplate.PasswordReset => (
                     _localizer["Email_Subject_PasswordReset"].Value, 
                     "PasswordReset.html",

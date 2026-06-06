@@ -32,15 +32,24 @@ namespace Application.Handlers.Accounts
                 return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
             }
             
-            ServiceResult<Account> existingAccountCheckResult = await _accountService.FindAccountByIdAsync(accountId, clt);
-            if(existingAccountCheckResult.IsFailure)
+            ServiceResult<Account> findAccountResult = await _accountService.FindAccountByIdAsync(accountId, clt);
+            if(findAccountResult.IsFailure)
             {
+                _logger.LogError(
+                    "Failed to find account with id {AccountId} - Error: {ErrorCode}",
+                    accountId,
+                    findAccountResult.ErrorCode
+                );
                 return ServiceResult<Unit>.Failure(ServiceError.NoAccountFound);
             }
-            Account account = existingAccountCheckResult.Value;
+            Account account = findAccountResult.Value;
 
             if(account.PasswordHash == null)
             {
+                _logger.LogWarning(
+                    "Account with id {AccountId} attempted to update their password, but has not finished signup",
+                    accountId
+                );
                 return ServiceResult<Unit>.Failure(ServiceError.PasswordNotSet);
             }
 
@@ -58,6 +67,11 @@ namespace Application.Handlers.Accounts
             if(updatePasswordResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to update password for account with id {AccountId} - Error: {ErrorCode}",
+                    accountId,
+                    findAccountResult.ErrorCode
+                );
                 return ServiceResult<Unit>.Failure(updatePasswordResult.ErrorCode!.Value); // TODO: See if this is ok
             }
 
@@ -66,6 +80,11 @@ namespace Application.Handlers.Accounts
             if(invalidateOtherSessionsResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogError(
+                    "Failed to invalidate other sessions for account with id {AccountId} - Error: {ErrorCode}",
+                    accountId,
+                    findAccountResult.ErrorCode
+                );
                 return ServiceResult<Unit>.Failure(updatePasswordResult.ErrorCode!.Value); // TODO: See if this is ok
             }
 

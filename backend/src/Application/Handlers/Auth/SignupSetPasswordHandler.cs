@@ -73,7 +73,7 @@ namespace Application.Handlers.Auth
             }
 
 
-            ServiceResult<Unit> invalidateAccountSessionsResult = await _sessionService.InvalidateSessionsAsync(account.AccountId, clt);
+            ServiceResult<Unit> invalidateAccountSessionsResult = await _sessionService.InvalidateAllSessionsAsync(account.AccountId, clt);
             if(invalidateAccountSessionsResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);

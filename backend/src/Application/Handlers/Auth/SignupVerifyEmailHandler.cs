@@ -94,7 +94,7 @@ namespace Application.Handlers.Auth
             
 
             // Realistically, there shouldn't be any existing sessions for this account, but for sake of correctness I've elected to add this, can always remove later
-            ServiceResult<Unit> invalidateSessionsResult = await _sessionService.InvalidateSessionsAsync(account.AccountId, clt);
+            ServiceResult<Unit> invalidateSessionsResult = await _sessionService.InvalidateAllSessionsAsync(account.AccountId, clt);
             if(invalidateSessionsResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);

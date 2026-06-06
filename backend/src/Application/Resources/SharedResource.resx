@@ -138,11 +138,11 @@
   <data name="General_Error_InvalidEmail" xml:space="preserve">
     <value>Only valid email addresses are allowed.</value>
   </data>
-  <data name="General_Error_InvalidPassword" xml:space="preserve">
+  <data name="General_Error_InvalidPasswordRequirements     " xml:space="preserve">
     <value>Passwords must be at least 12 characters and contain one or more lowercase letters, one or more uppercase letters, one or more numbers, and one or more special characters.</value>
   </data>
   <data name="Signup_VerificationEmailSent" xml:space="preserve">
-    <value>A verification link has been sent to the provided email. Click the link in the email message to continue signup.</value>
+    <value>A verification link has been sent to your email. Click the link in the message to continue signup.</value>
   </data>
   <data name="General_Error_MissingToken" xml:space="preserve">
     <value>Token is required.</value>
@@ -160,7 +160,7 @@
     <value>Email verified successfully.</value>
   </data>
   <data name="Signup_Success_PasswordSet" xml:space="preserve">
-    <value>Password successfully set.</value>
+    <value>Password set successfully.</value>
   </data>
   <data name="Signup_Error_PasswordAlreadySet" xml:space="preserve">
     <value>A password has already been set for your account. To update it, visit your account settings.</value>
@@ -177,14 +177,14 @@
   <data name="General_Error_405MethodNotAllowed" xml:space="preserve">
     <value>The request could not be processed as the provided method is not allowed.</value>
   </data>
-  <data name="Recover_Success_EmailSent" xml:space="preserve">
-    <value>If an account is associated with that email address, you'll receive a message shortly with further instructions.</value>
+  <data name="Recovery_Success_EmailSent" xml:space="preserve">
+    <value>If an account is associated with this email address, you'll receive a message shortly with further instructions.</value>
   </data>
   <data name="General_Error_AlreadyAuthenticated" xml:space="preserve">
     <value>You are already signed into an account. Please sign out before continuing.</value>
   </data>
-  <data name="Recover_Success_SetNew" xml:space="preserve">
-    <value>Account successfully recovered. Set a new password to continue.</value>
+  <data name="Recovery_Success_SetNew" xml:space="preserve">
+    <value>Account recovered successfully. Set a new password to continue.</value>
   </data>
   <data name="Signin_Error_InvalidEmailOrPassword" xml:space="preserve">
     <value>Invalid email or password.</value>
@@ -192,26 +192,23 @@
   <data name="Signin_Success" xml:space="preserve">
     <value>Signed in successfully.</value>
   </data>
-  <data name="Settings_UpdatePassword_Error_MissingCurrent" xml:space="preserve">
+  <data name="Account_UpdatePassword_Error_MissingCurrent" xml:space="preserve">
     <value>Current password is required.</value>
   </data>
-  <data name="Settings_UpdatePassword_Error_MissingNew" xml:space="preserve">
+  <data name="Account_UpdatePassword_Error_MissingNew" xml:space="preserve">
     <value>New password is required.</value>
   </data>
-  <data name="Settings_UpdatePassword_Error_InvalidCurrent" xml:space="preserve">
+  <data name="Account_UpdatePassword_Error_InvalidCurrent" xml:space="preserve">
     <value>Invalid current password.</value>
   </data>
-  <data name="Settings_UpdatePassword_Success" xml:space="preserve">
+  <data name="Account_UpdatePassword_Success" xml:space="preserve">
     <value>Password successfully updated. You have been signed out of all other sessions.</value>
-  </data>
-  <data name="Settings_UpdatePassword_Error_NotSet" xml:space="preserve">
-    <value>You must set a password first before updating it.</value>
   </data>
   <data name="Email_Subject_IncompleteAccountRecovery" xml:space="preserve">
     <value>Security Alert: Account Recovery</value>
   </data>
-  <data name="Recover_Success_PasswordReset" xml:space="preserve">
-    <value>Password successfully reset.</value>
+  <data name="Recovery_Success_PasswordReset" xml:space="preserve">
+    <value>Password reset successfully.</value>
   </data>
   <data name="General_Error_403Forbidden" xml:space="preserve">
     <value>You do not have permission to perform this action.</value>
@@ -221,5 +218,14 @@
   </data>
   <data name="Email_Subject_PasswordReset" xml:space="preserve">
     <value>Security Alert: Account Recovery</value>
+  </data>
+  <data name="Signout_Success" xml:space="preserve">
+    <value>Signed out successfully.</value>
+  </data>
+  <data name="Account_UpdateEmail_EmailSent" xml:space="preserve">
+    <value>A verification link has been sent to your new email address. Click the link in the message to confirm the change.</value>
+  </data>
+  <data name="Account_UpdateEmail_Error_InvalidPassword" xml:space="preserve">
+    <value>Invalid password.</value>
   </data>
 </root>

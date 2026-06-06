@@ -99,7 +99,7 @@ namespace Application.Accounts
                 // query = query.Where(a => a.Email == email);
                 // Account? foundAccount = await query.FirstOrDefaultAsync(clt);
                 Account? foundAccount = await _appDbContext.Accounts
-                    .AsNoTracking()
+                    // .AsNoTracking()
                     .FirstOrDefaultAsync(a => a.Email == email, clt);
                 if(foundAccount == null)
                 {
@@ -111,6 +111,7 @@ namespace Application.Accounts
             {
                 return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
             }
+            // TODO: Catch other errors maybe too?
         }
 
         public async Task<ServiceResult<Account>> FindAccountByIdAsync(Guid accountId, CancellationToken clt = default)
@@ -134,6 +135,7 @@ namespace Application.Accounts
             {
                 return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
             }
+            // TODO: Catch other errors maybe too?
         }
 
         public async Task<ServiceResult<Unit>> MarkVerifiedEmailAsync(Account account, CancellationToken clt)
@@ -152,6 +154,7 @@ namespace Application.Accounts
             {
                 return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
             }
+            // TODO: Catch other errors maybe too?
         }
 
         // TODO: Look into if this should be on the entity as business rule(?)
@@ -171,6 +174,7 @@ namespace Application.Accounts
             {
                 return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
             }
+            // TODO: Catch other errors maybe too?
         }
 
         // TODO: Look into if this should be on the entity as business rule(?)
@@ -201,51 +205,5 @@ namespace Application.Accounts
                 return ServiceResult<Unit>.Failure(ServiceError.DbError);
             }
         }
-        
-
-
-        // Old:
-        // public async Task<ServiceResult<Account>> CreateAccountAsync(string email, string password, DateTimeOffset? createdAtOverride = null, CancellationToken clt = default)
-        // {
-        //     if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-        //     {
-        //         return ServiceResult<Account>.Failure(ServiceError.InvalidInput);
-        //     }
-        //     DateTimeOffset createdAt = createdAtOverride ?? DateTimeOffset.UtcNow;
-            
-        //     await using var transaction = await _appDbContext.Database.BeginTransactionAsync(clt);
-        //     try
-        //     {
-        //         Account newAccount = new()
-        //         {
-        //             Email = email,
-        //             CreatedAt = createdAt,
-        //             HasVerifiedEmail = false
-        //         };
-        //         newAccount.PasswordHash = _passwordHasher.HashPassword(newAccount, password);
-                
-        //         string initialUsername = await _usernameGenerator.GenerateUsername();
-
-        //         Profile newAccountProfile = new()
-        //         {
-        //             AccountId = newAccount.AccountId,
-        //             Username = initialUsername,
-        //         };
-
-        //         _appDbContext.Accounts.Add(newAccount);
-        //         _appDbContext.Profiles.Add(newAccountProfile);
-        //         await _appDbContext.SaveChangesAsync(clt);
-
-        //         await transaction.CommitAsync(clt);
-
-        //         return ServiceResult<Account>.Success(newAccount);
-
-        //     }
-        //     catch (OperationCanceledException)
-        //     {
-        //         await transaction.RollbackAsync(clt);
-        //         return ServiceResult<Account>.Failure(ServiceError.OperationCancelled);
-        //     }
-        // }
     }
 }
