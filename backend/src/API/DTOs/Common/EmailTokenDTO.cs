@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace API.DTOs.Auth
+namespace API.DTOs.Common
 {
-    public class SignupVerifyDTO
+    public class EmailTokenDTO
     {
         [JsonPropertyName("token")]
         [Required(ErrorMessageResourceName = "General_Error_MissingToken", ErrorMessageResourceType = typeof(Application.Resources.SharedResource))]

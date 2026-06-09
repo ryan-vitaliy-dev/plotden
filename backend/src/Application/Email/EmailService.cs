@@ -43,7 +43,7 @@ namespace Application.Email
         public Task<ServiceResult<Unit>> SendEmailAsync(string emailAddress, EmailTemplate emailTemplate, CancellationToken clt)
             => SendEmailAsync(emailAddress, emailTemplate, null!, clt);
 
-        public async Task<ServiceResult<Unit>> SendEmailAsync(string emailAddress, EmailTemplate emailTemplate, string rawToken, CancellationToken clt)
+        public async Task<ServiceResult<Unit>> SendEmailAsync(string emailAddress, EmailTemplate emailTemplate, Dictionary<string, string> templateVariables, CancellationToken clt)
         {
             var (emailSubject, emailTemplateFile, emailVariables) = emailTemplate switch
             {
@@ -52,7 +52,7 @@ namespace Application.Email
                     "EmailVerification.html",
                     new Dictionary<string, string>
                     {
-                        ["VerificationLink"] = "plotden.com/signup/verify?token=" + rawToken,
+                        ["VerificationLink"] = "plotden.com/signup/verify?token=" + templateVariables["RawToken"],
                         ["TimeValue"] = _emailVerificationTokenDuration.Minutes.ToString(),
                         ["TimeUnit"] = "minutes"
                     }
@@ -62,7 +62,7 @@ namespace Application.Email
                     "IncompleteAccountSignup.html",
                     new Dictionary<string, string>
                     {
-                        ["ResumeLink"] = "plotden.com/signup/resume?token=" + rawToken,
+                        ["ResumeLink"] = "plotden.com/signup/resume?token=" + templateVariables["RawToken"],
                         ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
                         ["TimeUnit"] = "minutes"
                     }
@@ -77,7 +77,7 @@ namespace Application.Email
                     "IncompleteAccountRecovery.html",
                     new Dictionary<string, string>
                     {
-                        ["RecoveryLink"] = "plotden.com/account/recover?token=" + rawToken,
+                        ["RecoveryLink"] = "plotden.com/account/recover?token=" + templateVariables["RawToken"],
                         ["TimeValue"] = _resumeSignupTokenDuration.Minutes.ToString(),
                         ["TimeUnit"] = "minutes"
                     }
@@ -87,9 +87,18 @@ namespace Application.Email
                     "EmailUpdate.html",
                     new Dictionary<string, string>
                     {
-                        ["UpdateLink"] = "plotden.com/account/update-email?token=" + rawToken,
+                        ["NewEmail"] = templateVariables["NewEmail"],
+                        ["UpdateLink"] = "plotden.com/account/update-email?token=" + templateVariables["RawToken"],
                         ["TimeValue"] = _emailUpdateTokenDuration.Minutes.ToString(),
                         ["TimeUnit"] = "minutes"
+                    }
+                ),
+                EmailTemplate.EmailUpdateNotice => (
+                    _localizer["Email_Subject_EmailUpdateNotice"].Value,
+                    "EmailUpdateNotice.html",
+                    new Dictionary<string, string>
+                    {
+                        ["NewEmail"] = templateVariables["NewEmail"]
                     }
                 ),
                 EmailTemplate.PasswordReset => (
@@ -97,7 +106,7 @@ namespace Application.Email
                     "PasswordReset.html",
                     new Dictionary<string, string>
                     {
-                        ["ResetLink"] = "plotden.com/account/reset-password?token=" + rawToken,
+                        ["ResetLink"] = "plotden.com/account/reset-password?token=" + templateVariables["RawToken"],
                         ["TimeValue"] = _passwordResetTokenDuration.Minutes.ToString(),
                         ["TimeUnit"] = "minutes"
                     }

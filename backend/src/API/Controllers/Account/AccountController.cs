@@ -11,6 +11,7 @@ using Application.Handlers.Accounts;
 using Application.Resources;
 using Domain.Common;
 using API.DTOs.Account;
+using API.DTOs.Common;
 
 namespace API.Controllers.Account
 {
@@ -21,11 +22,13 @@ namespace API.Controllers.Account
 
     public class AccountController(
         RequestEmailUpdateHandler requestEmailUpdateHandler,
+        ConfirmEmailUpdateHandler confirmEmailUpdateHandler,
         UpdatePasswordHandler updatePasswordHandler,
         IStringLocalizer<SharedResource> localizer
     ) : ControllerBase
     {
         private readonly RequestEmailUpdateHandler _requestEmailUpdateHandler = requestEmailUpdateHandler;
+        private readonly ConfirmEmailUpdateHandler _confirmEmailUpdateHandler = confirmEmailUpdateHandler;
         private readonly UpdatePasswordHandler _updatePasswordHandler = updatePasswordHandler;
         private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
@@ -82,7 +85,24 @@ namespace API.Controllers.Account
             });
         }
 
-        // [HttpPost("email/verify")]
-        // public async Task<IActionResult> UpdateEmail()
+        [HttpPost("email/confirm")]
+        // TODO: consider authorization stuff
+        public async Task<IActionResult> ConfirmEmailUpdate([FromBody] EmailTokenDTO dto, CancellationToken clt)
+        {
+            ServiceResult<Unit> confirmUpdateEmailResult = await _confirmEmailUpdateHandler.HandleAsync(dto.Token, clt);
+            if(confirmUpdateEmailResult.IsFailure)
+            {
+                return confirmUpdateEmailResult.ErrorCode switch
+                {
+                    ServiceError.InvalidInput => StatusCode(400, new { message = _localizer["General_Error_InvalidToken"].Value }),
+                    ServiceError.OperationCancelled => StatusCode(499),
+                    _ => StatusCode(500, new { message = _localizer["General_Error_500Server"].Value }) // TODO: Check these to make sure it meets full scope of error handling
+                };
+            }
+            return Ok(new
+            {
+                message = _localizer["Account_UpdateEmail_Success"].Value
+            });
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace Application.Common {
         ExistingAccountSignup,
         IncompleteAccountRecovery,
         EmailUpdate,
+        EmailUpdateNotice,
         PasswordReset
     }
 }

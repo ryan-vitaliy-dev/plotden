@@ -228,4 +228,13 @@
   <data name="Account_UpdateEmail_Error_InvalidPassword" xml:space="preserve">
     <value>Invalid password.</value>
   </data>
+  <data name="Email_Subject_EmailUpdate" xml:space="preserve">
+    <value>Security Alert: Updating your account email</value>
+  </data>
+  <data name="Email_Subject_EmailUpdateNotice" xml:space="preserve">
+    <value>Security Alert: Account email updated</value>
+  </data>
+  <data name="Account_UpdateEmail_Success" xml:space="preserve">
+    <value>Email updated successfully.</value>
+  </data>
 </root>

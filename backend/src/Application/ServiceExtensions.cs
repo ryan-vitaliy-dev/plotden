@@ -34,6 +34,7 @@ namespace Application
             services.AddScoped<SignoutHandler>();
 
             services.AddScoped<RequestEmailUpdateHandler>();
+            services.AddScoped<ConfirmEmailUpdateHandler>();
 
             return services;
         }

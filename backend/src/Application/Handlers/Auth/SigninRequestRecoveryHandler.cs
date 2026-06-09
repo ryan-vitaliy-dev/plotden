@@ -116,7 +116,14 @@ namespace Application.Handlers.Auth
 
 
             // Later on, maybe use outbox pattern for retry logic so we dont have to rollback if the email fails to send. For now, just rollback
-            ServiceResult<Unit> sendEmailResult = await _emailService.SendEmailAsync(accountEmail, emailTemplate, token.TokenRaw, clt);
+            ServiceResult<Unit> sendEmailResult = await _emailService.SendEmailAsync(
+                accountEmail, 
+                emailTemplate, 
+                new Dictionary<string, string> { 
+                    ["RawToken"] = token.TokenRaw 
+                }, 
+                clt
+            );
             if(sendEmailResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);

@@ -13,6 +13,7 @@ using Application.Handlers.Auth;
 using Application.Resources;
 using Domain.Common;
 using Application.Sessions.Results;
+using API.DTOs.Common;
 
 namespace API.Controllers.Auth
 {
@@ -75,7 +76,7 @@ namespace API.Controllers.Auth
 
         [HttpPost("signup/verify")]
         [BlockIfAuthenticated]
-        public async Task<IActionResult> SignupVerifyEmail([FromBody] SignupVerifyDTO dto, CancellationToken clt)
+        public async Task<IActionResult> SignupVerifyEmail([FromBody] EmailTokenDTO dto, CancellationToken clt)
         {
             ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
@@ -112,7 +113,7 @@ namespace API.Controllers.Auth
 
         [HttpPost("signup/resume")]
         [BlockIfAuthenticated]
-        public async Task<IActionResult> SignupResumeSession([FromBody] SignupResumeDTO dto, CancellationToken clt)
+        public async Task<IActionResult> SignupResumeSession([FromBody] EmailTokenDTO dto, CancellationToken clt)
         {
             ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 
@@ -246,7 +247,7 @@ namespace API.Controllers.Auth
 
         [HttpPost("reset-password/verify")] 
         // [BlockIfAuthenticated] commented out to allow users who are already signed in to use password reset flow if they need to, can consider adding some extra checks in the handler later if needed
-        public async Task<IActionResult> SigninConsumePasswordReset([FromBody] SigninResetPasswordDTO dto, CancellationToken clt)
+        public async Task<IActionResult> SigninConsumePasswordReset([FromBody] EmailTokenDTO dto, CancellationToken clt)
         {
             ClientInfo clientInfo = new(HttpContext.Connection.RemoteIpAddress, HttpContext.Request.Headers.UserAgent.First());
 

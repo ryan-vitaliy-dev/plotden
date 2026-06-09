@@ -4,12 +4,12 @@ using Microsoft.Extensions.Logging;
 using Application.Accounts;
 using Application.Common;
 using Application.Tokens;
-using Domain.Accounts;
-using Domain.Tokens;
-using Domain.Common;
 using Application.Common.Interfaces;
 using Application.Tokens.Results;
 using Application.Email;
+using Domain.Accounts;
+using Domain.Tokens;
+using Domain.Common;
 
 namespace Application.Handlers.Accounts
 {
@@ -127,10 +127,23 @@ namespace Application.Handlers.Accounts
             }
 
             // Later on, maybe use outbox pattern for retry logic so we dont have to rollback if the email fails to send. For now, just rollback
-            ServiceResult<Unit> sendEmailResult = await _emailService.SendEmailAsync(newEmail, EmailTemplate.EmailUpdate, token.TokenRaw, clt);
+            ServiceResult<Unit> sendEmailResult = await _emailService.SendEmailAsync(
+                newEmail, 
+                EmailTemplate.EmailUpdate, 
+                new Dictionary<string, string> {
+                    ["NewEmail"] = newEmail,
+                    ["RawToken"] = token.TokenRaw 
+                }, 
+                clt
+            );
             if(sendEmailResult.IsFailure)
             {
                 await tx.RollbackAsync(CancellationToken.None);
+                _logger.LogWarning(
+                    "Failed to send email update notice for account with id {AccountId} - Error: {ErrorCode}",
+                    accountId,
+                    sendEmailResult.ErrorCode
+                );
                 return ServiceResult<Unit>.Failure(createTokenResult.ErrorCode!.Value); // TODO: Check if this is ok
             }
 

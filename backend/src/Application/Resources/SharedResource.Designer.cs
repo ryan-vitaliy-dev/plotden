@@ -76,6 +76,15 @@ namespace Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email updated successfully..
+        /// </summary>
+        public static string Account_UpdateEmail_Success {
+            get {
+                return ResourceManager.GetString("Account_UpdateEmail_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid current password..
         /// </summary>
         public static string Account_UpdatePassword_Error_InvalidCurrent {
@@ -108,6 +117,24 @@ namespace Application.Resources {
         public static string Account_UpdatePassword_Success {
             get {
                 return ResourceManager.GetString("Account_UpdatePassword_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security Alert: Updating your account email.
+        /// </summary>
+        public static string Email_Subject_EmailUpdate {
+            get {
+                return ResourceManager.GetString("Email_Subject_EmailUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security Alert: Account email updated.
+        /// </summary>
+        public static string Email_Subject_EmailUpdateNotice {
+            get {
+                return ResourceManager.GetString("Email_Subject_EmailUpdateNotice", resourceCulture);
             }
         }
         

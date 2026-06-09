@@ -158,6 +158,26 @@ namespace Application.Accounts
         }
 
         // TODO: Look into if this should be on the entity as business rule(?)
+        public async Task<ServiceResult<Unit>> SetEmailAsync(Account account, string newEmail, CancellationToken clt)
+        {
+            if(account == null || string.IsNullOrWhiteSpace(newEmail))
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.InvalidInput);
+            }
+            try
+            {
+                account.Email = newEmail;
+                await _appDbContext.SaveChangesAsync(clt);
+                return ServiceResult<Unit>.Success(Unit.Value);
+            }
+            catch (OperationCanceledException)
+            {
+                return ServiceResult<Unit>.Failure(ServiceError.OperationCancelled);
+            }
+            // TODO: Catch other errors maybe too?
+        }
+
+        // TODO: Look into if this should be on the entity as business rule(?)
         public async Task<ServiceResult<Unit>> SetPasswordAsync(Account account, string password, CancellationToken clt)
         {
             if(account == null || string.IsNullOrWhiteSpace(password))
